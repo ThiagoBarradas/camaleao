@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Api.Models
 {
-    public class ConfRequest
+    public class TemplateRequest
     {
         public string Id { get; set; }
         public object Request { get; set; }

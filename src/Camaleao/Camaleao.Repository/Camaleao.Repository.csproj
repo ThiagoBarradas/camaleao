@@ -8,4 +8,8 @@
     <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Camaleao.Core\Camaleao.Core.csproj" />
+  </ItemGroup>
+
 </Project>
