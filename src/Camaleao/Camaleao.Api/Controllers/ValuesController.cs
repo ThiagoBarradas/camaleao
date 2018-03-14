@@ -27,7 +27,7 @@ namespace Camaleao.Api.Controllers
 
         // POST api/values
         [HttpPost]
-        public IActionResult Post([FromBody]ConfRequest confRequest)
+        public IActionResult Post([FromBody]TemplateRequest confRequest)
         {
 
             string output = JsonConvert.SerializeObject(confRequest);
