@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Camaleao.Core.Services;
+using AutoMapper;
+using Camaleao.Core.Repository;
+using Camaleao.Api.Profilers;
+using Camaleao.Core.Services.Interfaces;
 
 namespace Camaleao.Api
 {
@@ -26,17 +30,26 @@ namespace Camaleao.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            var config = new AutoMapper.MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new TemplateProfile());
+            });
+
+            var mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
             InitializeInstances(services);
         }
 
         private void InitializeInstances(IServiceCollection services) {
-            services.Configure<Settings>(options => {
-                options.ConnectionString
-                    = Configuration.GetSection("Mongo:ConnectionString").Value;
-                options.Database
-                    = Configuration.GetSection("Mongo:Database").Value;
+
+            services.AddSingleton<Settings>(new Settings() {
+                ConnectionString = this.Configuration["Mongo:ConnectionString"],
+                Database = this.Configuration["Mongo:Database"]
             });
+                
             services.AddTransient<MockService>();
+            services.AddScoped<ITemplateRepository, TemplateRepository>();
+            services.AddScoped<ITemplateService, TemplateSevice>();
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +60,7 @@ namespace Camaleao.Api
                 app.UseDeveloperExceptionPage();
 
             }
-
+            
             app.UseMvc();
         }
     }

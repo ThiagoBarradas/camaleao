@@ -8,9 +8,13 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequest
     {
+        [JsonRequired()]
         public string Id { get; set; }
+        [JsonRequired()]
         public object Request { get; set; }
+        [JsonRequired()]
         public IList<ResponseSettings> Responses { get; set; }
+        [JsonRequired()]
         public IList<Rule> Rules { get; set; }
 
     }
@@ -30,6 +34,6 @@ namespace Camaleao.Api.Models
     public class Rule
     {
         public string Expression { get; set; }
-        public string Response { get; set; }
+        public string ResponseId { get; set; }
     }
 }
