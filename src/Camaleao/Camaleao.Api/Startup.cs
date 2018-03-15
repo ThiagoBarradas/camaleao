@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Camaleao.Core.Services;
 
 namespace Camaleao.Api
 {
@@ -25,13 +26,17 @@ namespace Camaleao.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.Configure<Settings>(options =>
-            {
+            InitializeInstances(services);
+        }
+
+        private void InitializeInstances(IServiceCollection services) {
+            services.Configure<Settings>(options => {
                 options.ConnectionString
                     = Configuration.GetSection("Mongo:ConnectionString").Value;
                 options.Database
                     = Configuration.GetSection("Mongo:Database").Value;
             });
+            services.AddTransient<MockService>();
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

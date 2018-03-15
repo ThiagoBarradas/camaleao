@@ -11,15 +11,14 @@ namespace Camaleao.Core
         public object Request { get; set; }
         public IList<ResponseSettings> Responses { get; set; }
         public IList<Rule> Rules { get; set; }
-
     }
-
 
     public class ResponseSettings
     {
         public string Id { get; set; }
         public Response Response { get; set; }
     }
+
     public class Response
     {
         public int StatusCode { get; set; }
