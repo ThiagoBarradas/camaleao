@@ -28,6 +28,6 @@ namespace Camaleao.Core
     public class Rule
     {
         public string Expression { get; set; }
-        public string Response { get; set; }
+        public string ResponseId { get; set; }
     }
 }

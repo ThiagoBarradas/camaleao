@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Repository
 {
-    class TemplateRepository : ITemplateRepository
+    public class TemplateRepository : ITemplateRepository
     {
         MongoContext mongoContext;
         const string TemplateCollection = "template";
