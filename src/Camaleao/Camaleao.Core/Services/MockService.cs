@@ -23,7 +23,7 @@ namespace Camaleao.Core.Services
             _requestContent = new Dictionary<string, object>();
         }
 
-        public JArray ValidateContract(string route, dynamic request)
+        public JArray ValidateContract(Template template, dynamic request)
         {
 
             #region BUSCAR NO BANCO DE DADOS 

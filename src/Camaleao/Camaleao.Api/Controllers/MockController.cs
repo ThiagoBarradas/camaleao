@@ -26,7 +26,11 @@ namespace Camaleao.Api.Controllers
         public async Task<IActionResult> Post(string id, [FromBody]dynamic request)
         {
             var template = this._templateService.FirstOrDefault(p => p.Id == id);
-            var rules = _mockService.ValidateContract(id, request);
+
+            if (template == null)
+                return NotFound();
+
+            var rules = _mockService.ValidateContract(template, request);
 
             if(!_mockService.Valid)
                 return new ObjectResult(_mockService.Notifications.FirstOrDefault().Message) { StatusCode = 400 };

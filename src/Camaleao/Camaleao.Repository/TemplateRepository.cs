@@ -47,7 +47,13 @@ namespace Camaleao.Repository
 
         Task<List<Template>> IRepository<Template>.Get(Expression<Func<Template, bool>> expression)
         {
-            return GetMongoCollection().Find(expression).ToListAsync();
+            try { return GetMongoCollection().Find(expression).ToListAsync(); }
+
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+           
         }
     }
 }

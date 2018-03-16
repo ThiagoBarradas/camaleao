@@ -10,7 +10,7 @@ namespace Camaleao.Api.Models
     {
         
         [JsonRequired()]
-        public object Request { get; set; }
+        public dynamic Request { get; set; }
         [JsonRequired()]
         public IList<ResponseSettings> Responses { get; set; }
         [JsonRequired()]
@@ -27,7 +27,7 @@ namespace Camaleao.Api.Models
     public class Response
     {
         public int StatusCode { get; set; }
-        public object Body { get; set; }
+        public dynamic Body { get; set; }
     }
 
     public class Rule
