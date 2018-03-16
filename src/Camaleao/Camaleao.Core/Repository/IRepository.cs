@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -8,11 +9,11 @@ namespace Camaleao.Core.Repository
 {
     public interface IRepository<T>
     {
-        Task<T> GetAll();
-        Task<T> Get(Expression<Func<T, bool>> expression);
+        Task<List<T>> GetAll();
+        Task<List<T>> Get(Expression<Func<T, bool>> expression);
         Task Add(T value);
-        Task<bool> Update(string id, T valeu);
-        Task<bool> Remove(string id);
+        bool Update(string id, T valeu);
+        bool Remove(string id);
 
 
     }

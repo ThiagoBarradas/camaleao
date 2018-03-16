@@ -2,6 +2,8 @@
 using Camaleao.Core.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Linq;
 using System.Text;
 
 namespace Camaleao.Core.Services
@@ -19,6 +21,16 @@ namespace Camaleao.Core.Services
             template.Id = Guid.NewGuid().ToString();
 
             _templateRepository.Add(template);
+        }
+
+        public List<Template> Find(Expression<Func<Template, bool>> expression)
+        {
+            return _templateRepository.Get(expression).Result;
+        }
+
+        public Template FirstOrDefault(Expression<Func<Template, bool>> expression)
+        {
+            return _templateRepository.Get(expression).Result.FirstOrDefault();
         }
     }
 }

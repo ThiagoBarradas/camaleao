@@ -1,5 +1,6 @@
 ﻿using Camaleao.Core;
 using Camaleao.Core.Services;
+using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,15 +14,19 @@ namespace Camaleao.Api.Controllers
     {
         private readonly MockService _mockService;
 
-        public MockController(MockService mockService)
+        private readonly ITemplateService _templateService;
+
+        public MockController(MockService mockService, ITemplateService templateService)
         {
             _mockService = mockService;
+            _templateService = templateService;
         }
 
-        [HttpPost("{route}")]
-        public async Task<IActionResult> Post(string route, [FromBody]dynamic request)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> Post(string id, [FromBody]dynamic request)
         {
-            var rules = _mockService.ValidateContract(route, request);
+            var template = this._templateService.FirstOrDefault(p => p.Id == id);
+            var rules = _mockService.ValidateContract(id, request);
 
             if(!_mockService.Valid)
                 return new ObjectResult(_mockService.Notifications.FirstOrDefault().Message) { StatusCode = 400 };

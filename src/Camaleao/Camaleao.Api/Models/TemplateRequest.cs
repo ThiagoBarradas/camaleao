@@ -8,8 +8,7 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequest
     {
-        [JsonRequired()]
-        public string Id { get; set; }
+        
         [JsonRequired()]
         public object Request { get; set; }
         [JsonRequired()]
