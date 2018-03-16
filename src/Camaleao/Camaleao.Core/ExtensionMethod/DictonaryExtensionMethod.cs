@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,9 +12,21 @@ namespace Camaleao.Core.ExtensionMethod
             var newProperties = new Dictionary<string, object>();
             foreach(var propertie in properties)
             {
-                string typeSystem = Convert.ToString(types[propertie.Key]);
-                Type type = typeSystem.GetTypeChameleon();
-                newProperties.Add(propertie.Key, Convert.ChangeType(propertie.Value, type));
+                object value = null;
+                Type type = null;
+
+                if(propertie.Value.GetType() == typeof(JArray))
+                {
+                    value = propertie.Value;
+                }
+                else
+                {
+                    string typeSystem = Convert.ToString(types[propertie.Key]);
+                    type = typeSystem.GetTypeChameleon();
+                    value = Convert.ChangeType(propertie.Value, type);
+                }
+
+                newProperties.Add(propertie.Key, value);
             }
 
             return newProperties;
