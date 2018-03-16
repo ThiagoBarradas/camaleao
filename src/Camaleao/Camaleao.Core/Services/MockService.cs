@@ -1,11 +1,13 @@
 ﻿using Camaleao.Core.ExtensionMethod;
 using Flunt.Notifications;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Camaleao.Core.Services
 {
@@ -13,6 +15,7 @@ namespace Camaleao.Core.Services
     {
         private Dictionary<string, object> _requestTemplate;
         private Dictionary<string, object> _requestContent;
+        private JArray _responsesConf;
 
         public MockService()
         {
@@ -20,7 +23,7 @@ namespace Camaleao.Core.Services
             _requestContent = new Dictionary<string, object>();
         }
 
-        public void ValidateContract(string route, dynamic request)
+        public JArray ValidateContract(string route, dynamic request)
         {
 
             #region BUSCAR NO BANCO DE DADOS 
@@ -34,17 +37,42 @@ namespace Camaleao.Core.Services
             var requestInput = JObject.Parse(Convert.ToString(request));
 
             var requestConf = JObject.Parse(Convert.ToString(camaleao.SelectToken("Request")));
-            var responsesConf = (JArray)camaleao.SelectToken("Responses");
-            var rulesConf = (JArray)camaleao.SelectToken("Rules");
+            _responsesConf = (JArray)camaleao.SelectToken("Responses");
             #endregion
 
             MapperContract(requestConf, _requestTemplate);
             MapperContract(requestInput, _requestContent);
 
-            if(!_requestTemplate.All(k => _requestContent.ContainsKey(k.Key) && _requestContent[k.Key].GetType() == k.Value.ToString().GetTypeChameleon()))
+            var contentTyped = _requestContent.ConvertType(_requestTemplate);
+
+            if(!_requestTemplate.All(k => _requestContent.ContainsKey(k.Key) && contentTyped[k.Key].GetType() == k.Value.ToString().GetTypeChameleon()))
                 AddNotification("BadRequest", "The request don't reflect the contract");
-            else
-                _requestContent = _requestContent.ConvertType(_requestTemplate);
+
+            _requestContent = contentTyped;
+
+            return (JArray)camaleao.SelectToken("Rules");
+        }
+
+        public async Task<JToken> ValidateRule(JArray rules)
+        {
+            foreach(var rule in rules)
+            {
+                var expression = rule.SelectToken("Expression").ToString();
+                expression = expression.Replace(_requestContent, true);
+
+                var result = await Processador(expression);
+                if(result)
+                    return rule;
+                    //var response = responses.First(p => Convert.ToString(p.SelectToken("Name")) == Convert.ToString(rule.SelectToken("Response"))).SelectToken("Response");
+                    //return new ObjectResult(Convert.ToString(response.SelectToken("Body")).Replace(_requestContent, false)) { StatusCode = Convert.ToInt32(response.SelectToken("StatusCode")) };
+            }
+            return null;
+        }
+
+        public Response GetResponse(JToken rule)
+        {
+            var response = _responsesConf.First(p => Convert.ToString(p.SelectToken("Name")) == Convert.ToString(rule.SelectToken("Response"))).SelectToken("Response");
+            return new Response() { StatusCode = Convert.ToInt32(response.SelectToken("StatusCode")), Body = Convert.ToString(response.SelectToken("Body")).Replace(_requestContent, false) };
         }
 
         private void MapperContract(JToken input, Dictionary<string, object> receive)
@@ -62,6 +90,13 @@ namespace Camaleao.Core.Services
                     receive.Add(item.Path, item.ToString());
                 }
             }
+        }
+
+        private async Task<bool> Processador(string content)
+        {
+            object result = await CSharpScript.EvaluateAsync(content);
+
+            return Convert.ToBoolean(result);
         }
     }
 }
