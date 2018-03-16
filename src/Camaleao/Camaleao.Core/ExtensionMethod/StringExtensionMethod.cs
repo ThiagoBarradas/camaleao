@@ -8,7 +8,7 @@ namespace Camaleao.Core.ExtensionMethod
     {
         public static Type GetTypeChameleon(this string content)
         {
-            var type = "System.String";
+            string type = null;
 
             if(content == "texto")
                 type = "System.String";
@@ -16,7 +16,9 @@ namespace Camaleao.Core.ExtensionMethod
                 type = "System.Int32";
             else if(content == "decimal")
                 type = "System.Double";
-
+            else
+                return typeof(Newtonsoft.Json.Linq.JArray);
+            
             return Type.GetType(type, false, true);
         }
 

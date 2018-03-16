@@ -23,24 +23,24 @@ namespace Camaleao.Api.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> Post(string id, [FromBody]dynamic request)
+        public IActionResult Post(string id, [FromBody]dynamic request)
         {
             var template = this._templateService.FirstOrDefault(p => p.Id == id);
 
             if (template == null)
-                return NotFound();
+                return NotFound("Identify Not Found");
 
-            var rules = _mockService.ValidateContract(template, request);
+            _mockService.ValidateContract(template, request);
 
             if(!_mockService.Valid)
                 return new ObjectResult(_mockService.Notifications.FirstOrDefault().Message) { StatusCode = 400 };
 
-            var rule = await _mockService.ValidateRule(rules);
+            var rule = _mockService.ValidateRules(template.Rules);
 
-            if (rule == null)
-                return new ObjectResult("") { StatusCode = 500 };
+            if(rule == null)
+                return new ObjectResult("An error internal occurred") { StatusCode = 500 };
 
-            Response response = _mockService.GetResponse(rule);
+            Response response = _mockService.GetResponse(template, rule);
 
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }

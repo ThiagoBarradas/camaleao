@@ -15,7 +15,6 @@ namespace Camaleao.Core.Services
     {
         private Dictionary<string, object> _requestTemplate;
         private Dictionary<string, object> _requestContent;
-        private JArray _responsesConf;
 
         public MockService()
         {
@@ -23,56 +22,59 @@ namespace Camaleao.Core.Services
             _requestContent = new Dictionary<string, object>();
         }
 
-        public JArray ValidateContract(Template template, dynamic request)
+        public void ValidateContract(Template template, dynamic request)
         {
-
-            #region BUSCAR NO BANCO DE DADOS 
-            JObject camaleao = null;
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Pock");
-            using(StreamReader sr = new StreamReader(Path.Combine(path, route, "camaleao.json")))
-            {
-                camaleao = JObject.Parse(sr.ReadToEnd());
-            }
-
-            var requestInput = JObject.Parse(Convert.ToString(request));
-
-            var requestConf = JObject.Parse(Convert.ToString(camaleao.SelectToken("Request")));
-            _responsesConf = (JArray)camaleao.SelectToken("Responses");
-            #endregion
-
-            MapperContract(requestConf, _requestTemplate);
-            MapperContract(requestInput, _requestContent);
+            MapperContract(template.Request, _requestTemplate);
+            MapperContract(request, _requestContent);
 
             var contentTyped = _requestContent.ConvertType(_requestTemplate);
 
-            if(!_requestTemplate.All(k => _requestContent.ContainsKey(k.Key) && contentTyped[k.Key].GetType() == k.Value.ToString().GetTypeChameleon()))
+            if(!_requestTemplate.All(k => _requestContent.ContainsKey(k.Key) 
+                                                && contentTyped[k.Key].GetType() == k.Value.ToString().GetTypeChameleon()
+                                                && ValidateArrayContract(k.Key, contentTyped[k.Key], _requestTemplate)))
                 AddNotification("BadRequest", "The request don't reflect the contract");
 
             _requestContent = contentTyped;
-
-            return (JArray)camaleao.SelectToken("Rules");
         }
 
-        public async Task<JToken> ValidateRule(JArray rules)
+        public Rule ValidateRules(IList<Rule> rules)
         {
             foreach(var rule in rules)
             {
-                var expression = rule.SelectToken("Expression").ToString();
+                var expression = rule.Expression;
                 expression = expression.Replace(_requestContent, true);
 
-                var result = await Processador(expression);
+                var result = Processador(expression).Result;
                 if(result)
                     return rule;
-                    //var response = responses.First(p => Convert.ToString(p.SelectToken("Name")) == Convert.ToString(rule.SelectToken("Response"))).SelectToken("Response");
-                    //return new ObjectResult(Convert.ToString(response.SelectToken("Body")).Replace(_requestContent, false)) { StatusCode = Convert.ToInt32(response.SelectToken("StatusCode")) };
             }
             return null;
         }
 
-        public Response GetResponse(JToken rule)
+        public Response GetResponse(Template template, Rule rule)
         {
-            var response = _responsesConf.First(p => Convert.ToString(p.SelectToken("Name")) == Convert.ToString(rule.SelectToken("Response"))).SelectToken("Response");
-            return new Response() { StatusCode = Convert.ToInt32(response.SelectToken("StatusCode")), Body = Convert.ToString(response.SelectToken("Body")).Replace(_requestContent, false) };
+            var response = template.Responses.FirstOrDefault(p => p.Id == rule.ResponseId).Response;
+            response.Body = response.Body_.Replace(_requestContent, false);
+            return response;
+        }
+
+        private bool ValidateArrayContract(string key, object arrayRequest, Dictionary<string, object> requestTemplate)
+        {
+            if(arrayRequest.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
+            {
+                Dictionary<string, object> input = new Dictionary<string, object>();
+                Dictionary<string, object> template = new Dictionary<string, object>();
+                MapperContract(JToken.Parse(arrayRequest.ToString()), input);
+                MapperContract(JToken.Parse(requestTemplate[key].ToString()), template);
+
+                var contentTyped = input.ConvertType(template);
+
+                if(!template.All(tpl => ValidateArrayContract(tpl.Key, contentTyped[tpl.Key], template) 
+                                                && input.All(ipt => ipt.Key.Substring(4) == tpl.Key.Substring(4))))
+                    return false;
+            }
+
+            return true;
         }
 
         private void MapperContract(JToken input, Dictionary<string, object> receive)
@@ -81,7 +83,12 @@ namespace Camaleao.Core.Services
 
             foreach(var item in children)
             {
-                if(item.HasValues && item.First != null)
+                if(item.GetType() == typeof(JArray))
+                {
+                    receive.Add(item.Path, item);
+                    break;
+                }
+                else if(item.HasValues && item.First != null)
                 {
                     MapperContract(item, receive);
                 }
@@ -95,7 +102,6 @@ namespace Camaleao.Core.Services
         private async Task<bool> Processador(string content)
         {
             object result = await CSharpScript.EvaluateAsync(content);
-
             return Convert.ToBoolean(result);
         }
     }
