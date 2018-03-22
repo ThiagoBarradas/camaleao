@@ -2,6 +2,7 @@
 using Camaleao.Core.Services;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,37 +13,38 @@ namespace Camaleao.Api.Controllers
     [Route("api/mock")]
     public class MockController : Controller
     {
-        private readonly MockService _mockService;
-
+        private readonly IMockService _mockService;
         private readonly ITemplateService _templateService;
 
-        public MockController(MockService mockService, ITemplateService templateService)
+        public MockController(IMockService mockService, ITemplateService templateService)
         {
             _mockService = mockService;
             _templateService = templateService;
         }
 
         [HttpPost("{id}")]
-        public IActionResult Post(string id, [FromBody]dynamic request)
+        public IActionResult Post(string id, [FromBody]JObject request)
         {
             var template = this._templateService.FirstOrDefault(p => p.Id == id);
 
             if (template == null)
                 return NotFound("Identify Not Found");
 
-            _mockService.ValidateContract(template, request);
+            _mockService.InitializeMock(template, request);
+            var notifications = _mockService.ValidateContract();
 
-            if(!_mockService.Valid)
-                return new ObjectResult(_mockService.Notifications.FirstOrDefault().Message) { StatusCode = 400 };
+            if(notifications.Any())
+                return new ObjectResult(notifications) { StatusCode = 400 };
 
-            var rule = _mockService.ValidateRules(template.Rules);
+            return Ok();
+            //var rule = _mockService.ValidateRules(template.Rules);
 
-            if(rule == null)
-                return new ObjectResult("An error internal occurred") { StatusCode = 500 };
+            //if(rule == null)
+            //    return new ObjectResult("An error internal occurred") { StatusCode = 500 };
 
-            Response response = _mockService.GetResponse(template, rule);
+            //Response response = _mockService.GetResponse(template, rule);
 
-            return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
+            //return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
 
     }

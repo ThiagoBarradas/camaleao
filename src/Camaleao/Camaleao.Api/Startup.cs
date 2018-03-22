@@ -47,7 +47,7 @@ namespace Camaleao.Api
                 Database = this.Configuration["Mongo:Database"]
             });
                 
-            services.AddTransient<MockService>();
+            services.AddTransient<IMockService, MockService>();
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<ITemplateService, TemplateSevice>();
         }
