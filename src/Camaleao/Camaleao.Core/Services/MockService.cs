@@ -1,5 +1,7 @@
 ﻿using Camaleao.Core.ExtensionMethod;
+using Camaleao.Core.Services.Interfaces;
 using Flunt.Notifications;
+using Jint;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json.Linq;
 using System;
@@ -11,98 +13,144 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Core.Services
 {
-    public class MockService : Notifiable
+    public class MockService : Notifiable, IMockService
     {
-        private Dictionary<string, object> _requestTemplate;
-        private Dictionary<string, object> _requestContent;
+        private Template _template;
+        private JObject _request;
 
-        public MockService()
+        public void InitializeMock(Template template, JObject request)
         {
-            _requestTemplate = new Dictionary<string, object>();
-            _requestContent = new Dictionary<string, object>();
+            _template = template;
+            _request = request;
         }
 
-        public void ValidateContract(Template template, dynamic request)
+        public IReadOnlyCollection<Notification> ValidateContract()
         {
-            MapperContract(template.Request, _requestTemplate);
-            MapperContract(request, _requestContent);
+            var mapTemplateRequest = new Dictionary<string, object>();
+            var mapRequest = new Dictionary<string, object>();
 
-            var contentTyped = _requestContent.ConvertType(_requestTemplate);
+            MapperContract(_template.Request, mapTemplateRequest);
+            MapperContract(_request, mapRequest);
 
-            if(!_requestTemplate.All(k => _requestContent.ContainsKey(k.Key) 
-                                                && contentTyped[k.Key].GetType() == k.Value.ToString().GetTypeChameleon()
-                                                && ValidateArrayContract(k.Key, contentTyped[k.Key], _requestTemplate)))
-                AddNotification("BadRequest", "The request don't reflect the contract");
+            if(!mapTemplateRequest.All(requestTemplate => mapRequest.ContainsKey(requestTemplate.Key))
+                    && mapRequest.All(request => mapTemplateRequest[ClearNavigateProperties(request.Key)].ToString().GetTypeChameleon() != _request.SelectToken(request.Key).GetTypeJson()))
+                AddNotification($"", "The request don't reflect the contract");
 
-            _requestContent = contentTyped;
+            return Notifications;
         }
 
-        public Rule ValidateRules(IList<Rule> rules)
+        //public Rule ValidateRules(IList<Rule> rules)
+        //{
+        //    foreach(var rule in rules)
+        //    {
+        //        var expression = rule.Expression;
+        //        expression = expression.Replace(_requestContent, true);
+                
+        //        var result = Processador(expression);
+        //        if(result)
+        //            return rule;
+        //    }
+        //    return null;
+        //}
+
+        //public Response GetResponse(Template template, Rule rule)
+        //{
+        //    var response = template.Responses.FirstOrDefault(p => p.Id == rule.ResponseId).Response;
+        //    response.Body = response.Body_.Replace(_requestContent, false);
+        //    return response;
+        //}
+
+        private string ClearNavigateProperties(string key)
         {
-            foreach(var rule in rules)
+            if(ExtractBetween(key, "[", "]") != String.Empty)
             {
-                var expression = rule.Expression;
-                expression = expression.Replace(_requestContent, true);
-
-                var result = Processador(expression).Result;
-                if(result)
-                    return rule;
-            }
-            return null;
-        }
-
-        public Response GetResponse(Template template, Rule rule)
-        {
-            var response = template.Responses.FirstOrDefault(p => p.Id == rule.ResponseId).Response;
-            response.Body = response.Body_.Replace(_requestContent, false);
-            return response;
-        }
-
-        private bool ValidateArrayContract(string key, object arrayRequest, Dictionary<string, object> requestTemplate)
-        {
-            if(arrayRequest.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
-            {
-                Dictionary<string, object> input = new Dictionary<string, object>();
-                Dictionary<string, object> template = new Dictionary<string, object>();
-                MapperContract(JToken.Parse(arrayRequest.ToString()), input);
-                MapperContract(JToken.Parse(requestTemplate[key].ToString()), template);
-
-                var contentTyped = input.ConvertType(template);
-
-                if(!template.All(tpl => ValidateArrayContract(tpl.Key, contentTyped[tpl.Key], template) 
-                                                && input.All(ipt => ipt.Key.Substring(4) == tpl.Key.Substring(4))))
-                    return false;
+                ExtractList(key, "[", "]").ForEach(k => key = key.Replace(k, "[0]"));
             }
 
-            return true;
+            return key;
         }
 
-        private void MapperContract(JToken input, Dictionary<string, object> receive)
+        private static string ExtractBetween(string content, params string[] delimeters)
         {
-            var children = input.Children<JToken>();
+            int StartPosition = 0, EndPosition = 0;
+
+            if(content.Contains(delimeters.FirstOrDefault()) && content.Contains(delimeters.LastOrDefault()))
+            {
+                StartPosition = content.IndexOf(delimeters.FirstOrDefault(), EndPosition) + delimeters.FirstOrDefault().Length;
+                EndPosition = content.IndexOf(delimeters.LastOrDefault(), StartPosition);
+                return content.Substring(StartPosition, EndPosition - StartPosition);
+            }
+
+            return String.Empty;
+        }
+
+        private static string Extract(string content, params string[] delimeters)
+        {
+            string extracted = String.Empty;
+            if((extracted = ExtractBetween(content, delimeters)) != String.Empty)
+                return String.Format(@"{0}{1}{2}", delimeters.FirstOrDefault(), extracted, delimeters.LastOrDefault());
+            return extracted;
+        }
+
+        private static List<string> ExtractList(string content, params string[] delimeters)
+        {
+            var elements = new List<string>();
+
+            string extracted = String.Empty;
+            while((extracted = Extract(content, delimeters)) != String.Empty)
+            {
+                content = content.Replace(extracted, String.Empty);
+                elements.Add(extracted);
+            }
+            return elements;
+        }
+
+        //private bool ValidateArrayContract(string key, object arrayRequest, Dictionary<string, object> requestTemplate)
+        //{
+        //    if(arrayRequest.GetType() == typeof(JArray))
+        //    {
+        //        Dictionary<string, object> input = new Dictionary<string, object>();
+        //        Dictionary<string, object> template = new Dictionary<string, object>();
+        //        MapperContract(JToken.Parse(arrayRequest.ToString()), input);
+        //        MapperContract(JToken.Parse(requestTemplate[key].ToString()), template);
+
+        //        var contentTyped = input.ConvertType(template);
+
+        //        if(!template.All(tpl => ValidateArrayContract(tpl.Key, contentTyped[tpl.Key], template) 
+        //                                        && input.All(ipt => ipt.Key.Substring(4) == tpl.Key.Substring(4))))
+        //            return false;
+        //    }
+
+        //    return true;
+        //}
+
+        private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
+        {
+
+            var children = request.Children<JToken>();
 
             foreach(var item in children)
             {
-                if(item.GetType() == typeof(JArray))
+                if(item.HasValues && item.First != null)
                 {
-                    receive.Add(item.Path, item);
-                    break;
-                }
-                else if(item.HasValues && item.First != null)
-                {
-                    MapperContract(item, receive);
+                    MapperContract(item, mapper);
                 }
                 else
                 {
-                    receive.Add(item.Path, item.ToString());
+                    mapper.Add(item.Path, item);
                 }
             }
         }
 
-        private async Task<bool> Processador(string content)
-        {
-            object result = await CSharpScript.EvaluateAsync(content);
-            return Convert.ToBoolean(result);
-        }
+        //private bool Processador(string content)
+        //{
+        //    //object result = await CSharpScript.EvaluateAsync(content);
+        //    //return Convert.ToBoolean(result);
+        //    var engine = new Engine();
+        //    var all = File.ReadAllText(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Pock"), "script.js"));
+        //    engine.Execute(all);
+        //    return Convert.ToBoolean(engine.Execute(content).GetCompletionValue().ToString());
+
+        //}
     }
 }
