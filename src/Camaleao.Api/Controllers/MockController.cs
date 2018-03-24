@@ -3,6 +3,7 @@ using Camaleao.Core.Services;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,20 +32,18 @@ namespace Camaleao.Api.Controllers
                 return NotFound("Identify Not Found");
 
             _mockService.InitializeMock(template, request);
-            var notifications = _mockService.ValidateContract();
 
+            var notifications = _mockService.ValidateContract();
             if(notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
-            return Ok();
-            //var rule = _mockService.ValidateRules(template.Rules);
+            notifications = _mockService.ValidateRules();
+            if (notifications.Any())
+                return new ObjectResult(notifications) { StatusCode = 400 };
 
-            //if(rule == null)
-            //    return new ObjectResult("An error internal occurred") { StatusCode = 500 };
+            var response = _mockService.Response();
 
-            //Response response = _mockService.GetResponse(template, rule);
-
-            //return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
+            return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
 
     }

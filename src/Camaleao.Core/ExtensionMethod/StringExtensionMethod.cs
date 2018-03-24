@@ -39,18 +39,5 @@ namespace Camaleao.Core.ExtensionMethod
             return Type.GetType(type, false, true);
         }
 
-        //private static string MapperType(this string expression, object propertie, string path, string replace)
-        //{
-        //    if(propertie.GetType() == typeof(string))
-        //        return expression.Replace(replace, String.Format(@"'{0}'", propertie));
-            
-        //    if(propertie.GetType() == typeof(Array))
-        //        return expression.Replace($"{replace}.contains(", $"{replace}.contains('{path}',").Replace(replace, String.Format(@"{0}", propertie));
-
-        //    if(propertie.GetType() == typeof(double))
-        //        return expression.Replace(replace, String.Format(new System.Globalization.CultureInfo("en-US"), "{0:0.00}", propertie));
-
-        //    return expression.Replace(replace, Convert.ToString(propertie));
-        //}
     }
 }

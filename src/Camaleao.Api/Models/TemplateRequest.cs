@@ -8,25 +8,20 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequest
     {
-        
         [JsonRequired()]
         public dynamic Request { get; set; }
         [JsonRequired()]
-        public IList<ResponseSettings> Responses { get; set; }
+        public IList<Response> Responses { get; set; }
         [JsonRequired()]
         public IList<Rule> Rules { get; set; }
-
     }
 
-
-    public class ResponseSettings
-    {
-        public string Id { get; set; }
-        public Response Response { get; set; }
-    }
+    
     public class Response
     {
+        public string ResponseId { get; set; }
         public int StatusCode { get; set; }
+        public string Header { get; set; }
         public dynamic Body { get; set; }
     }
 
