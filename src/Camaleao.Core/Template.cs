@@ -25,18 +25,13 @@ namespace Camaleao.Core
 
         public string Request_ { get; set; }
 
-        public IList<ResponseSettings> Responses { get; set; }
+        public IList<Response> Responses { get; set; }
         public IList<Rule> Rules { get; set; }
-    }
-
-    public class ResponseSettings
-    {
-        public string Id { get; set; }
-        public Response Response { get; set; }
     }
 
     public class Response
     {
+        public string ResponseId { get; set; }
         public int StatusCode { get; set; }
 
         [BsonIgnore()]

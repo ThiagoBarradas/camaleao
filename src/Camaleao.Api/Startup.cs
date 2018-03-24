@@ -14,6 +14,8 @@ using AutoMapper;
 using Camaleao.Core.Repository;
 using Camaleao.Api.Profilers;
 using Camaleao.Core.Services.Interfaces;
+using Jint;
+using System.IO;
 
 namespace Camaleao.Api
 {
@@ -46,7 +48,9 @@ namespace Camaleao.Api
                 ConnectionString = this.Configuration["Mongo:ConnectionString"],
                 Database = this.Configuration["Mongo:Database"]
             });
-                
+
+            services.AddTransient<IEngineService, EngineService>();
+            services.AddTransient<Engine>();
             services.AddTransient<IMockService, MockService>();
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<ITemplateService, TemplateSevice>();
@@ -58,7 +62,6 @@ namespace Camaleao.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }
             
             app.UseMvc();
