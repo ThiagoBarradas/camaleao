@@ -76,7 +76,7 @@ namespace Camaleao.Core.Services
 
             functions.ForEach(func =>
             {
-                var function = MapperFunction(func.ExtractBetween(func, "##").Split(','));
+                var function = MapperFunction(func.ExtractBetween("##").Split(','));
 
                 if (execEngine)
                     expression = expression.Replace(function, _engine.Execute<string>(function));
