@@ -11,7 +11,7 @@ namespace Camaleao.Repository
 {
     public class TemplateRepository : ITemplateRepository
     {
-        MongoContext mongoContext;
+        readonly MongoContext mongoContext;
         const string TemplateCollection = "template";
 
 
@@ -47,13 +47,7 @@ namespace Camaleao.Repository
 
         Task<List<Template>> IRepository<Template>.Get(Expression<Func<Template, bool>> expression)
         {
-            try { return GetMongoCollection().Find(expression).ToListAsync(); }
-
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-           
+            return GetMongoCollection().Find(expression).ToListAsync();
         }
     }
 }
