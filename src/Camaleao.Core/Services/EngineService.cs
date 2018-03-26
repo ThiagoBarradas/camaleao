@@ -10,18 +10,20 @@ namespace Camaleao.Core.Services
 {
     public class EngineService : IEngineService
     {
-        private Engine _engine;
+        private readonly Engine _engine;
+        private readonly IConfigurationService _configurationService;
 
-        public EngineService(Engine engine)
+        public EngineService(Engine engine,IConfigurationService configurationService)
         {
             _engine = engine;
+            _configurationService = configurationService;
             LoadPreScript();
         }
 
         private void LoadPreScript()
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Pock");
-            var scripts = File.ReadAllText(Path.Combine(path, "script.js"));
+           var path = Path.Combine(_configurationService.ServerPath, @"Documents\script.js");
+            var scripts = File.ReadAllText(path);
             _engine.Execute(scripts);
         }
 
