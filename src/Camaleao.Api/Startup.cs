@@ -65,9 +65,9 @@ namespace Camaleao.Api
             services.AddTransient<Engine>();
             services.AddTransient<IMockService, MockService>();
             services.AddScoped<ITemplateRepository, TemplateRepository>();
+            services.AddScoped<IScriptRepository, ScriptRepository>();
             services.AddScoped<ITemplateService, TemplateSevice>();
-            
-            services.AddSingleton<IConfigurationService>(new ConfigurationService(AppDomain.CurrentDomain.BaseDirectory));
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
