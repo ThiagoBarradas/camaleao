@@ -16,6 +16,7 @@ using Camaleao.Api.Profilers;
 using Camaleao.Core.Services.Interfaces;
 using Jint;
 using System.IO;
+using Newtonsoft.Json.Serialization;
 
 namespace Camaleao.Api
 {
@@ -27,11 +28,20 @@ namespace Camaleao.Api
         }
 
         public IConfiguration Configuration { get; }
+       
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services
+                .AddMvc()
+                .AddJsonOptions(p =>
+                {
+                    p.SerializerSettings.ContractResolver = new DefaultContractResolver()
+                    {
+                        NamingStrategy = new SnakeCaseNamingStrategy()
+                    };
+                });
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new TemplateProfile());
@@ -42,9 +52,11 @@ namespace Camaleao.Api
             InitializeInstances(services);
         }
 
-        private void InitializeInstances(IServiceCollection services) {
+        private void InitializeInstances(IServiceCollection services)
+        {
 
-            services.AddSingleton<Settings>(new Settings() {
+            services.AddSingleton<Settings>(new Settings()
+            {
                 ConnectionString = this.Configuration["Mongo:ConnectionString"],
                 Database = this.Configuration["Mongo:Database"]
             });
@@ -53,9 +65,11 @@ namespace Camaleao.Api
             services.AddTransient<Engine>();
             services.AddTransient<IMockService, MockService>();
             services.AddScoped<ITemplateRepository, TemplateRepository>();
+            services.AddScoped<IScriptRepository, ScriptRepository>();
             services.AddScoped<ITemplateService, TemplateSevice>();
+          
         }
-        
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -63,7 +77,7 @@ namespace Camaleao.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseMvc();
         }
     }

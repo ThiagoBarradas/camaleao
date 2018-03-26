@@ -1,28 +1,29 @@
-﻿using Camaleao.Core.Services.Interfaces;
+﻿using Camaleao.Core.Repository;
+using Camaleao.Core.Services.Interfaces;
 using Jint;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace Camaleao.Core.Services
 {
     public class EngineService : IEngineService
     {
-        private Engine _engine;
+        private readonly Engine _engine;
+        private readonly IScriptRepository _scriptRepository;
 
-        public EngineService(Engine engine)
+        public EngineService(Engine engine, IScriptRepository scriptRepository)
         {
             _engine = engine;
+            _scriptRepository = scriptRepository;
             LoadPreScript();
         }
 
         private void LoadPreScript()
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Pock");
-            var scripts = File.ReadAllText(Path.Combine(path, "script.js"));
-            _engine.Execute(scripts);
+            StringBuilder script = new StringBuilder();
+            _scriptRepository.GetAll().Result.ForEach(p => script.AppendLine(p.Script));
+            _engine.Execute(script.ToString());
         }
 
         public void LoadRequest(JObject request)
