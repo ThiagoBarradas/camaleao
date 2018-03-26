@@ -21,14 +21,20 @@ namespace Camaleao.Api.Controllers
         [HttpPost()]
         public IActionResult Add([FromBody]ScriptRequest scriptRequest)
         {
-            ScriptEngine scriptEngine = new ScriptEngine()
+            try
             {
-                Id = Guid.NewGuid(),
-                Script = scriptRequest.Script
-            };
-            _scriptRepository.Add(scriptEngine);
+                ScriptEngine scriptEngine = new ScriptEngine()
+                {
+                    Id = Guid.NewGuid(),
+                    Script = scriptRequest.Script
+                };
+                _scriptRepository.Add(scriptEngine);
 
-            return new ObjectResult("") { StatusCode = 200 };
+                return new ObjectResult("Script created with success.") { StatusCode = 200 };
+            }catch(Exception ex)
+            {
+                return new ObjectResult("Erro on created with sucesso.") { StatusCode = 500 };
+            }
         }
 
     }
