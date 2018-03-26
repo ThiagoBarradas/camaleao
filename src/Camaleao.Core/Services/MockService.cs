@@ -15,7 +15,7 @@ namespace Camaleao.Core.Services
 {
     public class MockService : Notifiable, IMockService
     {
-        private IEngineService _engine;
+        private readonly IEngineService _engine;
         private Template _template;
         private JObject _request;
         private Response _response;

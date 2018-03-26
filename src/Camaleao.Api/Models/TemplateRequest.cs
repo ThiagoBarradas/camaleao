@@ -1,16 +1,14 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Camaleao.Api.Models
 {
     public class TemplateRequest
     {
-        [JsonRequired()]
+        [Required(ErrorMessageResourceName ="RequestRequired",ErrorMessageResourceType =typeof(ValidationMessageCatalog))]
         public dynamic Request { get; set; }
-        [JsonRequired()]
+        [Required(ErrorMessageResourceName = "ResponseRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public IList<Response> Responses { get; set; }
         [JsonRequired()]
         public IList<Rule> Rules { get; set; }

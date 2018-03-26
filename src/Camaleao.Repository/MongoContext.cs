@@ -1,8 +1,4 @@
-﻿
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MongoDB.Driver;
 
 namespace Camaleao.Repository
 {
@@ -18,8 +14,7 @@ namespace Camaleao.Repository
         }
 
         public IMongoCollection<T> GetCollection<T>(string collection)
-        {
-           
+        {       
             return _database.GetCollection<T>(collection);
         }
     }
