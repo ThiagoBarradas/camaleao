@@ -10,7 +10,7 @@ namespace Camaleao.Core.Services
 {
     public class TemplateSevice : ITemplateService
     {
-        ITemplateRepository _templateRepository;
+        readonly ITemplateRepository _templateRepository;
         public TemplateSevice(ITemplateRepository templateRepository)
         {
             _templateRepository = templateRepository;
