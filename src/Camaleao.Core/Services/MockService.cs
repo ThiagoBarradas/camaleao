@@ -1,15 +1,10 @@
 ﻿using Camaleao.Core.ExtensionMethod;
 using Camaleao.Core.Services.Interfaces;
 using Flunt.Notifications;
-using Jint;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Camaleao.Core.Services
 {
@@ -40,18 +35,17 @@ namespace Camaleao.Core.Services
             MapperContract(_template.Request, templateRequestMapped);
             MapperContract(_request, requestMapped);
 
-            requestMapped.All(request =>
+            foreach (var request in requestMapped)
             {
                 if (!templateRequestMapped.ContainsKey(request.Key.ClearNavigateProperties()))
                 {
                     AddNotification($"{request.Key}", "The propertie name don't reflect the contract");
-                    return true;
+                    continue;
                 }
 
                 if (templateRequestMapped[request.Key.ClearNavigateProperties()].ToString().GetTypeChameleon() != _request.SelectToken(request.Key).GetTypeJson())
                     AddNotification($"{request.Key}", "The type of the propertie don't reflect the contract");
-                return true;
-            });
+            }
 
             return Notifications;
         }
@@ -78,11 +72,11 @@ namespace Camaleao.Core.Services
 
         private string ExtractFunctions(string expression, bool execEngine)
         {
-            var functions = Camaleao.Core.ExtensionMethod.ClearNavigateProperty.ExtractList(expression, "##");
+            var functions = expression.ExtractList("##");
 
             functions.ForEach(func =>
             {
-                var function = MapperFunction(Camaleao.Core.ExtensionMethod.ClearNavigateProperty.ExtractBetween(func, "##").Split(','));
+                var function = MapperFunction(func.ExtractBetween(func, "##").Split(','));
 
                 if (execEngine)
                     expression = expression.Replace(function, _engine.Execute<string>(function));
@@ -95,7 +89,7 @@ namespace Camaleao.Core.Services
 
         private string ExtractProperties(string expression, bool execEngine, string nameFunction = "GetElement", params string[] delimiters)
         {
-            var properties = ExtractList(expression, delimiters);
+            var properties = expression.ExtractList(delimiters);
             properties.ForEach(propertie =>
             {
                 var function = MapperFunction(nameFunction, propertie);
@@ -125,7 +119,7 @@ namespace Camaleao.Core.Services
             return _response;
         }
 
-   
+
         private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
         {
 
@@ -144,18 +138,18 @@ namespace Camaleao.Core.Services
             }
         }
 
-    
+
         private string MapperFunction(params string[] parameters)
         {
             switch (parameters.FirstOrDefault())
             {
                 case "Contains":
                 case "NotContains":
-                    return $"{parameters[0]}('{Camaleao.Core.ExtensionMethod.ClearNavigateProperty.ExtractBetween(parameters[1], "{{", "}}")}', {parameters[2]})";
+                    return $"{parameters[0]}('{parameters[1].ExtractBetween("{{", "}}")}', {parameters[2]})";
                 case "GetElement":
-                    return $"{parameters[0]}('{Camaleao.Core.ExtensionMethod.ClearNavigateProperty.ExtractBetween(parameters[1], "{{", "}}")}')";
+                    return $"{parameters[0]}('{parameters[1].ExtractBetween("{{", "}}")}')";
                 case "GetComplexElement":
-                    return $"{parameters[0]}('{Camaleao.Core.ExtensionMethod.ClearNavigateProperty.ExtractBetween(parameters[1], "$$")}')";
+                    return $"{parameters[0]}('{parameters[1].ExtractBetween("$$")}')";
             }
 
             return String.Empty;
