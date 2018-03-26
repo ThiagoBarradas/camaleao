@@ -28,6 +28,7 @@ namespace Camaleao.Api
         }
 
         public IConfiguration Configuration { get; }
+       
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -65,6 +66,8 @@ namespace Camaleao.Api
             services.AddTransient<IMockService, MockService>();
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<ITemplateService, TemplateSevice>();
+            
+            services.AddSingleton<IConfigurationService>(new ConfigurationService(AppDomain.CurrentDomain.BaseDirectory));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
