@@ -26,9 +26,9 @@ namespace Camaleao.Core.Services
             _engine.Execute(script.ToString());
         }
 
-        public void LoadRequest(JObject request)
+        public void LoadRequest(JObject request, string variavel)
         {
-            _engine.Execute($"_request = {request}");
+            _engine.Execute($"{variavel} = {request}");
         }
 
         public T Execute<T>(string expression)

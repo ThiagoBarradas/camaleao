@@ -8,6 +8,6 @@ namespace Camaleao.Core.Services.Interfaces
     public interface IEngineService
     {
         T Execute<T>(string expression);
-        void LoadRequest(JObject request);
+        void LoadRequest(JObject request, string variavel);
     }
 }
