@@ -11,14 +11,14 @@ namespace Camaleao.Core.Services
     public class MockService : Notifiable, IMockService
     {
         private readonly IEngineService _engine;
-        private readonly ICallbackService _callbackService;
+        private readonly IContextService _callbackService;
 
         private Template _template;
         private JObject _request;
         private Response _response;
-        private Callback _callback;
+        private Context _context;
 
-        public MockService(IEngineService engine, ICallbackService callbackService)
+        public MockService(IEngineService engine, IContextService callbackService)
         {
             _engine = engine;
             _callbackService = callbackService;
@@ -51,7 +51,7 @@ namespace Camaleao.Core.Services
                     AddNotification($"{request.Key}", "The type of the propertie don't reflect the contract");
             }
 
-            LoadCallback(requestMapped, templateRequestMapped);
+            LoadContext(requestMapped, templateRequestMapped);
             
             return Notifications;
         }
@@ -62,7 +62,7 @@ namespace Camaleao.Core.Services
             {
                 var expression = rule.Expression;
 
-                if(rule.ResponseId.Equals("_callback") && _callback == null)
+                if(rule.ResponseId.Equals("_callback") && _context == null)
                     continue;
 
                 expression = ExtractFunctions(expression, false);
@@ -123,74 +123,74 @@ namespace Camaleao.Core.Services
 
         public Response Response()
         {
-            Callback cback = null;
-            if(_response.ResponseId == "_callback")
-            {
-                cback = _callbackService.FirstOrDefault(p => p.CID == _callback.CID);
-                _response.ResponseId = cback.ResponseId;
+            //Context cback = null;
+            //if(_response.ResponseId == "_callback")
+            //{
+            //    cback = _callbackService.FirstOrDefault(p => p.CID == _callback.CID);
+            //    _response.ResponseId = cback.ResponseId;
 
-                //_engine.LoadRequest(cback.Request, "_callbackRequest");
+            //    //_engine.LoadRequest(cback.Request, "_callbackRequest");
 
-                _engine.Execute<string>(cback.Variables);
-            }
+            //    _engine.Execute<string>(cback.Variables);
+            //}
 
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
 
             //processar a expression
-            if(_response.Expression != null)
-            {
-                if(cback == null)
-                {
-                    _engine.Execute<string>(_response.Variables);
-                }
+            //if(_response.Expression != null)
+            //{
+            //    if(cback == null)
+            //    {
+            //        _engine.Execute<string>(_response.Variables);
+            //    }
 
-                _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), true, delimiters: new string[] { "{{", "}}" });
-                _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), false, "GetCallbackVar", delimiters: new string[] { "**" });
+            //    _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), true, delimiters: new string[] { "{{", "}}" });
+            //    _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), false, "GetCallbackVar", delimiters: new string[] { "**" });
 
-                _engine.Execute<string>(_response.Expression);
+            //    _engine.Execute<string>(_response.Expression);
 
-                var variaveis = _response.Variables.Trim().Split(';');
+            //    var variaveis = _response.Variables.Trim().Split(';');
 
-                for(int i = 0; i < variaveis.Length - 1; i++)
-                {
-                    var name = variaveis[i].Split(' ')[1];
-                    var result = _engine.Execute<string>(name);
-                    variaveis[i] = $"var {name} = {result}";
-                }
+            //    for(int i = 0; i < variaveis.Length - 1; i++)
+            //    {
+            //        var name = variaveis[i].Split(' ')[1];
+            //        var result = _engine.Execute<string>(name);
+            //        variaveis[i] = $"var {name} = {result}";
+            //    }
 
-                _response.Variables = String.Join(";", variaveis);
-            }
+            //    _response.Variables = String.Join(";", variaveis);
+            //}
 
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, delimiters: new string[] { "{{", "}}" });
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetComplexElement", delimiters: new string[] { "$$" });
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetCallbackVar", delimiters: new string[] { "**", "**" });
 
-            if(cback != null)
-            {
-                cback.ResponseId = _response.Callback;
-                cback.Variables = _response.Variables;
-                _callbackService.Update(cback.CID, cback);
-                _response.Body = Convert.ToString(_response.Body).Replace("_callback", cback.CID);
-            }
-            else if(_response.Callback != null)
-            {
-                //LOAD CALLBACK
-                var callback = new Callback() { CID = Guid.NewGuid().ToString(), ResponseId = _response.Callback, Variables =  _response.Variables };
-                _callbackService.Add(callback);
-                _response.Body = Convert.ToString(_response.Body).Replace("_callback", callback.CID);
-            }
+            //if(cback != null)
+            //{
+            //    cback.ResponseId = _response.Callback;
+            //    cback.Variables = _response.Variables;
+            //    _callbackService.Update(cback.CID, cback);
+            //    _response.Body = Convert.ToString(_response.Body).Replace("_callback", cback.CID);
+            //}
+            //else if(_response.Callback != null)
+            //{
+            //    //LOAD CALLBACK
+            //    var callback = new Callback() { CID = Guid.NewGuid().ToString(), ResponseId = _response.Callback, Variables =  _response.Variables };
+            //    _callbackService.Add(callback);
+            //    _response.Body = Convert.ToString(_response.Body).Replace("_callback", callback.CID);
+            //}
 
 
             return _response;
         }
 
-        private void LoadCallback(Dictionary<string, object> requestMapped, Dictionary<string, object> templateRequestMapped)
+        private void LoadContext(Dictionary<string, object> requestMapped, Dictionary<string, object> templateRequestMapped)
         {
-            string key = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_callback")).Key ?? string.Empty;
+            string key = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context")).Key ?? string.Empty;
 
             if(requestMapped.ContainsKey(key))
             {
-                _callback = _callbackService.FirstOrDefault(p => p.CID == requestMapped[key].ToString());
+                _context = _callbackService.FirstOrDefault(p => p.Id == requestMapped[key].ToString());
                 _engine.Execute<string>(_callback.Variables);
             }
         }

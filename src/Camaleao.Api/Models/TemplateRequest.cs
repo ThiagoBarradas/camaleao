@@ -12,29 +12,38 @@ namespace Camaleao.Api.Models
         public List<Response> Responses { get; set; }
         [JsonRequired()]
         public List<Rule> Rules { get; set; }
+        public Context Context { get; set; }
     }
 
     
     public class Response
     {
+        public List<Action> Actions { get; set; }
         public string ResponseId { get; set; }
-        public Callback Callback { get; set; }
-        public string Expression { get; set; }
-        public List<string> Events { get; set; }
         public int StatusCode { get; set; }
-        public string Header { get; set; }
         public dynamic Body { get; set; }
-    }
-
-    public class Callback
-    {
-        public string ResponseId { get; set; }
-        public string Variables { get; set; }
     }
 
     public class Rule
     {
         public string Expression { get; set; }
         public string ResponseId { get; set; }
+    }
+
+    public class Action
+    {
+        public string Execute { get; set; }
+    }
+
+    public class Context
+    {
+        public List<Variable> Variables { get; set; }
+    }
+
+    public class Variable
+    {
+        public string Name { get; set; }
+        public string Initialize { get; set; }
+        public string Value { get; set; }
     }
 }

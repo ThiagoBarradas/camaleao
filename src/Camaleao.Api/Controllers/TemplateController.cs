@@ -12,16 +12,17 @@ namespace Camaleao.Api.Controllers
     [Route("api/Template")]
     public class TemplateController : Controller
     {
-
         private readonly ITemplateService _templateService;
         private readonly IResponseService _responseService;
+        private readonly IContextService _contextService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _Configuration;
 
-        public TemplateController(ITemplateService templateService, IResponseService responseService, IMapper mapper, IConfiguration configuration)
+        public TemplateController(ITemplateService templateService, IResponseService responseService, IContextService contextService, IMapper mapper, IConfiguration configuration)
         {
             _templateService = templateService;
             _responseService = responseService;
+            _contextService = contextService;
             _mapper = mapper;
             _Configuration = configuration;
         }
@@ -34,10 +35,12 @@ namespace Camaleao.Api.Controllers
             {
                 var template = _mapper.Map<Template>(templateRequest);
                 _templateService.Add(template);
-                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
 
+                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
                 _responseService.Add(template.Responses);
 
+                template.Context.TemplateId = template.Id;
+                _contextService.Add(template.Context);
 
                 TemplateResponse templateResponse = new TemplateResponse()
                 {

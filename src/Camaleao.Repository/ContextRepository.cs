@@ -9,44 +9,44 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Repository
 {
-    public class CallbackRepository : ICallbackRepository
+    public class ContextRepository : IContextRepository
     {
         readonly MongoContext mongoContext;
-        const string CallbackCollection = "callback";
+        const string ContextCollection = "context";
 
 
-        private IMongoCollection<Callback> GetMongoCollection()
+        private IMongoCollection<Context> GetMongoCollection()
         {
-            return mongoContext.GetCollection<Callback>(CallbackCollection);
+            return mongoContext.GetCollection<Context>(ContextCollection);
         }
-        public CallbackRepository(Settings settings)
+        public ContextRepository(Settings settings)
         {
             mongoContext = new MongoContext(settings);
         }
 
-        public Task Add(Callback value)
+        public Task Add(Context value)
         {
             return GetMongoCollection().InsertOneAsync(value);
         }
 
         public bool Remove(string id)
         {
-            DeleteResult actionResult = GetMongoCollection().DeleteOne(p => p.CID == id);
+            DeleteResult actionResult = GetMongoCollection().DeleteOne(p => p.TemplateId == id);
             return actionResult.IsAcknowledged
                             && actionResult.DeletedCount > 0;
         }
 
-        public bool Update(string id, Callback value)
+        public bool Update(string id, Context value)
         {
-            return GetMongoCollection().ReplaceOne(x => x.CID == id, value).IsAcknowledged;
+            return GetMongoCollection().ReplaceOne(x => x.TemplateId == id, value).IsAcknowledged;
         }
 
-        Task<List<Callback>> IRepository<Callback>.GetAll()
+        Task<List<Context>> IRepository<Context>.GetAll()
         {
             return GetMongoCollection().Find(_ => true).ToListAsync();
         }
 
-        Task<List<Callback>> IRepository<Callback>.Get(Expression<Func<Callback, bool>> expression)
+        Task<List<Context>> IRepository<Context>.Get(Expression<Func<Context, bool>> expression)
         {
             return GetMongoCollection().Find(expression).ToListAsync();
         }

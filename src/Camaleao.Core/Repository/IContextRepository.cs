@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Core.Repository
 {
-    public interface ICallbackRepository:IRepository<Callback>
+    public interface IContextRepository:IRepository<Context>
     {
     }
 }
