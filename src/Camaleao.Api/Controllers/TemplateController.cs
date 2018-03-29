@@ -4,6 +4,7 @@ using Camaleao.Core;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace Camaleao.Api.Controllers
 {
@@ -13,12 +14,14 @@ namespace Camaleao.Api.Controllers
     {
 
         private readonly ITemplateService _templateService;
+        private readonly IResponseService _responseService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _Configuration;
 
-        public TemplateController(ITemplateService templateService, IMapper mapper, IConfiguration configuration)
+        public TemplateController(ITemplateService templateService, IResponseService responseService, IMapper mapper, IConfiguration configuration)
         {
             _templateService = templateService;
+            _responseService = responseService;
             _mapper = mapper;
             _Configuration = configuration;
         }
@@ -31,6 +34,10 @@ namespace Camaleao.Api.Controllers
             {
                 var template = _mapper.Map<Template>(templateRequest);
                 _templateService.Add(template);
+                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
+
+                _responseService.Add(template.Responses);
+
 
                 TemplateResponse templateResponse = new TemplateResponse()
                 {

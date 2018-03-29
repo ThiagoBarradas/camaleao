@@ -14,6 +14,7 @@ namespace Camaleao.Core.ExtensionMethod
             switch (content)
             {
                 case "texto":
+                case "_callback":
                     type = "System.String";
                     break;
                 case "inteiro":

@@ -25,12 +25,20 @@ namespace Camaleao.Core
 
         public string Request_ { get; set; }
 
-        public IList<Response> Responses { get; set; }
-        public IList<Rule> Rules { get; set; }
+        [BsonIgnore]
+        public List<Response> Responses { get; set; }
+        public List<Rule> Rules { get; set; }
     }
 
     public class Response
     {
+        [BsonId]
+        public Guid Id_ { get; set; }
+        public string TemplateId { get; set; }
+        public string Callback { get; set; }
+        public string Variables { get; set; }
+        public string Expression { get; set; }
+        public List<string> Events { get; set; }
         public string ResponseId { get; set; }
         public int StatusCode { get; set; }
 
@@ -50,5 +58,36 @@ namespace Camaleao.Core
     {
         public string Expression { get; set; }
         public string ResponseId { get; set; }
+    }
+
+    public class Callback
+    {
+        [BsonId]
+        public string CID { get; set; }
+
+        //[BsonIgnore()]
+        //public dynamic Request
+        //{
+        //    get
+        //    {
+        //        return JsonConvert.DeserializeObject<dynamic>(Request_);
+        //    }
+        //    set
+        //    {
+        //        this.Request_ = JsonConvert.SerializeObject(value);
+        //    }
+        //}
+
+        //public string Request_ { get; set; }
+        public string ResponseId { get; set; }
+        public string Variables { get; set; }
+    }
+
+    public class Event
+    {
+        [BsonId]
+        public Guid Id_ { get; set; }
+        public string EventId { get; set; }
+        public string Action { get; set; }
     }
 }

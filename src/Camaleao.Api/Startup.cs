@@ -61,13 +61,18 @@ namespace Camaleao.Api
                 Database = this.Configuration["Mongo:Database"]
             });
 
-            services.AddTransient<IEngineService, EngineService>();
             services.AddTransient<Engine>();
+
+            services.AddTransient<IEngineService, EngineService>();
+            services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IResponseService, ResponseService>();
+            services.AddScoped<ICallbackService, CallbackService>();
             services.AddTransient<IMockService, MockService>();
+
             services.AddScoped<ITemplateRepository, TemplateRepository>();
+            services.AddScoped<IResponseRepository, ResponseRepository>();
+            services.AddScoped<ICallbackRepository, CallbackRepository>();
             services.AddScoped<IScriptRepository, ScriptRepository>();
-            services.AddScoped<ITemplateService, TemplateSevice>();
-          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

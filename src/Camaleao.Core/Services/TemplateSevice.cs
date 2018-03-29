@@ -8,10 +8,11 @@ using System.Text;
 
 namespace Camaleao.Core.Services
 {
-    public class TemplateSevice : ITemplateService
+    public class TemplateService : ITemplateService
     {
         readonly ITemplateRepository _templateRepository;
-        public TemplateSevice(ITemplateRepository templateRepository)
+
+        public TemplateService(ITemplateRepository templateRepository)
         {
             _templateRepository = templateRepository;
         }
