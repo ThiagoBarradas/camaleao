@@ -8,30 +8,30 @@ using System.Text;
 
 namespace Camaleao.Core.Services
 {
-    public class CallbackService : ICallbackService
+    public class ContextService : IContextService
     {
-        readonly ICallbackRepository _callbackRepository;
+        readonly IContextRepository _callbackRepository;
 
-        public CallbackService(ICallbackRepository callbackRepository)
+        public ContextService(IContextRepository callbackRepository)
         {
             _callbackRepository = callbackRepository;
         }
-        public void Add(Callback callback)
+        public void Add(Context callback)
         {
             _callbackRepository.Add(callback);
         }
 
-        public bool Update(string id, Callback value)
+        public bool Update(string id, Context value)
         {
             return _callbackRepository.Update(id, value);
         }
 
-        public List<Callback> Find(Expression<Func<Callback, bool>> expression)
+        public List<Context> Find(Expression<Func<Context, bool>> expression)
         {
             return _callbackRepository.Get(expression).Result;
         }
 
-        public Callback FirstOrDefault(Expression<Func<Callback, bool>> expression)
+        public Context FirstOrDefault(Expression<Func<Context, bool>> expression)
         {
             return _callbackRepository.Get(expression).Result.FirstOrDefault();
         }

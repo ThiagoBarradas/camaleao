@@ -66,12 +66,12 @@ namespace Camaleao.Api
             services.AddTransient<IEngineService, EngineService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IResponseService, ResponseService>();
-            services.AddScoped<ICallbackService, CallbackService>();
+            services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
 
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();
-            services.AddScoped<ICallbackRepository, CallbackRepository>();
+            services.AddScoped<IContextRepository, ContextRepository>();
             services.AddScoped<IScriptRepository, ScriptRepository>();
         }
 

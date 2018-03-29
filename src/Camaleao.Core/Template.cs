@@ -10,7 +10,6 @@ namespace Camaleao.Core
     public class Template
     {
         public string Route { get; set; }
-
         public string Id { get; set; }
 
         [BsonIgnore()]
@@ -27,6 +26,7 @@ namespace Camaleao.Core
 
         [BsonIgnore]
         public List<Response> Responses { get; set; }
+        public Context Context { get; set; }
         public List<Rule> Rules { get; set; }
     }
 
@@ -35,10 +35,8 @@ namespace Camaleao.Core
         [BsonId]
         public Guid Id_ { get; set; }
         public string TemplateId { get; set; }
-        public string Callback { get; set; }
-        public string Variables { get; set; }
-        public string Expression { get; set; }
-        public List<string> Events { get; set; }
+        public List<Action> Actions { get; set; }
+        //public List<string> Events { get; set; }
         public string ResponseId { get; set; }
         public int StatusCode { get; set; }
 
@@ -60,34 +58,30 @@ namespace Camaleao.Core
         public string ResponseId { get; set; }
     }
 
-    public class Callback
+    public class Action
     {
-        [BsonId]
-        public string CID { get; set; }
-
-        //[BsonIgnore()]
-        //public dynamic Request
-        //{
-        //    get
-        //    {
-        //        return JsonConvert.DeserializeObject<dynamic>(Request_);
-        //    }
-        //    set
-        //    {
-        //        this.Request_ = JsonConvert.SerializeObject(value);
-        //    }
-        //}
-
-        //public string Request_ { get; set; }
-        public string ResponseId { get; set; }
-        public string Variables { get; set; }
+        public string Execute { get; set; }
     }
 
-    public class Event
+    public class Context
     {
-        [BsonId]
-        public Guid Id_ { get; set; }
-        public string EventId { get; set; }
-        public string Action { get; set; }
+        public Guid Id { get; set; }
+        public string TemplateId { get; set; }
+        public List<Variable> Variables { get; set; }
     }
+
+    public class Variable
+    {
+        public string Name { get; set; }
+        public string Initialize { get; set; }
+        public string Value { get; set; }
+    }
+
+    //public class Event
+    //{
+    //    [BsonId]
+    //    public Guid Id_ { get; set; }
+    //    public string EventId { get; set; }
+    //    public string Action { get; set; }
+    //}
 }
