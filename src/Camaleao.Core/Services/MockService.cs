@@ -5,23 +5,24 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Camaleao.Core.Services
 {
     public class MockService : Notifiable, IMockService
     {
         private readonly IEngineService _engine;
-        private readonly IContextService _callbackService;
+        private readonly IContextService _contextService;
 
         private Template _template;
         private JObject _request;
         private Response _response;
         private Context _context;
 
-        public MockService(IEngineService engine, IContextService callbackService)
+        public MockService(IEngineService engine, IContextService contextService)
         {
             _engine = engine;
-            _callbackService = callbackService;
+            _contextService = contextService;
         }
 
         public void InitializeMock(Template template, JObject request)
@@ -62,12 +63,12 @@ namespace Camaleao.Core.Services
             {
                 var expression = rule.Expression;
 
-                if(rule.ResponseId.Equals("_callback") && _context == null)
-                    continue;
+                //if(rule.ResponseId.Equals("_callback") && _context == null)
+                //    continue;
 
                 expression = ExtractFunctions(expression, false);
                 expression = ExtractProperties(expression, false, delimiters: new string[] { "{{", "}}" });
-                expression = ExtractProperties(expression, false, "GetCallbackVar", delimiters: new string[] { "**" });
+                expression = ExtractProperties(expression, false, "Context", delimiters: new string[] { "_context.{{", "}}" });
 
                 if(_engine.Execute<bool>(expression))
                 {
@@ -136,6 +137,16 @@ namespace Camaleao.Core.Services
 
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
 
+            //tratar todas as execuções
+            _response.Actions.ForEach(action =>
+            {
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, delimiters: new string[] { "{{", "}}" });
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
+
+                _engine.Execute<string>(action.Execute);
+            });
+
+
             //processar a expression
             //if(_response.Expression != null)
             //{
@@ -163,7 +174,23 @@ namespace Camaleao.Core.Services
 
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, delimiters: new string[] { "{{", "}}" });
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetComplexElement", delimiters: new string[] { "$$" });
-            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetCallbackVar", delimiters: new string[] { "**", "**" });
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
+
+            _response.Body = Convert.ToString(_response.Body).Replace("_context", _context.Id);
+
+            _context.Variables.ForEach(variable =>
+            {
+                var result = _engine.Execute<string>(variable.Name);
+                variable.Value = result;
+            });
+
+            _contextService.Update(_context.Id.ToString(), _context);
+
+            //if(Convert.ToString(_response.Body).Contains("_context"))
+            //{
+            //    _contextService.Add()
+            //}
+
 
             //if(cback != null)
             //{
@@ -190,9 +217,22 @@ namespace Camaleao.Core.Services
 
             if(requestMapped.ContainsKey(key))
             {
-                _context = _callbackService.FirstOrDefault(p => p.Id == requestMapped[key].ToString());
-                _engine.Execute<string>(_callback.Variables);
+                _context = _contextService.FirstOrDefault(p => p.Id.ToString() == requestMapped[key].ToString());
+                var variaveis = MapperVariables(_context.Variables);
+                _engine.Execute<string>(variaveis);
             }
+        }
+
+        private string MapperVariables(List<Variable> variables)
+        {
+            StringBuilder retorno = new StringBuilder();
+
+            variables.ForEach(variable =>
+            {
+                retorno.Append($"var {variable.Name} = {variable.Initialize ?? "''"};");
+            });
+
+            return retorno.ToString();
         }
 
         private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
@@ -227,8 +267,8 @@ namespace Camaleao.Core.Services
                     return $"{parameters[0]}('{parameters[1].ExtractBetween("{{", "}}")}')";
                 case "GetComplexElement":
                     return $"{parameters[0]}('{parameters[1].ExtractBetween("$$")}')";
-                case "GetCallbackVar":
-                    return $"{parameters[1].ExtractBetween("**")}";
+                case "Context":
+                    return $"{parameters[1].ExtractBetween("_context.{{", "}}")}";
             }
 
             return String.Empty;
