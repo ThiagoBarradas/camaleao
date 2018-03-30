@@ -54,6 +54,22 @@ namespace Camaleao.Core.ExtensionMethod
             return Type.GetType(type, false, true);
         }
 
+        public static string InitializeVariable(this string type)
+        {
+            switch (type)
+            {
+                case "text":
+                    return "''";
+                case "integer":
+                case "double":
+                    return "0";
+                case "bool":
+                    return "true";
+                default:
+                    return "''";
+            }
+        }
+
         public static string ClearNavigateProperties(this string key)
         {
             if (key.ExtractBetween("[", "]") != String.Empty)

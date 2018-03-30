@@ -31,14 +31,14 @@ namespace Camaleao.Repository
 
         public bool Remove(string id)
         {
-            DeleteResult actionResult = GetMongoCollection().DeleteOne(p => p.Id == id);
+            DeleteResult actionResult = GetMongoCollection().DeleteOne(p => p.Id.ToString() == id);
             return actionResult.IsAcknowledged
                             && actionResult.DeletedCount > 0;
         }
 
         public bool Update(string id, Context value)
         {
-            return GetMongoCollection().ReplaceOne(x => x.Id == id, value).IsAcknowledged;
+            return GetMongoCollection().ReplaceOne(x => x.Id == Guid.Parse(id), value).IsAcknowledged;
         }
 
         Task<List<Context>> IRepository<Context>.GetAll()
