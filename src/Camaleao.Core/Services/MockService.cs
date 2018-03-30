@@ -52,8 +52,11 @@ namespace Camaleao.Core.Services
                     AddNotification($"{request.Key}", "The type of the propertie don't reflect the contract");
             }
 
-            LoadContext(requestMapped, templateRequestMapped);
-            
+            if (_template.Context == null && requestMapped.Values.Contains("_context"))
+                AddNotification($"Context", "There isn't mapped context in your template");
+            else if(_template.Context != null)
+                LoadContext(requestMapped, templateRequestMapped);
+
             return Notifications;
         }
 
@@ -63,12 +66,9 @@ namespace Camaleao.Core.Services
             {
                 var expression = rule.Expression;
 
-                //if(rule.ResponseId.Equals("_callback") && _context == null)
-                //    continue;
-
                 expression = ExtractFunctions(expression, false);
-                expression = ExtractProperties(expression, false, delimiters: new string[] { "{{", "}}" });
                 expression = ExtractProperties(expression, false, "Context", delimiters: new string[] { "_context.{{", "}}" });
+                expression = ExtractProperties(expression, false, delimiters: new string[] { "{{", "}}" });
 
                 if(_engine.Execute<bool>(expression))
                 {
@@ -124,89 +124,35 @@ namespace Camaleao.Core.Services
 
         public Response Response()
         {
-            //Context cback = null;
-            //if(_response.ResponseId == "_callback")
-            //{
-            //    cback = _callbackService.FirstOrDefault(p => p.CID == _callback.CID);
-            //    _response.ResponseId = cback.ResponseId;
-
-            //    //_engine.LoadRequest(cback.Request, "_callbackRequest");
-
-            //    _engine.Execute<string>(cback.Variables);
-            //}
-
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
 
-            //tratar todas as execuções
             _response.Actions.ForEach(action =>
             {
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), false, "Context", delimiters: new string[] { "_context.{{", "}}" });
                 action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, delimiters: new string[] { "{{", "}}" });
-                action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
 
                 _engine.Execute<string>(action.Execute);
             });
 
 
-            //processar a expression
-            //if(_response.Expression != null)
-            //{
-            //    if(cback == null)
-            //    {
-            //        _engine.Execute<string>(_response.Variables);
-            //    }
-
-            //    _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), true, delimiters: new string[] { "{{", "}}" });
-            //    _response.Expression = ExtractProperties(Convert.ToString(_response.Expression), false, "GetCallbackVar", delimiters: new string[] { "**" });
-
-            //    _engine.Execute<string>(_response.Expression);
-
-            //    var variaveis = _response.Variables.Trim().Split(';');
-
-            //    for(int i = 0; i < variaveis.Length - 1; i++)
-            //    {
-            //        var name = variaveis[i].Split(' ')[1];
-            //        var result = _engine.Execute<string>(name);
-            //        variaveis[i] = $"var {name} = {result}";
-            //    }
-
-            //    _response.Variables = String.Join(";", variaveis);
-            //}
-
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, delimiters: new string[] { "{{", "}}" });
             _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetComplexElement", delimiters: new string[] { "$$" });
-            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
+            
 
-            _response.Body = Convert.ToString(_response.Body).Replace("_context", _context.Id);
-
-            _context.Variables.ForEach(variable =>
+            if(_context != null)
             {
-                var result = _engine.Execute<string>(variable.Name);
-                variable.Value = result;
-            });
+                _response.Body = Convert.ToString(_response.Body).Replace("_context", _context.Id.ToString());
 
-            _contextService.Update(_context.Id.ToString(), _context);
+                _context.Variables.ForEach(variable =>
+                {
+                    var result = _engine.Execute<string>(variable.Name);
+                    variable.Value = result;
+                });
 
-            //if(Convert.ToString(_response.Body).Contains("_context"))
-            //{
-            //    _contextService.Add()
-            //}
-
-
-            //if(cback != null)
-            //{
-            //    cback.ResponseId = _response.Callback;
-            //    cback.Variables = _response.Variables;
-            //    _callbackService.Update(cback.CID, cback);
-            //    _response.Body = Convert.ToString(_response.Body).Replace("_callback", cback.CID);
-            //}
-            //else if(_response.Callback != null)
-            //{
-            //    //LOAD CALLBACK
-            //    var callback = new Callback() { CID = Guid.NewGuid().ToString(), ResponseId = _response.Callback, Variables =  _response.Variables };
-            //    _callbackService.Add(callback);
-            //    _response.Body = Convert.ToString(_response.Body).Replace("_callback", callback.CID);
-            //}
-
+                _contextService.Update(_context.Id.ToString(), _context);
+            }
+            
 
             return _response;
         }
@@ -217,10 +163,23 @@ namespace Camaleao.Core.Services
 
             if(requestMapped.ContainsKey(key))
             {
-                _context = _contextService.FirstOrDefault(p => p.Id.ToString() == requestMapped[key].ToString());
-                var variaveis = MapperVariables(_context.Variables);
-                _engine.Execute<string>(variaveis);
+                _context = _contextService.FirstOrDefault(p => p.Id == Guid.Parse(requestMapped[key].ToString()));
+
+                if(_context == null)
+                {
+                    AddNotification($"Context", $"There isn't registered context with this ID: {requestMapped[key]}");
+                    return;
+                }
             }
+            else
+            {
+                _context = _template.Context;
+                _context.TemplateId = _template.Id;
+                _contextService.Add(_context);
+            }
+
+            var variaveis = MapperVariables(_context.Variables);
+            _engine.Execute<string>(variaveis);
         }
 
         private string MapperVariables(List<Variable> variables)
@@ -229,7 +188,7 @@ namespace Camaleao.Core.Services
 
             variables.ForEach(variable =>
             {
-                retorno.Append($"var {variable.Name} = {variable.Initialize ?? "''"};");
+                retorno.Append($"var {variable.Name} = {variable.Value};");
             });
 
             return retorno.ToString();
