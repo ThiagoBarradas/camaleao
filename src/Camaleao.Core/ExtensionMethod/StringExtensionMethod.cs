@@ -13,14 +13,14 @@ namespace Camaleao.Core.ExtensionMethod
 
             switch (content)
             {
-                case "texto":
+                case "text":
                 case "_context":
                     type = "System.String";
                     break;
-                case "inteiro":
+                case "integer":
                     type = "System.Int32";
                     break;
-                case "decimal":
+                case "double":
                     type = "System.Double";
                     break;
                 case "bool":
