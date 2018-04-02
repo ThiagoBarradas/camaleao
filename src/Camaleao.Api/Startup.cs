@@ -72,7 +72,7 @@ namespace Camaleao.Api
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();
             services.AddScoped<IContextRepository, ContextRepository>();
-            services.AddScoped<IScriptRepository, ScriptRepository>();
+            services.AddScoped<IScriptRepository, ScriptEngineRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

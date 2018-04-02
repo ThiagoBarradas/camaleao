@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Core.Repository
 {
-    public interface IRepository<T>
+    public interface IRepository<TEntity>
     {
-        Task<List<T>> GetAll();
-        Task<List<T>> Get(Expression<Func<T, bool>> expression);
-        Task Add(T value);
-        bool Update(string id, T valeu);
-        bool Remove(string id);
+        Task<List<TEntity>> GetAll();
+        Task<List<TEntity>> Get(Expression<Func<TEntity, bool>> filter);
+        Task Add(TEntity entity);
+        bool Update(Expression<Func<TEntity, bool>> filter, TEntity entity);
+        bool Remove(Expression<Func<TEntity, bool>> filter);
 
 
     }

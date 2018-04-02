@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Camaleao.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -7,9 +8,8 @@ namespace Camaleao.Core.Services.Interfaces
 {
     public interface IContextService
     {
-        void Add(Context callback);
-        Context FirstOrDefault(Expression<Func<Context, bool>> expression);
-        List<Context> Find(Expression<Func<Context, bool>> expression);
-        bool Update(string id, Context value);
+        Context GetContext(string contextKey);
+        void Add(Context context);
+        void Update(Context context);
     }
 }

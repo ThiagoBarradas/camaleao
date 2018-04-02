@@ -4,43 +4,42 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Camaleao.Api.Models
 {
-    public class TemplateRequest
+    public class TemplateRequestModel
     {
         [Required(ErrorMessageResourceName ="RequestRequired",ErrorMessageResourceType =typeof(ValidationMessageCatalog))]
         public dynamic Request { get; set; }
         [Required(ErrorMessageResourceName = "ResponseRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
-        public List<Response> Responses { get; set; }
+        public List<ResponseModel> Responses { get; set; }
         [JsonRequired()]
-        public List<Rule> Rules { get; set; }
-        public Context Context { get; set; }
+        public List<RuleModel> Rules { get; set; }
+        public ContextModel Context { get; set; }
     }
 
-    
-    public class Response
+    public class ResponseModel
     {
-        public List<Action> Actions { get; set; }
+        public List<ActionModel> Actions { get; set; }
         public string ResponseId { get; set; }
         public int StatusCode { get; set; }
         public dynamic Body { get; set; }
     }
 
-    public class Rule
+    public class RuleModel
     {
         public string Expression { get; set; }
         public string ResponseId { get; set; }
     }
 
-    public class Action
+    public class ActionModel
     {
         public string Execute { get; set; }
     }
 
-    public class Context
+    public class ContextModel
     {
-        public List<Variable> Variables { get; set; }
+        public List<VariableModel> Variables { get; set; }
     }
 
-    public class Variable
+    public class VariableModel
     {
         public string Name { get; set; }
         public string Initialize { get; set; }

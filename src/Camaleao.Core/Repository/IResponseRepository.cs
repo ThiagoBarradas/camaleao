@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Camaleao.Core.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Camaleao.Core.Repository
 {
-    public interface IResponseRepository:IRepository<Response>
+    public interface IResponseRepository:IRepository<ResponseTemplate>
     {
-        Task Add(IEnumerable<Response> responses);
+        Task Add(IEnumerable<ResponseTemplate> responses);
     }
 }

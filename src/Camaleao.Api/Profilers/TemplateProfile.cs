@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Camaleao.Api.Models;
 using Camaleao.Core;
+using Camaleao.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,10 @@ namespace Camaleao.Api.Profilers
     {
         public TemplateProfile()
         {
-            CreateMap<Models.Response, Core.Response>()
+            CreateMap<ResponseModel, ResponseTemplate>()
                 .ForMember(dest => dest.TemplateId, opt => opt.Ignore());
-            CreateMap<Models.Context, Core.Context>()
-                .ForMember(dest => dest.TemplateId, opt => opt.Ignore());
-            CreateMap<TemplateRequest, Template>();
+            CreateMap<ContextModel, ContextTemplate>();
+            CreateMap<TemplateRequestModel, Template>();
         }
     }
 }

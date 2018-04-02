@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Flunt.Notifications;
 using Newtonsoft.Json;
+using Camaleao.Core.Entities;
 
 namespace Camaleao.Core.Services
 {

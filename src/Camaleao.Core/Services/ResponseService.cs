@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
+using Camaleao.Core.Entities;
 
 namespace Camaleao.Core.Services
 {
@@ -16,22 +17,22 @@ namespace Camaleao.Core.Services
         {
             _responseRepository = responseRepository;
         }
-        public void Add(Response response)
+        public void Add(ResponseTemplate response)
         {
             _responseRepository.Add(response);
         }
 
-        public void Add(IEnumerable<Response> responses)
+        public void Add(IEnumerable<ResponseTemplate> responses)
         {
             _responseRepository.Add(responses);
         }
 
-        public List<Response> Find(Expression<Func<Response, bool>> expression)
+        public List<ResponseTemplate> Find(Expression<Func<ResponseTemplate, bool>> expression)
         {
             return _responseRepository.Get(expression).Result;
         }
 
-        public Response FirstOrDefault(Expression<Func<Response, bool>> expression)
+        public ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression)
         {
             return _responseRepository.Get(expression).Result.FirstOrDefault();
         }
