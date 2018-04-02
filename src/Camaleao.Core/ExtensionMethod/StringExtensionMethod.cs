@@ -13,13 +13,14 @@ namespace Camaleao.Core.ExtensionMethod
 
             switch (content)
             {
-                case "texto":
+                case "text":
+                case "_context":
                     type = "System.String";
                     break;
-                case "inteiro":
+                case "integer":
                     type = "System.Int32";
                     break;
-                case "decimal":
+                case "double":
                     type = "System.Double";
                     break;
                 case "bool":
@@ -51,6 +52,22 @@ namespace Camaleao.Core.ExtensionMethod
             }
 
             return Type.GetType(type, false, true);
+        }
+
+        public static string InitializeVariable(this string type)
+        {
+            switch (type)
+            {
+                case "text":
+                    return "''";
+                case "integer":
+                case "double":
+                    return "0";
+                case "bool":
+                    return "true";
+                default:
+                    return "''";
+            }
         }
 
         public static string ClearNavigateProperties(this string key)
