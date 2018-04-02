@@ -1,0 +1,19 @@
+version: '3'
+services:
+  camaleao:
+    build:
+      dockerfile: ./dockerfile
+      context: .
+    container_name: camaleaoapi
+    ports:
+      - "5000:5000"
+    links:
+      - mongodb
+    depends_on:
+      - "mongodb"      
+  
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
