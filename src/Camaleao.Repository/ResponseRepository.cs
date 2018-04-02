@@ -1,59 +1,25 @@
-﻿using Camaleao.Core;
-using Camaleao.Core.Repository;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Camaleao.Core;
+using Camaleao.Core.Entities;
+using Camaleao.Core.Repository;
 
 namespace Camaleao.Repository
 {
-    public class ResponseRepository : IResponseRepository
+    public class ResponseRepository :  BaseRepository<ResponseTemplate>, IResponseRepository
     {
-        readonly MongoContext mongoContext;
-        const string ResponseCollection = "response";
-
-
-        private IMongoCollection<Response> GetMongoCollection()
+        public ResponseRepository(Settings settings) : base(settings)
         {
-            return mongoContext.GetCollection<Response>(ResponseCollection);
-        }
-        public ResponseRepository(Settings settings)
-        {
-            mongoContext = new MongoContext(settings);
         }
 
-        Task IResponseRepository.Add(IEnumerable<Response> responses)
+        public Task Add(IEnumerable<ResponseTemplate> responses)
         {
             return GetMongoCollection().InsertManyAsync(responses);
         }
 
-        public Task Add(Response value)
+        protected override string GetCollectionName()
         {
-            return GetMongoCollection().InsertOneAsync(value);
-        }
-
-        public bool Remove(string id)
-        {
-            DeleteResult actionResult = GetMongoCollection().DeleteOne(p => p.ResponseId == id);
-            return actionResult.IsAcknowledged
-                            && actionResult.DeletedCount > 0;
-        }
-
-        public bool Update(string id, Response valeu)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<List<Response>> IRepository<Response>.GetAll()
-        {
-            return GetMongoCollection().Find(_ => true).ToListAsync();
-        }
-
-        Task<List<Response>> IRepository<Response>.Get(Expression<Func<Response, bool>> expression)
-        {
-            return GetMongoCollection().Find(expression).ToListAsync();
+            return "response";
         }
     }
 }

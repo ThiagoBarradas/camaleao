@@ -1,4 +1,5 @@
-﻿using Flunt.Notifications;
+﻿using Camaleao.Core.Entities;
+using Flunt.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;

@@ -1,4 +1,5 @@
-﻿using Flunt.Notifications;
+﻿using Camaleao.Core.Entities;
+using Flunt.Notifications;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace Camaleao.Core.Services.Interfaces
         void InitializeMock(Template template, JObject request);
         IReadOnlyCollection<Notification> ValidateContract();
         IReadOnlyCollection<Notification> ValidateRules();
-        Response Response();
+        ResponseTemplate Response();
     }
 }

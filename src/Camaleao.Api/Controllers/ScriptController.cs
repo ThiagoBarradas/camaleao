@@ -33,7 +33,7 @@ namespace Camaleao.Api.Controllers
                 return new ObjectResult("Script created with success.") { StatusCode = 200 };
             }catch(Exception ex)
             {
-                return new ObjectResult("Erro on created with sucesso.") { StatusCode = 500 };
+                return new ObjectResult("Erro on created Script.") { StatusCode = 500 };
             }
         }
 

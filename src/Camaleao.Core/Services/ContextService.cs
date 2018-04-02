@@ -5,35 +5,39 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
+using Camaleao.Core.Entities;
+using Flunt.Notifications;
 
 namespace Camaleao.Core.Services
 {
-    public class ContextService : IContextService
+    public class ContextService : Notifiable, IContextService
     {
-        readonly IContextRepository _callbackRepository;
+        readonly IContextRepository contextRepository;
 
-        public ContextService(IContextRepository callbackRepository)
+        public ContextService(IContextRepository contextRepository)
         {
-            _callbackRepository = callbackRepository;
-        }
-        public void Add(Context callback)
-        {
-            _callbackRepository.Add(callback);
+            this.contextRepository = contextRepository;
         }
 
-        public bool Update(string id, Context value)
+        public void Add(Context context)
         {
-            return _callbackRepository.Update(id, value);
+            this.contextRepository.Add( context);
         }
 
-        public List<Context> Find(Expression<Func<Context, bool>> expression)
+        public Context GetContext(string contextKey)
         {
-            return _callbackRepository.Get(expression).Result;
+            Context context =null;
+            context = this.contextRepository.Get(p => p.Id == Guid.Parse(contextKey)).Result.FirstOrDefault();
+
+            if(context==null)
+                AddNotification($"Context", $"There isn't registered context with this ID: {contextKey}");
+
+            return context;
         }
 
-        public Context FirstOrDefault(Expression<Func<Context, bool>> expression)
+        public void Update(Context context)
         {
-            return _callbackRepository.Get(expression).Result.FirstOrDefault();
+            this.contextRepository.Update(p => p.Id == context.Id, context);
         }
     }
 }

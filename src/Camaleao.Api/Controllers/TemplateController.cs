@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Camaleao.Api.Models;
 using Camaleao.Core;
+using Camaleao.Core.Entities;
 using Camaleao.Core.ExtensionMethod;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace Camaleao.Api.Controllers
 
         // POST api/values
         [HttpPost]
-        public IActionResult Create([FromBody]TemplateRequest templateRequest)
+        public IActionResult Create([FromBody]TemplateRequestModel templateRequest)
         {
             if (ModelState.IsValid)
             {
