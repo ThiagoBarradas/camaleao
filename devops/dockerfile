@@ -1,12 +1,9 @@
 FROM microsoft/aspnetcore-build AS builder
 WORKDIR /source
 
-# Copy csproj and restore as distinct layers
-COPY ./../src/*.sln ./
-RUN dotnet restore
-
 # Copy everything else and build
-COPY ./../src ./
+COPY ./src ./
+RUN dotnet restore
 RUN dotnet publish --output /app/
 
 # Default Environment
