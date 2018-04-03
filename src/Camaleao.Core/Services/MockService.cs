@@ -53,8 +53,9 @@ namespace Camaleao.Core.Services
                     AddNotification($"{request.Key}", "The type of the propertie don't reflect the contract");
             }
 
-            if (_template.Context == null && requestMapped.Values.Contains("_context"))
-                AddNotification($"Context", "There isn't mapped context in your template");
+            // Validação de context provisoriamente removida. Porque o context deve ser usado em mais de um template.
+            //if (_template.Context == null && requestMapped.Values.Contains("_context"))
+            //    AddNotification($"Context", "There isn't mapped context in your template");
 
             LoadContext(requestMapped, templateRequestMapped);
 
@@ -68,8 +69,10 @@ namespace Camaleao.Core.Services
                 var expression = rule.Expression;
 
                 expression = ExtractFunctions(expression, false);
-                expression = ExtractProperties(expression, false, "Context", delimiters: new string[] { "_context.{{", "}}" });
-                expression = ExtractProperties(expression, false, delimiters: new string[] { "{{", "}}" });
+                expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: new string[] { "_context.{{", "}}" });
+                expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: new string[] { "_context.$$", "$$" });
+                expression = ExtractProperties(expression, false, "NoScope", delimiters: new string[] { "{{", "}}" });
+                expression = ExtractProperties(expression, false, "NoScope", "GetComplexElement", delimiters: new string[] { "$$" });
 
                 if (_engine.Execute<bool>(expression))
                 {
@@ -99,25 +102,25 @@ namespace Camaleao.Core.Services
             return expression;
         }
 
-        private string ExtractProperties(string expression, bool execEngine, string nameFunction = "GetElement", params string[] delimiters)
+        private string ExtractProperties(string expression, bool execEngine, string scope, string nameFunction = "GetElement", params string[] delimiters)
         {
             var properties = expression.ExtractList(delimiters);
             properties.ForEach(propertie =>
             {
-                var function = MapperFunction(nameFunction, propertie);
+                var content = MapperFunction(nameFunction, propertie);
 
                 if (execEngine)
-                    expression = expression.Replace(String.Format(StyleStringFormat(nameFunction), propertie), _engine.Execute<dynamic>(function));
+                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope, nameFunction), propertie), _engine.Execute<dynamic>(content));
                 else
-                    expression = expression.Replace(String.Format(StyleStringFormat(nameFunction), propertie), function);
+                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope, nameFunction), propertie), content);
             });
 
-            return expression;
+            return expression; 
         }
 
-        private string StyleStringFormat(string nameFunction)
+        private string StyleStringFormat(string variableType, string scope, string nameFunction)
         {
-            if (nameFunction == "GetComplexElement")
+            if(scope == "Response" && (variableType == "object" || variableType == "number" || nameFunction == "GetContextComplexElement"))
                 return @"""{0}""";
 
             return @"{0}";
@@ -129,16 +132,19 @@ namespace Camaleao.Core.Services
 
             _response.Actions.ForEach(action =>
             {
-                action.Execute = ExtractProperties(Convert.ToString(action.Execute), false, "Context", delimiters: new string[] { "_context.{{", "}}" });
-                action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, delimiters: new string[] { "{{", "}}" });
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), false, "NoScope", "Context", delimiters: new string[] { "_context.{{", "}}" });
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), false, "NoScope", "ContextComplex", delimiters: new string[] { "_context.$$", "$$" });
+                action.Execute = ExtractProperties(Convert.ToString(action.Execute), true, "NoScope", delimiters: new string[] { "{{", "}}" });
+                action.Execute = ExtractFunctions(Convert.ToString(action.Execute), false);
 
                 _engine.Execute<string>(action.Execute);
             });
 
 
-            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Context", delimiters: new string[] { "_context.{{", "}}" });
-            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, delimiters: new string[] { "{{", "}}" });
-            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "GetComplexElement", delimiters: new string[] { "$$" });
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Response", "Context", delimiters: new string[] { "_context.{{", "}}" });
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Response", "GetContextComplexElement", delimiters: new string[] { "_context.$$", "$$" });
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Response", delimiters: new string[] { "{{", "}}" });
+            _response.Body = ExtractProperties(Convert.ToString(_response.Body), true, "Response", "GetComplexElement", delimiters: new string[] { "$$" });
 
 
             if (_context != null)
@@ -169,7 +175,7 @@ namespace Camaleao.Core.Services
                 _context = _template.Context.CreateContext();
                 _contextService.Add(_context);
             }
-            _engine.Execute<string>(_context.GetVariableWithString());
+            _engine.Execute<string>(_context.GetVariablesAsString());
 
         }
 
@@ -205,10 +211,16 @@ namespace Camaleao.Core.Services
                 case "NotExistPath":
                 case "GetElement":
                     return $"{parameters[0]}('{parameters[1].ExtractBetween("{{", "}}")}')";
-                case "GetComplexElement":
-                    return $"{parameters[0]}('{parameters[1].ExtractBetween("$$")}')";
                 case "Context":
                     return $"{parameters[1].ExtractBetween("_context.{{", "}}")}";
+                case "ContextComplex":
+                return $"{parameters[1].ExtractBetween("_context.$$", "$$")}";
+                case "GetComplexElement":
+                    return $"{parameters[0]}('{parameters[1].ExtractBetween("$$")}')";
+                case "GetContextComplexElement":
+                    return $"JSON.stringify({parameters[1].ExtractBetween("_context.$$", "$$")})";
+                default:
+                return $"{parameters[0]}({string.Join(',', parameters.Skip(1).ToArray())})";
             }
 
             return String.Empty;

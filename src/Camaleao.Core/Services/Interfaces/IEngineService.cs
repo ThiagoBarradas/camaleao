@@ -9,5 +9,6 @@ namespace Camaleao.Core.Services.Interfaces
     {
         T Execute<T>(string expression);
         void LoadRequest(JObject request, string variavel);
+        string VariableType(string variable);
     }
 }
