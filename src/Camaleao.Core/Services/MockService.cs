@@ -55,8 +55,8 @@ namespace Camaleao.Core.Services
 
             if (_template.Context == null && requestMapped.Values.Contains("_context"))
                 AddNotification($"Context", "There isn't mapped context in your template");
-            else if (_template.Context != null)
-                LoadContext(requestMapped, templateRequestMapped);
+
+            LoadContext(requestMapped, templateRequestMapped);
 
             return Notifications;
         }
@@ -164,7 +164,7 @@ namespace Camaleao.Core.Services
             {
                 _context = _contextService.GetContext(requestMapped[key].ToString());
             }
-            else 
+            else if (_template.Context != null)
             {
                 _context = _template.Context.CreateContext();
                 _contextService.Add(_context);
