@@ -20,7 +20,7 @@ namespace Camaleao.Core.Entities
 
             this.Variables.ForEach(variable =>
             {
-                retorno.Append($"var {variable.Name} = {variable.Value};");
+                retorno.Append($"var {variable.Name} = {variable.GetValue()};");
             });
 
             return retorno.ToString();
