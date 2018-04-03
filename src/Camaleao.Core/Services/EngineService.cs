@@ -36,5 +36,10 @@ namespace Camaleao.Core.Services
             var result = _engine.Execute(expression).GetCompletionValue().ToString();
             return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
         }
+
+        public string VariableType(string variable)
+        {
+            return _engine.Execute($"typeof {variable}").GetCompletionValue().ToString();
+        }
     }
 }
