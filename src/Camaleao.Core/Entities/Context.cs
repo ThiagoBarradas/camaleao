@@ -14,13 +14,13 @@ namespace Camaleao.Core.Entities
         public Guid Id { get; set; }
         public List<Variable> Variables { get; set; }
 
-        public string GetVariableWithString()
+        public string GetVariablesAsString()
         {
             StringBuilder retorno = new StringBuilder();
 
             this.Variables.ForEach(variable =>
             {
-                retorno.Append($"var {variable.Name} = {variable.GetValue()};");
+                retorno.Append($"var {variable.Name} = {variable.Value};");
             });
 
             return retorno.ToString();

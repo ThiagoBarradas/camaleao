@@ -42,8 +42,8 @@ namespace Camaleao.Api.Controllers
                 if (notifications.Any())
                     return new ObjectResult(notifications) { StatusCode = 400 };
 
-                template.Context?.Variables.ForEach(variable => variable.Value = variable.Initialize ?? variable.Type.InitializeVariable());
-
+                template.Context?.Variables.ForEach(variable => variable.BuildVariable());
+                
                 _templateService.Add(template);
 
                 template.Responses.ForEach(resp => resp.TemplateId = template.Id);
