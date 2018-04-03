@@ -40,7 +40,7 @@ namespace Camaleao.Core.Services
 
         public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
         {
-            ValidateContext(template);
+          //  ValidateContext(template);
             return Notifications;
         }
 
