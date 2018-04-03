@@ -1,0 +1,113 @@
+version: 2
+jobs:
+  build:
+    working_directory: /app
+    docker:
+      - image: microsoft/aspnetcore-build:2.0.0
+    steps:
+      - checkout
+      - run:
+          name: Checking files
+          command: ls
+      - run:
+          name: Restoring nuget packages
+          command: dotnet restore src/Camaleao.sln
+      - run:
+          name: Publishing app
+          command: dotnet publish src/Camaleao.sln -c Release -o bin/Release/netcoreapp2.0
+      - store_artifacts:
+          path: /app/src/Camaleao.Api/bin/Release/netcoreapp2.0
+          destination: app-artifact
+      - persist_to_workspace:
+          root: /
+          paths:
+            - app
+
+  publish:
+    working_directory: /
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: /
+      - deploy:
+          name: Push application Docker image
+          command: |
+             cd app
+             docker build -f .circleci/dockerfile -t ${DOCKER_ACCOUNT}/${PROJECT_NAME} .
+             docker login ${DOCKER_ACCOUNT} -u ${DOCKER_USER} -p ${DOCKER_PASS}
+             docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_BRANCH}"
+             docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_SHA1:0:8}"
+             docker push "${DOCKER_ACCOUNT}/${PROJECT_NAME}"
+             
+  deploy_staging:
+    machine: true
+    steps:
+      - run:
+          name: Send deployment webhook to Rancher
+          command: |
+            DEPLOY_URL=${RANCHER_STG_DEPLOY_URL}
+            BODY='{
+                       "push_data": {
+                           "tag": "'"${CIRCLE_BRANCH}"'"
+                       },
+                       "repository": {
+                            "repo_name": "'"${DOCKER_ACCOUNT}/${PROJECT_NAME}"'"
+                       }
+                    }'
+            curl -X POST ${DEPLOY_URL} -H 'Content-Type: application/json' -d "${BODY}"
+
+  deploy_production:
+    machine: true
+    steps:
+      - run:
+          name: Send deployment webhook to Rancher
+          command: |
+            DEPLOY_URL=${RANCHER_PROD_DEPLOY_URL}
+            BODY='{
+                       "push_data": {
+                           "tag": "'"${CIRCLE_BRANCH}"'"
+                       },
+                       "repository": {
+                            "repo_name": "'"${DOCKER_ACCOUNT}/${PROJECT_NAME}"'"
+                       }
+                    }'
+            curl -X POST ${DEPLOY_URL} -H 'Content-Type: application/json' -d "${BODY}"
+  
+workflows:
+  version: 2
+  build_publish_deploy:
+    jobs:
+      - build
+      - publish:
+          requires:
+            - build
+          filters:
+            branches:
+              only: 
+                - master
+                - develop
+      - hold:
+          type: approval
+          requires:
+            - publish
+          filters:
+            branches:
+              only: 
+                - master
+      - deploy_production:
+          requires:
+            - hold
+          filters:
+            branches:
+              only: 
+                - master
+      - deploy_staging:
+          requires:
+            - publish
+          filters:
+            branches:
+              only: 
+                - develop
+
