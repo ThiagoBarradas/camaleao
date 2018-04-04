@@ -6,8 +6,9 @@ namespace Camaleao.Core.Entities
 {
     public class Template
     {
-        public string Route { get; set; }
         public string Id { get; set; }
+        public string User { get; set; }
+        public Route Route { get; set; }
 
         [BsonIgnore()]
         public dynamic Request {

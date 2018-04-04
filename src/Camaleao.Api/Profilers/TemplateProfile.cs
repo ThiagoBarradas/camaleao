@@ -16,6 +16,9 @@ namespace Camaleao.Api.Profilers
             CreateMap<ResponseModel, ResponseTemplate>()
                 .ForMember(dest => dest.TemplateId, opt => opt.Ignore());
             CreateMap<ContextModel, ContextTemplate>();
+            CreateMap<RouteModel, Route>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToLower()))
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version.ToLower()));
             CreateMap<TemplateRequestModel, Template>();
         }
     }
