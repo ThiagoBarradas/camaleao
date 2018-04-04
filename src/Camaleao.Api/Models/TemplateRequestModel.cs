@@ -13,6 +13,7 @@ namespace Camaleao.Api.Models
         [JsonRequired()]
         public List<RuleModel> Rules { get; set; }
         public ContextModel Context { get; set; }
+        public List<ActionModel> Actions { get; set; }
     }
 
     public class ResponseModel
