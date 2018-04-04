@@ -11,12 +11,17 @@ namespace Camaleao.Core.Entities
 
         public string Type { get; set; }
 
-        //public string GetValue()
-        //{
-        //    if("text".Equals(this.Type.ToLower()))
-        //        return $"'{Value}'";
-        //    return Value;
-        //}
+        public string GetValue()
+        {
+            if ("text".Equals(this.Type.ToLower()))
+            {
+                this.Value = Value.Replace("'", "");
+                return $"'{Value}'";
+
+            }
+
+            return Value;
+        }
 
         public void BuildVariable()
         {
