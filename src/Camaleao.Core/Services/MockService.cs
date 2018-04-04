@@ -56,19 +56,20 @@ namespace Camaleao.Core.Services
 
             return Notifications;
         }
-        
+
         private string ExtractActionExpression(string expression)
         {
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
-            expression = ExtractProperties(expression, true, "NoScope", delimiters: Delimiters.ElementRequest() );
+            expression = ExtractProperties(expression, true, "NoScope", delimiters: Delimiters.ElementRequest());
             expression = ExtractFunctions(expression, false);
             return expression;
         }
 
-        private string ExtractRulesExpression(string expression) {
+        private string ExtractRulesExpression(string expression)
+        {
             expression = ExtractFunctions(expression, false);
-            expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable() );
+            expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, false, "NoScope", delimiters: Delimiters.ElementRequest());
             expression = ExtractProperties(expression, false, "NoScope", "GetComplexElement", delimiters: Delimiters.ComplexElement());
@@ -89,7 +90,7 @@ namespace Camaleao.Core.Services
         public IReadOnlyCollection<Notification> ValidateRules()
         {
             foreach (var rule in _template.Rules)
-            {         
+            {
                 if (_engine.Execute<bool>(ExtractRulesExpression(rule.Expression)))
                 {
                     _response = new ResponseTemplate() { ResponseId = rule.ResponseId };
@@ -131,12 +132,12 @@ namespace Camaleao.Core.Services
                     expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope, nameFunction), propertie), content);
             });
 
-            return expression; 
+            return expression;
         }
 
         private string StyleStringFormat(string variableType, string scope, string nameFunction)
         {
-            if(scope == "Response" && (variableType == "object" || variableType == "number" || nameFunction == "GetContextComplexElement"))
+            if (scope == "Response" && (variableType == "object" || variableType == "number" || nameFunction == "GetContextComplexElement"))
                 return @"""{0}""";
 
             return @"{0}";
@@ -146,15 +147,11 @@ namespace Camaleao.Core.Services
         {
 
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
-           
-            _template.Actions.ForEach(action =>
-            {
-                _engine.Execute<string>(ExtractActionExpression(action.Execute));
-            });
-            _response.Actions.ForEach(action =>
-            {
-                _engine.Execute<string>(ExtractActionExpression(action.Execute));
-            });
+
+            ExecuteActionTemplate();
+
+            ExecuteActionResponse();
+
             _response.Body = ExtractResponseExpression(Convert.ToString(_response.Body));
 
             if (_context != null)
@@ -163,13 +160,35 @@ namespace Camaleao.Core.Services
 
                 _context.Variables.ForEach(variable =>
                 {
-                    variable.Value = _engine.Execute<string>(variable.Name); ;
+                    variable.Value = _engine.Execute<string>(variable.Name);
+
+                    if (variable.Type.ToLower() == "text")
+                        variable.Value = $"'{variable.Value}'";
+
                 });
 
                 _contextService.Update(_context);
             }
 
             return _response;
+        }
+
+        private void ExecuteActionResponse()
+        {
+            if (_response.Actions != null)
+                _response.Actions.ForEach(action =>
+                {
+                    _engine.Execute<string>(ExtractActionExpression(action.Execute));
+                });
+        }
+
+        private void ExecuteActionTemplate()
+        {
+            if (_template.Actions != null)
+                _template.Actions.ForEach(action =>
+                {
+                    _engine.Execute<string>(ExtractActionExpression(action.Execute));
+                });
         }
 
         private void LoadContext(Dictionary<string, object> requestMapped, Dictionary<string, object> templateRequestMapped)
@@ -221,13 +240,13 @@ namespace Camaleao.Core.Services
                 case "Context":
                     return $"{parameters[1].ExtractBetween(Delimiters.ContextVariable())}";
                 case "ContextComplex":
-                return $"{parameters[1].ExtractBetween(Delimiters.ContextComplexElement())}";
+                    return $"{parameters[1].ExtractBetween(Delimiters.ContextComplexElement())}";
                 case "GetComplexElement":
                     return $"{parameters[0]}('{parameters[1].ExtractBetween(Delimiters.ComplexElement())}')";
                 case "GetContextComplexElement":
                     return $"JSON.stringify({parameters[1].ExtractBetween(Delimiters.ContextComplexElement())})";
                 default:
-                return $"{parameters[0]}({string.Join(',', parameters.Skip(1).ToArray())})";
+                    return $"{parameters[0]}({string.Join(',', parameters.Skip(1).ToArray())})";
             }
         }
 
