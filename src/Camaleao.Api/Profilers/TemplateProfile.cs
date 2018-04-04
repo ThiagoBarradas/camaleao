@@ -20,6 +20,7 @@ namespace Camaleao.Api.Profilers
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToLower()))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version.ToLower()));
             CreateMap<TemplateRequestModel, Template>();
+            CreateMap<Template, TemplateResponseModel>();
         }
     }
 }
