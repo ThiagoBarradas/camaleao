@@ -7,6 +7,7 @@ using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,15 +19,13 @@ namespace Camaleao.Api.Controllers
     {
         private readonly ITemplateService _templateService;
         private readonly IResponseService _responseService;
-        private readonly IContextService _contextService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _Configuration;
 
-        public TemplateController(ITemplateService templateService, IResponseService responseService, IContextService contextService, IMapper mapper, IConfiguration configuration)
+        public TemplateController(ITemplateService templateService, IResponseService responseService, IMapper mapper, IConfiguration configuration)
         {
             _templateService = templateService;
             _responseService = responseService;
-            _contextService = contextService;
             _mapper = mapper;
             _Configuration = configuration;
         }
@@ -41,18 +40,23 @@ namespace Camaleao.Api.Controllers
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
 
-            return new ObjectResult(JsonConvert.SerializeObject(template)) { StatusCode = 200 };
+            var templateResponse = _mapper.Map<TemplateResponseModel>(template);
+
+            var response = JsonConvert.SerializeObject(templateResponse);
+            response = response.Replace(JsonConvert.SerializeObject(templateResponse.Context.Variables), templateResponse.Context.BuildVariables());
+
+            return new ObjectResult(response) { StatusCode = 200 };
         }
 
         [HttpPost("{user}")]
         public IActionResult Create(string user, [FromBody]TemplateRequestModel templateRequest)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
                 var template = _mapper.Map<Template>(templateRequest);
 
                 var notifications = _templateService.ValidateTemplate(template);
-                if (notifications.Any())
+                if(notifications.Any())
                     return new ObjectResult(notifications) { StatusCode = 400 };
 
                 template.Context?.Variables.ForEach(variable => variable.BuildVariable());
