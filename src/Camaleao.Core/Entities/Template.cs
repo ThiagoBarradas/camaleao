@@ -26,5 +26,6 @@ namespace Camaleao.Core.Entities
         public List<ResponseTemplate> Responses { get; set; }
         public ContextTemplate Context { get; set; }
         public List<RuleTemplate> Rules { get; set; }
+        public List<Action> Actions { get; set; }
     }
 }

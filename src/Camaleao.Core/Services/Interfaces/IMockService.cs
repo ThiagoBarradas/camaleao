@@ -12,6 +12,7 @@ namespace Camaleao.Core.Services.Interfaces
         void InitializeMock(Template template, JObject request);
         IReadOnlyCollection<Notification> ValidateContract();
         IReadOnlyCollection<Notification> ValidateRules();
+
         ResponseTemplate Response();
     }
 }
