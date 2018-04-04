@@ -6,13 +6,14 @@ using Camaleao.Core.ExtensionMethod;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Camaleao.Api.Controllers
 {
 
-    [Route("api/Template")]
+    [Route("api/template")]
     public class TemplateController : Controller
     {
         private readonly ITemplateService _templateService;
@@ -30,9 +31,21 @@ namespace Camaleao.Api.Controllers
             _Configuration = configuration;
         }
 
-        // POST api/values
-        [HttpPost]
-        public IActionResult Create([FromBody]TemplateRequestModel templateRequest)
+        [HttpGet("{user}/{version}/{routeName}")]
+        public IActionResult Get(string user, string version, string routeName)
+        {
+            var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Name == routeName && p.Route.Version == version);
+
+            if(template == null)
+                return NotFound("Identify Not Found");
+
+            template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+
+            return new ObjectResult(JsonConvert.SerializeObject(template)) { StatusCode = 200 };
+        }
+
+        [HttpPost("{user}")]
+        public IActionResult Create(string user, [FromBody]TemplateRequestModel templateRequest)
         {
             if (ModelState.IsValid)
             {
@@ -43,17 +56,17 @@ namespace Camaleao.Api.Controllers
                     return new ObjectResult(notifications) { StatusCode = 400 };
 
                 template.Context?.Variables.ForEach(variable => variable.BuildVariable());
-                
+                template.User = user;
                 _templateService.Add(template);
 
                 template.Responses.ForEach(resp => resp.TemplateId = template.Id);
                 _responseService.Add(template.Responses);
 
 
-                TemplateResponse templateResponse = new TemplateResponse()
+                TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
                 {
                     Token = template.Id,
-                    Route = _Configuration["Host:Url"] +"api/mock/"+template.Id
+                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}"
                 };
                 return Ok(templateResponse);
             }
