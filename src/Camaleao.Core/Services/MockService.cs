@@ -197,7 +197,7 @@ namespace Camaleao.Core.Services
 
             if (requestMapped.ContainsKey(key))
             {
-                _context = _contextService.GetContext(requestMapped[key].ToString());
+                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());
             }
             else if (_template.Context != null)
             {
