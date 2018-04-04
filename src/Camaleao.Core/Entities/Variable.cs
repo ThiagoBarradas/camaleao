@@ -11,13 +11,6 @@ namespace Camaleao.Core.Entities
 
         public string Type { get; set; }
 
-        //public string GetValue()
-        //{
-        //    if("text".Equals(this.Type.ToLower()))
-        //        return $"'{Value}'";
-        //    return Value;
-        //}
-
         public void BuildVariable()
         {
             if(Initialize == null)
@@ -33,7 +26,6 @@ namespace Camaleao.Core.Entities
 
         private string MapperType()
         {
-            var aaaa = Initialize?.GetType()?.FullName;
             switch(Initialize?.GetType()?.FullName)
             {
                 case "System.String":
@@ -49,20 +41,6 @@ namespace Camaleao.Core.Entities
                 return $"{Initialize}";
             }
         }
-
-        //private string Teste(Object initialize)
-        //{
-            
-        //    var properties = initialize.GetType().GetProperties();
-        //    foreach(var propriedade in properties)
-        //    {
-        //        var name = propriedade.Name;
-        //        var type = propriedade.PropertyType;
-        //        var valuedsa = propriedade.GetValue(properties);    
-        //    }
-
-        //    return "";
-        //}
 
         private string GetTypeValue()
         {

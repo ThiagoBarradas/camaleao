@@ -153,7 +153,7 @@ namespace Camaleao.Core.Services
 
                 _context.Variables.ForEach(variable =>
                 {
-                    variable.Value = _engine.Execute<string>(variable.Name); ;
+                    variable.Value = _engine.Execute<string>(variable.Name);
                 });
 
                 _contextService.Update(_context);
