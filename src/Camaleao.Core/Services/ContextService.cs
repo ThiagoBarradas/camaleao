@@ -21,10 +21,10 @@ namespace Camaleao.Core.Services
 
         public void Add(Context context)
         {
-            this.contextRepository.Add( context);
+            contextRepository.Add(context);
         }
 
-        public Context GetContext(string contextKey)
+        public Context FirstOrDefault(string contextKey)
         {
             Context context =null;
             context = this.contextRepository.Get(p => p.Id == Guid.Parse(contextKey)).Result.FirstOrDefault();
@@ -38,6 +38,11 @@ namespace Camaleao.Core.Services
         public void Update(Context context)
         {
             this.contextRepository.Update(p => p.Id == context.Id, context);
+        }
+
+        IReadOnlyCollection<Notification> IContextService.Notifications()
+        {
+            return Notifications;
         }
     }
 }
