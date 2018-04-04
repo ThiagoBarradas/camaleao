@@ -6,6 +6,8 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequestModel
     {
+        [JsonRequired()]
+        public RouteModel Route { get; set; }
         [Required(ErrorMessageResourceName ="RequestRequired",ErrorMessageResourceType =typeof(ValidationMessageCatalog))]
         public dynamic Request { get; set; }
         [Required(ErrorMessageResourceName = "ResponseRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
@@ -13,6 +15,12 @@ namespace Camaleao.Api.Models
         [JsonRequired()]
         public List<RuleModel> Rules { get; set; }
         public ContextModel Context { get; set; }
+    }
+
+    public class RouteModel
+    {
+        public string Version { get; set; }
+        public string Name { get; set; }
     }
 
     public class ResponseModel
