@@ -8,7 +8,18 @@ namespace Camaleao.Core.Entities
         public string Name { get; set; }
         public dynamic Initialize { get; set; }
 
-        public string Value { get; set; }
+        private string _value = string.Empty;
+        public string Value {
+            get {
+                if (string.IsNullOrEmpty(_value))
+                    _value = Initialize;
+
+                return _value;
+            }
+            set {
+                _value = value;
+            }
+        }
 
         public string Type { get; set; }
 
@@ -33,7 +44,7 @@ namespace Camaleao.Core.Entities
             {
                 case "System.String":
                     {
-                        Type = "texto";
+                        Type = "text";
                         return $"'{Initialize}'";
                     }
                 case "Newtonsoft.Json.Linq.JArray":

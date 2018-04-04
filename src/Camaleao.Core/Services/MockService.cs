@@ -160,10 +160,17 @@ namespace Camaleao.Core.Services
 
                 _context.Variables.ForEach(variable =>
                 {
-                    variable.Value = _engine.Execute<string>(variable.Name);
+                    string value = "";
 
-                    if (variable.Type.ToLower() == "text")
-                        variable.Value = $"'{variable.Value}'";
+                    if (variable.Type == "object" || variable.Type == "array")
+                        value = _engine.Execute<string>($"JSON.stringify({variable.Name})");
+                    else
+                        value = _engine.Execute<string>(variable.Name);
+
+                    if (variable.Type.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                        variable.Value = $"'{value}'";
+                    else
+                        variable.Value = value;
 
                 });
 
