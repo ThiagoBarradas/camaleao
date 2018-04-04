@@ -30,7 +30,7 @@ namespace Camaleao.Core.Entities
             {
                 case "System.String":
                     {
-                        Type = "texto";
+                        Type = "text";
                         return $"'{Initialize}'";
                     }
                 case "Newtonsoft.Json.Linq.JArray":
