@@ -7,25 +7,16 @@ namespace Camaleao.Core.Entities
     {
         public string Name { get; set; }
         public dynamic Initialize { get; set; }
+
         public string Value { get; set; }
 
         public string Type { get; set; }
 
-        public string GetValue()
-        {
-            if ("text".Equals(this.Type.ToLower()))
-            {
-                this.Value = Value.Replace("'", "");
-                return $"'{Value}'";
 
-            }
-
-            return Value;
-        }
 
         public void BuildVariable()
         {
-            if(Initialize == null)
+            if (Initialize == null)
             {
                 Value = GetTypeValue();
             }
@@ -38,52 +29,49 @@ namespace Camaleao.Core.Entities
 
         private string MapperType()
         {
-            var aaaa = Initialize?.GetType()?.FullName;
-            switch(Initialize?.GetType()?.FullName)
+            switch (Initialize?.GetType()?.FullName)
             {
                 case "System.String":
-                return $"'{Initialize}'";
+                    {
+                        Type = "texto";
+                        return $"'{Initialize}'";
+                    }
                 case "Newtonsoft.Json.Linq.JArray":
                 case "Newtonsoft.Json.Linq.JObject":
-                return $"{JsonConvert.SerializeObject(Initialize)}";
+                    {
+                        Type = "object";
+                        return $"{JsonConvert.SerializeObject(Initialize)}";
+                    }
                 case "System.Double":
-                return $"{Initialize.ToString().Replace(',', '.')}";
+                    {
+                        Type = "double";
+                        return $"{Initialize.ToString().Replace(',', '.')}";
+                    }
                 case "System.Boolean":
-                return $"{Initialize.ToString().ToLower()}";
+                    {
+                        Type = "bool";
+                        return $"{Initialize.ToString().ToLower()}";
+                    }
                 default:
-                return $"{Initialize}";
+                    return $"{Initialize}";
             }
         }
 
-        //private string Teste(Object initialize)
-        //{
-            
-        //    var properties = initialize.GetType().GetProperties();
-        //    foreach(var propriedade in properties)
-        //    {
-        //        var name = propriedade.Name;
-        //        var type = propriedade.PropertyType;
-        //        var valuedsa = propriedade.GetValue(properties);    
-        //    }
-
-        //    return "";
-        //}
-
         private string GetTypeValue()
         {
-            switch(Type)
+            switch (Type)
             {
                 case "text":
-                return "''";
+                    return "''";
                 case "integer":
                 case "double":
-                return "0";
+                    return "0";
                 case "bool":
-                return "true";
+                    return "true";
                 case "array":
-                return "[]";
+                    return "[]";
                 default:
-                return "''";
+                    return "''";
             }
         }
 
