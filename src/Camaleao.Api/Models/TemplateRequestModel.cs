@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Camaleao.Core.ExtensionMethod;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,13 +8,22 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequestModel
     {
-        [Required(ErrorMessageResourceName ="RequestRequired",ErrorMessageResourceType =typeof(ValidationMessageCatalog))]
+        [JsonRequired()]
+        public RouteModel Route { get; set; }
+        [Required(ErrorMessageResourceName = "RequestRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public dynamic Request { get; set; }
         [Required(ErrorMessageResourceName = "ResponseRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public List<ResponseModel> Responses { get; set; }
         [JsonRequired()]
         public List<RuleModel> Rules { get; set; }
         public ContextModel Context { get; set; }
+        public List<ActionModel> Actions { get; set; }
+    }
+
+    public class RouteModel
+    {
+        public string Version { get; set; }
+        public string Name { get; set; }
     }
 
     public class ResponseModel
@@ -37,13 +48,31 @@ namespace Camaleao.Api.Models
     public class ContextModel
     {
         public List<VariableModel> Variables { get; set; }
+
+        public string BuildVariables()
+        {
+            var variablesToMap = JsonConvert.SerializeObject(Variables).Replace("\\", string.Empty);
+
+            Variables.ForEach(variable =>
+            {
+                if(variable.Type == "text")
+                {
+                    variablesToMap = variablesToMap.Replace($"'{variable.Value}'", variable.Value);
+                }else
+                {
+                    variablesToMap = variablesToMap.Replace($"\"{variable.Value}\"", variable.Value);
+                }
+            });
+
+            return variablesToMap;
+        }
     }
 
     public class VariableModel
     {
         public string Name { get; set; }
-        public string Initialize { get; set; }
-        public string Value { get; set; }
         public string Type { get; set; }
+        public dynamic Initialize { get; set; }
+        public string Value { get; set; }
     }
 }

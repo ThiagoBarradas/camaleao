@@ -19,10 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Documents\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Update="Documents\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Documents\script.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
