@@ -8,7 +8,6 @@ namespace Camaleao.Core.Entities
 {
     public class ResponseTemplate
     {
-        
         public Guid Id { get; set; }
         public string TemplateId { get; set; }
         public List<Action> Actions { get; set; }

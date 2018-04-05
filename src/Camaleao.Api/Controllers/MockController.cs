@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Camaleao.Api.Controllers
 {
-    [Route("api/mock")]
+    [Route("api")]
     public class MockController : Controller
     {
         private readonly IMockService _mockService;
@@ -20,10 +20,10 @@ namespace Camaleao.Api.Controllers
             _responseService = responseService;
         }
 
-        [HttpPost("{id}")]
-        public IActionResult Post(string id, [FromBody]JObject request)
+        [HttpPost("{user}/{version}/{routeName}")]
+        public IActionResult Post(string user, string version, string routeName, [FromBody]JObject request)
         {
-            var template = _templateService.FirstOrDefault(p => p.Id == id);
+            var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Name == routeName && p.Route.Version == version);
 
             if (template == null)
                 return NotFound("Identify Not Found");
@@ -34,6 +34,7 @@ namespace Camaleao.Api.Controllers
             var notifications = _mockService.ValidateContract();
             if(notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
+
 
             notifications = _mockService.ValidateRules();
             if (notifications.Any())

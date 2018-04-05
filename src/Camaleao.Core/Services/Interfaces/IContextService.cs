@@ -1,4 +1,5 @@
 ﻿using Camaleao.Core.Entities;
+using Flunt.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -8,8 +9,9 @@ namespace Camaleao.Core.Services.Interfaces
 {
     public interface IContextService
     {
-        Context GetContext(string contextKey);
+        Context FirstOrDefault(string contextKey);
         void Add(Context context);
         void Update(Context context);
+        IReadOnlyCollection<Notification> Notifications();
     }
 }
