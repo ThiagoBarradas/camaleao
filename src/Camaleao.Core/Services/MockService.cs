@@ -205,14 +205,21 @@ namespace Camaleao.Core.Services
             if (requestMapped.ContainsKey(key))
             {
                 _context = _contextService.FirstOrDefault(requestMapped[key].ToString());
+
+                if(_context == null)
+                {
+                    AddNotification("Context", "The context not was found");
+                    return;
+                }
             }
             else if (_template.Context != null)
             {
                 _context = _template.Context.CreateContext();
                 _contextService.Add(_context);
             }
-            _engine.Execute<string>(_context.GetVariablesAsString());
 
+            if(_context != null)
+                _engine.Execute<string>(_context.GetVariablesAsString());
         }
 
         private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
