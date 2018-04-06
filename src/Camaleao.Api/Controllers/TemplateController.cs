@@ -35,7 +35,7 @@ namespace Camaleao.Api.Controllers
         {
             var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Name == routeName && p.Route.Version == version);
 
-            if(template == null)
+            if (template == null)
                 return NotFound("Identify Not Found");
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
@@ -51,12 +51,12 @@ namespace Camaleao.Api.Controllers
         [HttpPost("{user}")]
         public IActionResult Create(string user, [FromBody]TemplateRequestModel templateRequest)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var template = _mapper.Map<Template>(templateRequest);
 
                 var notifications = _templateService.ValidateTemplate(template);
-                if(notifications.Any())
+                if (notifications.Any())
                     return new ObjectResult(notifications) { StatusCode = 400 };
 
                 template.Context?.Variables.ForEach(variable => variable.BuildVariable());
@@ -73,6 +73,29 @@ namespace Camaleao.Api.Controllers
                     Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}"
                 };
                 return Ok(templateResponse);
+            }
+            else
+                return BadRequest(ModelState.GetErrorResponse());
+        }
+
+        [HttpPut("{user}")]
+        public IActionResult Update(string user, [FromBody]TemplateRequestModel templateRequest)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var templateNew = _mapper.Map<Template>(templateRequest);
+                var templeateOld = _templateService.FirstOrDefault(p => p.User == user
+                                                        && p.Route == templateNew.Route);
+
+                if (templeateOld != null)
+                {
+                    _responseService.RemoveByTemplateId(templeateOld.Id);
+                    _templateService.Remove(templeateOld);
+                    return this.Create(user, templateRequest);
+                }
+                else
+                    return BadRequest("Template Not Found!");
             }
             else
                 return BadRequest(ModelState.GetErrorResponse());
