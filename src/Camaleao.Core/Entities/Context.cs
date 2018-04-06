@@ -12,6 +12,7 @@ namespace Camaleao.Core.Entities
             this.Id = Guid.NewGuid();
         }
         public Guid Id { get; set; }
+        public string ExternalIdentifier { get; set; }
         public List<Variable> Variables { get; set; }
 
         public string GetVariablesAsString()
