@@ -10,6 +10,7 @@ namespace Camaleao.Core.Services.Interfaces
     public interface ITemplateService
     {
         void Add(Template template);
+        void Remove(Template template);
         Template FirstOrDefault(Expression<Func<Template, bool>> expression);
         List<Template> Find(Expression<Func<Template, bool>> expression);
         IReadOnlyCollection<Notification> ValidateTemplate(Template template);

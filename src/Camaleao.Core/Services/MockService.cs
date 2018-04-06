@@ -214,6 +214,11 @@ namespace Camaleao.Core.Services
                 _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
                 if (_context == null && externalIdentifier.IsGuid())
                     CreateNewContext(externalIdentifier);
+                else if (!externalIdentifier.IsGuid())
+                {
+                    AddNotification("Context", "The context not was found");
+                    return;
+                }
             }
             else
                 CreateNewContext();

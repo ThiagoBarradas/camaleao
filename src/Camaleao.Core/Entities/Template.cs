@@ -1,11 +1,16 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Camaleao.Core.Entities
 {
     public class Template
     {
+        public Template()
+        {
+            this.Id = Guid.NewGuid().ToString();
+        }
         public string Id { get; set; }
         public string User { get; set; }
         public Route Route { get; set; }
