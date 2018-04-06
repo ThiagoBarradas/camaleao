@@ -40,13 +40,13 @@ namespace Camaleao.Core.Services
 
         public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
         {
-            ValidateContext(template);
+          //  ValidateContext(template);
             return Notifications;
         }
 
         private void ValidateContext(Template template)
         {
-            if (template.Context == null && !template.Request_.Contains("_context")) {
+            if (template.Context == null) {
 
                 if(template.Request_.Contains("_context"))
                     AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");

@@ -10,6 +10,7 @@ namespace Camaleao.Core.Services.Interfaces
     public interface IContextService
     {
         Context FirstOrDefault(string contextKey);
+        Context FirstOrDefaultByExternalIdentifier(string externalIdentifier);
         void Add(Context context);
         void Update(Context context);
         IReadOnlyCollection<Notification> Notifications();
