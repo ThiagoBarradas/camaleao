@@ -13,6 +13,7 @@ namespace Camaleao.Core.ExtensionMethod
 
             switch (content)
             {
+                case "_context.external":
                 case "text":
                 case "_context":
                     type = "System.String";
@@ -96,6 +97,12 @@ namespace Camaleao.Core.ExtensionMethod
                 elements.Add(extracted);
             }
             return elements;
+        }
+
+        public static bool IsGuid(this string value)
+        {
+            Guid newGuid ;
+            return Guid.TryParse(value, out newGuid);
         }
     }
 
