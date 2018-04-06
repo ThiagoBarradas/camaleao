@@ -156,6 +156,7 @@ namespace Camaleao.Core.Services
 
             if (_context != null)
             {
+                _response.Body = Convert.ToString(_response.Body).Replace("_context.external", _context.ExternalIdentifier);
                 _response.Body = Convert.ToString(_response.Body).Replace("_context", _context.Id.ToString());
 
                 _context.Variables.ForEach(variable =>
@@ -201,18 +202,35 @@ namespace Camaleao.Core.Services
         private void LoadContext(Dictionary<string, object> requestMapped, Dictionary<string, object> templateRequestMapped)
         {
             string key = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context")).Key ?? string.Empty;
+            string externalKey = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty;
 
+
+            string externalIdentifier = string.Empty;
             if (requestMapped.ContainsKey(key))
+                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());      
+            else if (externalKey != "" && requestMapped.ContainsKey(externalKey))
             {
-                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());
+                externalIdentifier = requestMapped[externalKey].ToString();
+                _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
+                if (_context == null && externalIdentifier.IsGuid())
+                    CreateNewContext(externalIdentifier);
             }
-            else if (_template.Context != null)
+            else
+                CreateNewContext();
+            
+            if (_context != null)
+                _engine.Execute<string>(_context.GetVariablesAsString());
+
+        }
+
+        private void CreateNewContext(string externalIdentifier = "")
+        {
+            if (_template.Context != null)
             {
                 _context = _template.Context.CreateContext();
+                _context.ExternalIdentifier = externalIdentifier;
                 _contextService.Add(_context);
             }
-            _engine.Execute<string>(_context.GetVariablesAsString());
-
         }
 
         private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
