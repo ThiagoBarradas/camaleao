@@ -78,24 +78,45 @@ namespace Camaleao.Api.Controllers
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
-        [HttpPut("{user}")]
-        public IActionResult Update(string user, [FromBody]TemplateRequestModel templateRequest)
+        [HttpPut("{user}/{token}")]
+        public IActionResult Update(string user,string token, [FromBody]TemplateRequestModel templateRequest)
         {
 
             if (ModelState.IsValid)
             {
-                var templateNew = _mapper.Map<Template>(templateRequest);
-                var templeateOld = _templateService.FirstOrDefault(p => p.User == user
-                                                        && p.Route == templateNew.Route);
+              
+                var templeateOld = _templateService.FirstOrDefault(p => p.Id==token);
 
                 if (templeateOld != null)
                 {
+                    var templateNew = _mapper.Map<Template>(templateRequest);
+
                     _responseService.RemoveByTemplateId(templeateOld.Id);
-                    _templateService.Remove(templeateOld);
-                    return this.Create(user, templateRequest);
+
+                    templateNew.Id = templeateOld.Id;
+
+                     var notifications = _templateService.ValidateTemplate(templateNew);
+                    if (notifications.Any())
+                        return new ObjectResult(notifications) { StatusCode = 400 };
+
+                    templateNew.Context?.Variables.ForEach(variable => variable.BuildVariable());
+                    templateNew.User = user;
+
+
+                    templateNew.Responses.ForEach(resp => resp.TemplateId = templateNew.Id);
+                    _responseService.Add(templateNew.Responses);
+
+                    _templateService.Update(templateNew);
+
+                    TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
+                    {
+                        Token = templateNew.Id,
+                        Route = $"{_Configuration["Host:Url"]}api/{user}/{templateNew.Route.Version}/{templateNew.Route.Name}"
+                    };
+                    return Ok(templateResponse);
                 }
                 else
-                    return BadRequest("Template Not Found!");
+                    return BadRequest("Template Not Exist!");
             }
             else
                 return BadRequest(ModelState.GetErrorResponse());

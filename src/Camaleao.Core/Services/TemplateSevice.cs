@@ -33,7 +33,11 @@ namespace Camaleao.Core.Services
 
         public void Remove(Template template) => 
             _templateRepository.Remove(p => p.Id == template.Id);
-       
+
+        public void Update(Template template)
+        {
+            _templateRepository.Update(p => p.Id == template.Id, template);
+        }
 
         public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
         {
