@@ -31,7 +31,7 @@ namespace Camaleao.Core.Services
         public Template FirstOrDefault(Expression<Func<Template, bool>> expression) =>
             _templateRepository.Get(expression).Result.FirstOrDefault();
 
-        public void Remove(Template template) => 
+        public void Remove(Template template) =>
             _templateRepository.Remove(p => p.Id == template.Id);
 
         public void Update(Template template)
@@ -41,13 +41,13 @@ namespace Camaleao.Core.Services
 
         public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
         {
-            //  ValidateContext(template);
+            ValidateContext(template);
             return Notifications;
         }
 
         private void ValidateContext(Template template)
         {
-            if (template.Context == null)
+            if (template.Context == null && !template.Request_.Contains("_context"))
             {
 
                 if (template.Request_.Contains("_context"))
