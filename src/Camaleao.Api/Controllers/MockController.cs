@@ -45,5 +45,11 @@ namespace Camaleao.Api.Controllers
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
 
+        [HttpGet("{user}/{version}/{routeName}")]
+        public IActionResult Get(string user, string version, params string[] routeName) {
+
+            return Ok();
+        }
+
     }
 }
