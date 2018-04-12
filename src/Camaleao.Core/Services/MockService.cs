@@ -204,23 +204,31 @@ namespace Camaleao.Core.Services
             string key = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context")).Key ?? string.Empty;
             string externalKey = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty;
 
-
-            string externalIdentifier = string.Empty;
             if (requestMapped.ContainsKey(key))
-                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());      
-            else if (externalKey != "" && requestMapped.ContainsKey(externalKey))
+                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());
+            else if (requestMapped.ContainsKey(externalKey))
             {
-                externalIdentifier = requestMapped[externalKey].ToString();
-                _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
-                if (_context == null && externalIdentifier.IsGuid())
-                    CreateNewContext(externalIdentifier);
+                LoadContextByExternalIdentifier(requestMapped, externalKey);
             }
             else
                 CreateNewContext();
-            
+
             if (_context != null)
                 _engine.Execute<string>(_context.GetVariablesAsString());
 
+        }
+
+        private void LoadContextByExternalIdentifier(Dictionary<string, object> requestMapped, string externalKey)
+        {
+            string externalIdentifier = requestMapped[externalKey].ToString();
+            _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
+            if (_context == null && externalIdentifier.IsGuid())
+                CreateNewContext(externalIdentifier);
+            else if (!externalIdentifier.IsGuid())
+            {
+                AddNotification("Context", "The context not was found");
+                return;
+            }
         }
 
         private void CreateNewContext(string externalIdentifier = "")

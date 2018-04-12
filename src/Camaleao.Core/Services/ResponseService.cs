@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
-using System.Text;
 using Camaleao.Core.Entities;
 
 namespace Camaleao.Core.Services
@@ -17,24 +16,24 @@ namespace Camaleao.Core.Services
         {
             _responseRepository = responseRepository;
         }
-        public void Add(ResponseTemplate response)
-        {
+        public void Add(ResponseTemplate response) => 
             _responseRepository.Add(response);
-        }
-
-        public void Add(IEnumerable<ResponseTemplate> responses)
-        {
+     
+        public void Add(IEnumerable<ResponseTemplate> responses) =>
             _responseRepository.Add(responses);
-        }
 
-        public List<ResponseTemplate> Find(Expression<Func<ResponseTemplate, bool>> expression)
-        {
-            return _responseRepository.Get(expression).Result;
-        }
+        public List<ResponseTemplate> Find(Expression<Func<ResponseTemplate, bool>> expression) =>
+            _responseRepository.Get(expression).Result;
 
-        public ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression)
-        {
-            return _responseRepository.Get(expression).Result.FirstOrDefault();
-        }
+        public ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression) =>
+             _responseRepository.Get(expression).Result.FirstOrDefault();
+
+        public void Remove(List<ResponseTemplate> responses) =>
+            responses.ForEach(p => _responseRepository.Remove(r => r.Id == p.Id));
+
+        public void RemoveByTemplateId(string templateId) =>
+            _responseRepository.Remove(p => p.TemplateId == templateId);
+            
+    
     }
 }
