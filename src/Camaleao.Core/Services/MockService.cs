@@ -37,7 +37,7 @@ namespace Camaleao.Core.Services
             var templateRequestMapped = new Dictionary<string, object>();
             var requestMapped = new Dictionary<string, object>();
 
-            MapperContract(_template.Request, templateRequestMapped);
+            MapperContract(_template.Request.Body, templateRequestMapped);
             MapperContract(_request, requestMapped);
 
             foreach (var request in requestMapped)

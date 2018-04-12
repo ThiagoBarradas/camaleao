@@ -55,10 +55,11 @@ namespace Camaleao.Api.Models
 
             Variables.ForEach(variable =>
             {
-                if(variable.Type == "text")
+                if (variable.Type == "text")
                 {
                     variablesToMap = variablesToMap.Replace($"'{variable.Value}'", variable.Value);
-                }else
+                }
+                else
                 {
                     variablesToMap = variablesToMap.Replace($"\"{variable.Value}\"", variable.Value);
                 }
@@ -74,5 +75,13 @@ namespace Camaleao.Api.Models
         public string Type { get; set; }
         public dynamic Initialize { get; set; }
         public string Value { get; set; }
+    }
+
+
+    public class RequestModel
+    {
+        public List<KeyValuePair<string, string>> Headers { get; set; }
+        public dynamic Body { get; set; }
+        public string QueryString { get; set; }
     }
 }

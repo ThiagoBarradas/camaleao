@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Api", "Camaleao.Api\Camaleao.Api.csproj", "{8AC46F93-5BA7-4C8B-B69F-78F70B8BEC30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Repository", "Camaleao.Repository\Camaleao.Repository.csproj", "{B444E73D-514E-41A2-9414-8F246B7C089C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Core", "Camaleao.Core\Camaleao.Core.csproj", "{08339ADE-468B-4FBE-B0F5-5CF969012680}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Camaleao.Core.Test", "Camaleao.Core.Test\Camaleao.Core.Test.csproj", "{557019CA-2435-4A4D-BAF5-DA54CF774538}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{08339ADE-468B-4FBE-B0F5-5CF969012680}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08339ADE-468B-4FBE-B0F5-5CF969012680}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08339ADE-468B-4FBE-B0F5-5CF969012680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{557019CA-2435-4A4D-BAF5-DA54CF774538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557019CA-2435-4A4D-BAF5-DA54CF774538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557019CA-2435-4A4D-BAF5-DA54CF774538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557019CA-2435-4A4D-BAF5-DA54CF774538}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

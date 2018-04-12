@@ -55,17 +55,13 @@ namespace Camaleao.Api.Controllers
             {
                 var template = _mapper.Map<Template>(templateRequest);
 
-                var notifications = _templateService.ValidateTemplate(template);
-                if (notifications.Any())
-                    return new ObjectResult(notifications) { StatusCode = 400 };
+                if (!template.IsValid())
+                    return new ObjectResult(template.Notifications) { StatusCode = 400 };
 
-                template.Context?.Variables.ForEach(variable => variable.BuildVariable());
                 template.User = user;
+
                 _templateService.Add(template);
-
-                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
                 _responseService.Add(template.Responses);
-
 
                 TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
                 {
@@ -79,13 +75,13 @@ namespace Camaleao.Api.Controllers
         }
 
         [HttpPut("{user}/{token}")]
-        public IActionResult Update(string user,string token, [FromBody]TemplateRequestModel templateRequest)
+        public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
         {
 
             if (ModelState.IsValid)
             {
-              
-                var templeateOld = _templateService.FirstOrDefault(p => p.Id==token);
+
+                var templeateOld = _templateService.FirstOrDefault(p => p.Id == token);
 
                 if (templeateOld != null)
                 {
@@ -95,17 +91,12 @@ namespace Camaleao.Api.Controllers
 
                     templateNew.Id = templeateOld.Id;
 
-                     var notifications = _templateService.ValidateTemplate(templateNew);
-                    if (notifications.Any())
-                        return new ObjectResult(notifications) { StatusCode = 400 };
+                    if (!templateNew.IsValid())
+                        return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
 
-                    templateNew.Context?.Variables.ForEach(variable => variable.BuildVariable());
                     templateNew.User = user;
 
-
-                    templateNew.Responses.ForEach(resp => resp.TemplateId = templateNew.Id);
                     _responseService.Add(templateNew.Responses);
-
                     _templateService.Update(templateNew);
 
                     TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()

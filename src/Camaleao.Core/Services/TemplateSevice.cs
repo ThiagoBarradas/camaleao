@@ -39,26 +39,6 @@ namespace Camaleao.Core.Services
             _templateRepository.Update(p => p.Id == template.Id, template);
         }
 
-        public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
-        {
-            ValidateContext(template);
-            return Notifications;
-        }
-
-        private void ValidateContext(Template template)
-        {
-            if (template.Context == null && !template.Request_.Contains("_context"))
-            {
-
-                if (template.Request_.Contains("_context"))
-                    AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
-
-                if (JsonConvert.SerializeObject(template.Responses).Contains("_context"))
-                    AddNotification("Context", "Your responses are doing reference to context, but there isn't mapped context in your template");
-
-                if (JsonConvert.SerializeObject(template.Rules).Contains("_context"))
-                    AddNotification("Context", "Your rules are doing reference to context, but there isn't mapped context in your template");
-            }
-        }
+  
     }
 }

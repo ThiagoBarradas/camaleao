@@ -17,6 +17,7 @@ using Camaleao.Core.Services.Interfaces;
 using Jint;
 using System.IO;
 using Newtonsoft.Json.Serialization;
+using Camaleao.Api.Middlewares;
 
 namespace Camaleao.Api
 {
@@ -86,6 +87,8 @@ namespace Camaleao.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<RequestMappingMock>();
 
             app.UseMvc();
         }

@@ -31,7 +31,7 @@ namespace Camaleao.Api.Controllers
                 _scriptRepository.Add(scriptEngine);
 
                 return new ObjectResult("Script created with success.") { StatusCode = 200 };
-            }catch(Exception ex)
+            }catch
             {
                 return new ObjectResult("Erro on created Script.") { StatusCode = 500 };
             }
