@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Camaleao.Core.Services.Interfaces
 {
@@ -12,5 +11,6 @@ namespace Camaleao.Core.Services.Interfaces
         void Add(IEnumerable<ResponseTemplate> responses);
         ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression);
         List<ResponseTemplate> Find(Expression<Func<ResponseTemplate, bool>> expression);
+        void RemoveByTemplateId(string templateId);
     }
 }
