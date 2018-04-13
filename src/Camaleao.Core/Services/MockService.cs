@@ -62,13 +62,11 @@ namespace Camaleao.Core.Services
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, true, "NoScope", delimiters: Delimiters.ElementRequest());
-            expression = ExtractFunctions(expression, false);
             return expression;
         }
 
         private string ExtractRulesExpression(string expression)
         {
-            expression = ExtractFunctions(expression, false);
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, false, "NoScope", delimiters: Delimiters.ElementRequest());
@@ -100,23 +98,6 @@ namespace Camaleao.Core.Services
 
             AddNotification($"", "No rules match your request");
             return Notifications;
-        }
-
-        private string ExtractFunctions(string expression, bool execEngine)
-        {
-            var functions = expression.ExtractList("##");
-
-            functions.ForEach(func =>
-            {
-                var function = MapperFunction(func.ExtractBetween("##").Split(','));
-
-                if (execEngine)
-                    expression = expression.Replace(function, _engine.Execute<string>(function));
-                else
-                    expression = expression.Replace(func, function);
-            });
-
-            return expression;
         }
 
         private string ExtractProperties(string expression, bool execEngine, string scope, string nameFunction = "GetElement", params string[] delimiters)
@@ -168,7 +149,7 @@ namespace Camaleao.Core.Services
                     else
                         value = _engine.Execute<string>(variable.Name);
 
-                    if (variable.Type.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
                     else
                         variable.Value = value;
