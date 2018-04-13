@@ -11,7 +11,7 @@ namespace Camaleao.Api.Models
         [JsonRequired()]
         public RouteModel Route { get; set; }
         [Required(ErrorMessageResourceName = "RequestRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
-        public dynamic Request { get; set; }
+        public RequestModel Request { get; set; }
         [Required(ErrorMessageResourceName = "ResponseRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public List<ResponseModel> Responses { get; set; }
         [JsonRequired()]

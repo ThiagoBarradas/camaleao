@@ -29,6 +29,7 @@ namespace Camaleao.Api.Controllers
                 return NotFound("Identify Not Found");
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+
             _mockService.InitializeMock(template, request);
 
             var notifications = _mockService.ValidateContract();
@@ -40,16 +41,13 @@ namespace Camaleao.Api.Controllers
             if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
+            _mockService.LoadContext();
+
             var response = _mockService.Response();
 
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
 
-        [HttpGet("{user}/{version}/{routeName}")]
-        public IActionResult Get(string user, string version, params string[] routeName) {
-
-            return Ok();
-        }
 
     }
 }

@@ -13,6 +13,8 @@ namespace Camaleao.Core.Services.Interfaces
         IReadOnlyCollection<Notification> ValidateContract();
         IReadOnlyCollection<Notification> ValidateRules();
 
+        void LoadContext();
+
         ResponseTemplate Response();
     }
 }
