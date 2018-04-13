@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Camaleao.Api.Controllers;
+using Camaleao.Core.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,9 +13,11 @@ namespace Camaleao.Api.Middlewares
     {
 
         private readonly RequestDelegate _next;
-        public RequestMappingMock(RequestDelegate next)
+        private readonly IGetService _GetService;
+        public RequestMappingMock(RequestDelegate next, IGetService getService)
         {
             this._next = next;
+            this._GetService = getService;
         }
 
 
@@ -26,7 +30,12 @@ namespace Camaleao.Api.Middlewares
                 await _next.Invoke(context);
                 return;
             }
-          
+            else
+            {
+                await _GetService.Invoke(context, _next);
+                return;
+            }
+
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Camaleao.Core;
 using Camaleao.Core.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace Camaleao.Api.Controllers
             _mockService.InitializeMock(template, request);
 
             var notifications = _mockService.ValidateContract();
-            if(notifications.Any())
+            if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
 
@@ -47,6 +48,9 @@ namespace Camaleao.Api.Controllers
 
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
+
+
+
 
 
     }

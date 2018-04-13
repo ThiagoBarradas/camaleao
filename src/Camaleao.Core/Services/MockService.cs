@@ -31,9 +31,13 @@ namespace Camaleao.Core.Services
         public void InitializeMock(Template template, JObject request)
         {
             _template = template;
-            _request = request;
-            _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContract();
-            _RequestMapped = _request.MapperContractFromObject();
+
+            if (request != null)
+            {
+                _request = request;
+                _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContractFromObject();
+                _RequestMapped = _request.MapperContractFromObject();
+            }
             _engine.LoadRequest(request, "_request");
 
         }

@@ -8,5 +8,6 @@ namespace Camaleao.Core.Entities
     {
         public string Version { get; set; }
         public string Name { get; set; }
+        public string Method { get; set; }
     }
 }

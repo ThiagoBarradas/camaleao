@@ -24,6 +24,7 @@ namespace Camaleao.Api.Models
     {
         public string Version { get; set; }
         public string Name { get; set; }
+        public string Method { get; set; }
     }
 
     public class ResponseModel

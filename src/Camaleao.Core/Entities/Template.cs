@@ -56,7 +56,7 @@ namespace Camaleao.Core.Entities
                 return false;
             }
 
-            if (this.Context == null && !string.IsNullOrEmpty(this.Request.Body_) && !this.Request.Body_.Contains("_context"))
+            if (this.Context == null && this.Request.Body != null && !this.Request.Body_.Contains("_context"))
             {
                 if (this.Actions.Any(p => p.Execute.Contains("_context")))
                 {
