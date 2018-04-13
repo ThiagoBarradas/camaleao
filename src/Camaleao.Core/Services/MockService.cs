@@ -149,7 +149,7 @@ namespace Camaleao.Core.Services
                     else
                         value = _engine.Execute<string>(variable.Name);
 
-                    if (variable.Type.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
                     else
                         variable.Value = value;
