@@ -13,3 +13,5 @@ e este projeto adere o [Versionamento Semântico](http://semver.org/spec/v2.0.0.
 - Este arquivo CHANGELOG espera servir como um exemplo evolutivo de um
    projeto de código aberto padronizado CHANGELOG.
 - README.
+
+[Unreleased]: https://github.com/mundipagg/camaleao/compare/v1.0.0...HEAD
