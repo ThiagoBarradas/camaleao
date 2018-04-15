@@ -40,11 +40,11 @@ Consulte a [Wiki](https://github.com/mundipagg/camaleao/wiki).
 
 ## Contribuindo
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Por favor, leia [CONTRIBUTING](https://github.com/mundipagg/camaleao/blob/feature/documentacao/CONTRIBUTING.md) para detalhes sobre o nosso código de conduta, e o processo para enviar pull request para nós.
 
 ## Versionamento
 
-[![version][version-badge]][CHANGELOG]
+Por favor, leia o [CHANGELOG](https://github.com/mundipagg/camaleao/blob/feature/documentacao/CHANGELOG.md) para mais detalhes sobre mudanças e versões.
 
 ## Autores
 
@@ -52,6 +52,4 @@ Veja a lista de [contribuidores] (https://github.com/mundipagg/camaleao/contribu
 
 ## Licença
 
-[![license][license-badge]][LICENSE]
-
-
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE.md)
