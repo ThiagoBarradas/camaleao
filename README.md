@@ -48,7 +48,7 @@ Por favor, leia o [CHANGELOG](https://github.com/mundipagg/camaleao/blob/feature
 
 ## Autores
 
-Veja a lista de [contribuidores] (https://github.com/mundipagg/camaleao/contributors) que participaram deste projeto.
+Veja a lista de [contribuidores](https://github.com/mundipagg/camaleao/contributors) que participaram deste projeto.
 
 ## Licença
 
