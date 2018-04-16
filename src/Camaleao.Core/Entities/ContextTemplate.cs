@@ -16,5 +16,10 @@ namespace Camaleao.Core.Entities
                 Variables = this.Variables
             };
         }
+
+        public void BuildVaribles()
+        {
+            this.Variables.ForEach(variable => variable.BuildVariable());
+        }
     }
 }

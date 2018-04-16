@@ -1,5 +1,6 @@
 ﻿using Camaleao.Core;
 using Camaleao.Core.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Linq;
@@ -29,21 +30,24 @@ namespace Camaleao.Api.Controllers
                 return NotFound("Identify Not Found");
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+
             _mockService.InitializeMock(template, request);
 
             var notifications = _mockService.ValidateContract();
-            if(notifications.Any())
+            if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
+            _mockService.LoadContext();
 
             notifications = _mockService.ValidateRules();
             if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
+        
+
             var response = _mockService.Response();
 
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
-
     }
 }

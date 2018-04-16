@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Camaleao.Core.Services.Interfaces
 {
-    public interface IMockService
+    public interface IGetMockService
     {
-        void InitializeMock(Template template, JObject request);
+        void StartUp(Template template, string[] queryString);
         IReadOnlyCollection<Notification> ValidateContract();
         IReadOnlyCollection<Notification> ValidateRules();
 

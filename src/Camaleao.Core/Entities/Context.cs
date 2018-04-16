@@ -24,6 +24,7 @@ namespace Camaleao.Core.Entities
                 retorno.Append($"var {variable.Name} = {variable.Value};");
             });
 
+            retorno.Append("var _context=true;");
             return retorno.ToString();
         }
     }

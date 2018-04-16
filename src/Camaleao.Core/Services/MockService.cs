@@ -1,5 +1,6 @@
 ﻿using Camaleao.Core.Entities;
 using Camaleao.Core.ExtensionMethod;
+using Camaleao.Core.Mappers;
 using Camaleao.Core.Services.Interfaces;
 using Flunt.Notifications;
 using Newtonsoft.Json.Linq;
@@ -18,6 +19,8 @@ namespace Camaleao.Core.Services
         private JObject _request;
         private ResponseTemplate _response;
         private Context _context;
+        private Dictionary<string, dynamic> _TemplateRequestMapped;
+        private Dictionary<string, dynamic> _RequestMapped;
 
         public MockService(IEngineService engine, IContextService contextService)
         {
@@ -29,31 +32,57 @@ namespace Camaleao.Core.Services
         {
             _template = template;
             _request = request;
+            _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContractFromObject();
+            _RequestMapped = _request.MapperContractFromObject();
             _engine.LoadRequest(request, "_request");
         }
-
+        
+    
         public IReadOnlyCollection<Notification> ValidateContract()
         {
-            var templateRequestMapped = new Dictionary<string, object>();
-            var requestMapped = new Dictionary<string, object>();
 
-            MapperContract(_template.Request, templateRequestMapped);
-            MapperContract(_request, requestMapped);
-
-            foreach (var request in requestMapped)
+            foreach (var request in _RequestMapped ?? new Dictionary<string, dynamic>())
             {
-                if (!templateRequestMapped.ContainsKey(request.Key.ClearNavigateProperties()))
+                if (!_TemplateRequestMapped.ContainsKey(request.Key.ClearNavigateProperties()))
                 {
                     AddNotification($"{request.Key}", "The propertie name don't reflect the contract");
                     continue;
                 }
 
-                if (templateRequestMapped[request.Key.ClearNavigateProperties()].ToString().GetTypeChameleon() != _request.SelectToken(request.Key).GetTypeJson())
+                if (((string)_TemplateRequestMapped[request.Key.ClearNavigateProperties()]).GetTypeChameleon() != _request.SelectToken(request.Key).GetTypeJson())
                     AddNotification($"{request.Key}", "The type of the propertie don't reflect the contract");
             }
 
-            LoadContext(requestMapped, templateRequestMapped);
+            string externalIdentifier = GetExternalIdentifier();
 
+            if (!string.IsNullOrEmpty(externalIdentifier) && !externalIdentifier.IsGuid())
+                AddNotification("Context", "The external context does not have a valid value");
+
+            return Notifications;
+        }
+
+        private string GetExternalIdentifier()
+        {
+            string key = (_TemplateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty);
+
+            if (!string.IsNullOrEmpty(key))
+                return _RequestMapped[key];
+
+            return string.Empty;
+        }
+
+        public IReadOnlyCollection<Notification> ValidateRules()
+        {
+            foreach (var rule in _template.Rules)
+            {
+                if (_engine.Execute<bool>(ExtractRulesExpression(rule.Expression)))
+                {
+                    _response = new ResponseTemplate() { ResponseId = rule.ResponseId };
+                    return Notifications;
+                }
+            }
+
+            AddNotification($"", "No rules match your request");
             return Notifications;
         }
 
@@ -85,21 +114,6 @@ namespace Camaleao.Core.Services
             return expression;
         }
 
-        public IReadOnlyCollection<Notification> ValidateRules()
-        {
-            foreach (var rule in _template.Rules)
-            {
-                if (_engine.Execute<bool>(ExtractRulesExpression(rule.Expression)))
-                {
-                    _response = new ResponseTemplate() { ResponseId = rule.ResponseId };
-                    return Notifications;
-                }
-            }
-
-            AddNotification($"", "No rules match your request");
-            return Notifications;
-        }
-
         private string ExtractProperties(string expression, bool execEngine, string scope, string nameFunction = "GetElement", params string[] delimiters)
         {
             var properties = expression.ExtractList(delimiters);
@@ -126,7 +140,6 @@ namespace Camaleao.Core.Services
 
         public ResponseTemplate Response()
         {
-
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
 
             ExecuteActionTemplate();
@@ -180,16 +193,16 @@ namespace Camaleao.Core.Services
                 });
         }
 
-        private void LoadContext(Dictionary<string, object> requestMapped, Dictionary<string, object> templateRequestMapped)
+        public void LoadContext()
         {
-            string key = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context")).Key ?? string.Empty;
-            string externalKey = templateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty;
+            string key = _TemplateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context")).Key ?? string.Empty;
+            string externalKey = _TemplateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty;
 
-            if (requestMapped.ContainsKey(key))
-                _context = _contextService.FirstOrDefault(requestMapped[key].ToString());
-            else if (requestMapped.ContainsKey(externalKey))
+            if (_RequestMapped.ContainsKey(key))
+                _context = _contextService.FirstOrDefault(_RequestMapped[key].ToString());
+            else if (_RequestMapped.ContainsKey(externalKey))
             {
-                LoadContextByExternalIdentifier(requestMapped, externalKey);
+                LoadContextByExternalIdentifier(_RequestMapped, externalKey);
             }
             else
                 CreateNewContext();
@@ -205,11 +218,6 @@ namespace Camaleao.Core.Services
             _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
             if (_context == null && externalIdentifier.IsGuid())
                 CreateNewContext(externalIdentifier);
-            else if (!externalIdentifier.IsGuid())
-            {
-                AddNotification("Context", "The context not was found");
-                return;
-            }
         }
 
         private void CreateNewContext(string externalIdentifier = "")
@@ -219,24 +227,6 @@ namespace Camaleao.Core.Services
                 _context = _template.Context.CreateContext();
                 _context.ExternalIdentifier = externalIdentifier;
                 _contextService.Add(_context);
-            }
-        }
-
-        private void MapperContract(JToken request, Dictionary<string, dynamic> mapper)
-        {
-
-            var children = request.Children<JToken>();
-
-            foreach (var item in children)
-            {
-                if (item.HasValues && item.First != null)
-                {
-                    MapperContract(item, mapper);
-                }
-                else
-                {
-                    mapper.Add(item.Path, item);
-                }
             }
         }
 

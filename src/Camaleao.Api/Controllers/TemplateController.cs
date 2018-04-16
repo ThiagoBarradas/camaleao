@@ -55,22 +55,24 @@ namespace Camaleao.Api.Controllers
             {
                 var template = _mapper.Map<Template>(templateRequest);
 
-                var notifications = _templateService.ValidateTemplate(template);
-                if (notifications.Any())
-                    return new ObjectResult(notifications) { StatusCode = 400 };
+                if (!template.IsValid())
+                    return new ObjectResult(template.Notifications) { StatusCode = 400 };
 
-                template.Context?.Variables.ForEach(variable => variable.BuildVariable());
+                if(_templateService.FirstOrDefault(p => p.Route.Name == template.Route.Name
+                                                                && p.Route.Version==template.Route.Version 
+                                                                && p.Route.Method==template.Route.Method)!=null)
+                    return new ObjectResult("This template already exists. Please update or create another version") { StatusCode = 400 };
+
                 template.User = user;
+
                 _templateService.Add(template);
-
-                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
                 _responseService.Add(template.Responses);
-
 
                 TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
                 {
                     Token = template.Id,
-                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}"
+                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}",
+                    Method=template.Route.Method
                 };
                 return Ok(templateResponse);
             }
@@ -79,33 +81,28 @@ namespace Camaleao.Api.Controllers
         }
 
         [HttpPut("{user}/{token}")]
-        public IActionResult Update(string user,string token, [FromBody]TemplateRequestModel templateRequest)
+        public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
         {
 
             if (ModelState.IsValid)
             {
-              
-                var templeateOld = _templateService.FirstOrDefault(p => p.Id==token);
 
-                if (templeateOld != null)
+                var templateOld = _templateService.FirstOrDefault(p => p.Id == token);
+
+                if (templateOld != null)
                 {
+                    templateRequest.Id = templateOld.Id;
+
                     var templateNew = _mapper.Map<Template>(templateRequest);
 
-                    _responseService.RemoveByTemplateId(templeateOld.Id);
+                    _responseService.RemoveByTemplateId(templateOld.Id);
 
-                    templateNew.Id = templeateOld.Id;
+                    if (!templateNew.IsValid())
+                        return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
 
-                     var notifications = _templateService.ValidateTemplate(templateNew);
-                    if (notifications.Any())
-                        return new ObjectResult(notifications) { StatusCode = 400 };
-
-                    templateNew.Context?.Variables.ForEach(variable => variable.BuildVariable());
                     templateNew.User = user;
 
-
-                    templateNew.Responses.ForEach(resp => resp.TemplateId = templateNew.Id);
                     _responseService.Add(templateNew.Responses);
-
                     _templateService.Update(templateNew);
 
                     TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
