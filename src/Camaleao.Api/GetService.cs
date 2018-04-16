@@ -27,17 +27,18 @@ namespace Camaleao.Api
             _templateService = templateService;
             _responseService = responseService;
         }
+
         public Task Invoke(HttpContext context, RequestDelegate next)
         {
-            string[] path = context.Request.Path.Value.Split("/");
+            string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
 
-            if(path.Length < 4 || path[2].ToLower().Equals("template"))
+            if(path.Length <= 4)
                 return next.Invoke(context);
 
-            string user = path[2];
-            string version = path[3];
+            string user = path[1];
+            string version = path[2];
 
-            string[] queryString = path.Skip(5).Take(path.Length - 5).ToArray();
+            string[] queryString = path.Skip(4).ToArray();
 
             var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Version == version && p.Route.Method == "GET");
 
@@ -45,7 +46,6 @@ namespace Camaleao.Api
             {
                 return BadRequest(context, "Identify Not Found");
             }
-
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
             _mockService.StartUp(template, queryString);

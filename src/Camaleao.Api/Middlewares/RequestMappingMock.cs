@@ -14,28 +14,25 @@ namespace Camaleao.Api.Middlewares
 
         private readonly RequestDelegate _next;
         private readonly IGetService _GetService;
+
         public RequestMappingMock(RequestDelegate next, IGetService getService)
         {
             this._next = next;
             this._GetService = getService;
         }
 
-
         public async Task Invoke(HttpContext context)
         {
-
-
-            if (context.Request.Method != "GET")
-            {
-                await _next.Invoke(context);
-                return;
-            }
-            else
+            if (context.Request.Method == "GET")
             {
                 await _GetService.Invoke(context, _next);
                 return;
             }
-
+            else
+            {
+                await _next.Invoke(context);
+                return;
+            }
         }
     }
 }

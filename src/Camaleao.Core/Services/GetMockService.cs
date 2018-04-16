@@ -25,11 +25,13 @@ namespace Camaleao.Core.Services
             _engine = engine;
             _contextService = contextService;
         }
+
         public void StartUp(Template template, string[] queryString)
         {
             this.template = template;
             _QueryStringMapped = MapQueryString(queryString);
         }
+
         private Dictionary<int, string> MapQueryString(string[] queryString)
         {
             Dictionary<int, string> identifier = new Dictionary<int, string>();
@@ -50,7 +52,7 @@ namespace Camaleao.Core.Services
 
                 if (!this._QueryStringMapped.ContainsKey(item.Key))
                 {
-                    AddNotification($"{item.Key}", "The propertie name don't reflect the contract");
+                    AddNotification($"{item.Value}", "The propertie name don't reflect the contract");
                     continue;
                 }
             }
@@ -58,19 +60,11 @@ namespace Camaleao.Core.Services
         }
         private string ExtractRulesExpression(string expression)
         {
-            string newExpression = expression;
+            expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
+            expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
+            this.template.Request.GetIdentifierFromQueryString().ForEach(x => expression = expression.Replace(x.Value, $"'{this._QueryStringMapped[x.Key]}'"));
 
-            this.template.Request.GetIdentifierFromQueryString()
-                .Where(p => p.Value != "_context" && p.Value != "_context.external").ForEach(x =>
-                {
-                    if (expression.Contains(x.Value))
-                        newExpression = expression.Replace(x.Value, this._QueryStringMapped[x.Key]);
-                });
-
-            newExpression = ExtractFunctions(newExpression, false);
-            newExpression = ExtractProperties(newExpression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
-            newExpression = ExtractProperties(newExpression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
-            return newExpression;
+            return expression;
         }
         public IReadOnlyCollection<Notification> ValidateRules()
         {
@@ -85,23 +79,6 @@ namespace Camaleao.Core.Services
 
             AddNotification($"", "No rules match your request");
             return Notifications;
-        }
-
-        private string ExtractFunctions(string expression, bool execEngine)
-        {
-            var functions = expression.ExtractList("##");
-
-            functions.ForEach(func =>
-            {
-                var function = MapperFunction(func.ExtractBetween("##").Split(','));
-
-                if (execEngine)
-                    expression = expression.Replace(function, _engine.Execute<string>(function));
-                else
-                    expression = expression.Replace(func, function);
-            });
-
-            return expression;
         }
 
         private string ExtractProperties(string expression, bool execEngine, string scope, string nameFunction = "GetElement", params string[] delimiters)
@@ -192,8 +169,6 @@ namespace Camaleao.Core.Services
         {
             expression = ExtractProperties(expression, true, "Response", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, true, "Response", "GetContextComplexElement", delimiters: Delimiters.ContextComplexElement());
-            expression = ExtractProperties(expression, true, "Response", delimiters: Delimiters.ElementRequest());
-            expression = ExtractProperties(expression, true, "Response", "GetComplexElement", Delimiters.ComplexElement());
 
             return expression;
         }
@@ -201,8 +176,6 @@ namespace Camaleao.Core.Services
         {
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
-            expression = ExtractProperties(expression, true, "NoScope", delimiters: Delimiters.ElementRequest());
-            expression = ExtractFunctions(expression, false);
             return expression;
         }
         private void ExecuteActionResponse()
@@ -246,7 +219,7 @@ namespace Camaleao.Core.Services
                     else
                         value = _engine.Execute<string>(variable.Name);
 
-                    if (variable.Type.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
                     else
                         variable.Value = value;

@@ -21,7 +21,6 @@ namespace Camaleao.Core.Services
         private Context _context;
         private Dictionary<string, dynamic> _TemplateRequestMapped;
         private Dictionary<string, dynamic> _RequestMapped;
-        private Dictionary<int, string> _QueryStringMapped;
 
         public MockService(IEngineService engine, IContextService contextService)
         {

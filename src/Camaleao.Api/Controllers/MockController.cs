@@ -49,10 +49,5 @@ namespace Camaleao.Api.Controllers
 
             return new ObjectResult(response.Body) { StatusCode = response.StatusCode };
         }
-
-
-
-
-
     }
 }
