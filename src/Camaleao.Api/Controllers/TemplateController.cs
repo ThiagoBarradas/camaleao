@@ -81,15 +81,17 @@ namespace Camaleao.Api.Controllers
             if (ModelState.IsValid)
             {
 
-                var templeateOld = _templateService.FirstOrDefault(p => p.Id == token);
+                var templateOld = _templateService.FirstOrDefault(p => p.Id == token);
 
-                if (templeateOld != null)
+                if (templateOld != null)
                 {
-                    var templateNew = _mapper.Map<Template>(templateRequest);
+                    Template templateNew = new Template();
 
-                    _responseService.RemoveByTemplateId(templeateOld.Id);
+                    templateNew.Id = templateOld.Id;
 
-                    templateNew.Id = templeateOld.Id;
+                    templateNew = _mapper.Map<Template>(templateRequest);
+
+                    _responseService.RemoveByTemplateId(templateOld.Id);
 
                     if (!templateNew.IsValid())
                         return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };

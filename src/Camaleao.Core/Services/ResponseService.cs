@@ -28,9 +28,6 @@ namespace Camaleao.Core.Services
         public ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression) =>
              _responseRepository.Get(expression).Result.FirstOrDefault();
 
-        public void Remove(List<ResponseTemplate> responses) =>
-            responses.ForEach(p => _responseRepository.Remove(r => r.Id == p.Id));
-
         public void RemoveByTemplateId(string templateId) =>
             _responseRepository.Remove(p => p.TemplateId == templateId);
             

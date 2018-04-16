@@ -45,7 +45,7 @@ namespace Camaleao.Repository
 
         public bool Remove(Expression<Func<TEntity, bool>> filter)
         {
-            DeleteResult actionResult = GetMongoCollection().DeleteOne(filter);
+            DeleteResult actionResult = GetMongoCollection().DeleteMany(filter);
             return actionResult.IsAcknowledged
                             && actionResult.DeletedCount > 0;
         }
