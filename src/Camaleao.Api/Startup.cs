@@ -74,6 +74,7 @@ namespace Camaleao.Api
             services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
             services.AddScoped<IGetService, GetService>();
+            services.AddScoped<IGetMockService, GetMockService>();
 
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();

@@ -13,6 +13,8 @@ namespace Camaleao.Api.Profilers
     {
         public TemplateProfile()
         {
+            CreateMap<VariableModel, Variable>()
+                .ForMember(dest => dest.Builded, opt => opt.Ignore());
             CreateMap<ResponseModel, ResponseTemplate>()
                 .ForMember(dest => dest.TemplateId, opt => opt.Ignore());
             CreateMap<ContextModel, ContextTemplate>();

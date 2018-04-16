@@ -21,6 +21,7 @@ namespace Camaleao.Core.Services
         private Context _context;
         private Dictionary<string, dynamic> _TemplateRequestMapped;
         private Dictionary<string, dynamic> _RequestMapped;
+        private Dictionary<int, string> _QueryStringMapped;
 
         public MockService(IEngineService engine, IContextService contextService)
         {
@@ -31,21 +32,20 @@ namespace Camaleao.Core.Services
         public void InitializeMock(Template template, JObject request)
         {
             _template = template;
-
-            if (request != null)
-            {
-                _request = request;
-                _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContractFromObject();
-                _RequestMapped = _request.MapperContractFromObject();
-            }
+            _request = request;
+            _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContractFromObject();
+            _RequestMapped = _request.MapperContractFromObject();
             _engine.LoadRequest(request, "_request");
 
-        }
 
+
+        }
+        
+    
         public IReadOnlyCollection<Notification> ValidateContract()
         {
 
-            foreach (var request in _RequestMapped)
+            foreach (var request in _RequestMapped ?? new Dictionary<string, dynamic>())
             {
                 if (!_TemplateRequestMapped.ContainsKey(request.Key.ClearNavigateProperties()))
                 {

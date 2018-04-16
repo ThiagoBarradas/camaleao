@@ -8,6 +8,8 @@ namespace Camaleao.Core.Entities
         public string Name { get; set; }
         public dynamic Initialize { get; set; }
 
+        public bool Builded { get; set; }
+
         private string _value = string.Empty;
         public string Value {
             get {
@@ -25,15 +27,19 @@ namespace Camaleao.Core.Entities
 
         public void BuildVariable()
         {
-            if (Initialize == null)
+            if (!this.Builded)
             {
-                Value = GetTypeValue();
+                if (Initialize == null)
+                {
+                    Value = GetTypeValue();
+                }
+                else
+                {
+                    Value = MapperType();
+                }
+                Initialize = Value;
+                this.Builded = true;
             }
-            else
-            {
-                Value = MapperType();
-            }
-            Initialize = Value;
         }
 
         private string MapperType()

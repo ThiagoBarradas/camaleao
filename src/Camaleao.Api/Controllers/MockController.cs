@@ -37,12 +37,13 @@ namespace Camaleao.Api.Controllers
             if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
+            _mockService.LoadContext();
 
             notifications = _mockService.ValidateRules();
             if (notifications.Any())
                 return new ObjectResult(notifications) { StatusCode = 400 };
 
-            _mockService.LoadContext();
+        
 
             var response = _mockService.Response();
 

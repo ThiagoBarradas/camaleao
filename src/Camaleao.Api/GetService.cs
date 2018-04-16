@@ -17,11 +17,11 @@ namespace Camaleao.Api
     public class GetService : IGetService
     {
 
-        private readonly IMockService _mockService;
+        private readonly IGetMockService _mockService;
         private readonly ITemplateService _templateService;
         private readonly IResponseService _responseService;
 
-        public GetService(IMockService mockService, ITemplateService templateService, IResponseService responseService)
+        public GetService(IGetMockService mockService, ITemplateService templateService, IResponseService responseService)
         {
             _mockService = mockService;
             _templateService = templateService;
@@ -37,6 +37,7 @@ namespace Camaleao.Api
             string user = path[2];
             string version = path[3];
 
+            string[] queryString = path.Skip(5).Take(path.Length - 5).ToArray();
 
             var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Version == version && p.Route.Method == "GET");
 
@@ -47,21 +48,22 @@ namespace Camaleao.Api
 
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
-            _mockService.InitializeMock(template, null);
+            _mockService.StartUp(template, queryString);
 
             var notifications = _mockService.ValidateContract();
             if (notifications.Any())
                 return BadRequest(context, notifications);
 
-
+            _mockService.LoadContext();
 
             notifications = _mockService.ValidateRules();
             if (notifications.Any())
                 return BadRequest(context, notifications);
 
-            return Task.Factory.StartNew(() => context);
-
-
+            var response =_mockService.Response();
+             
+            return OK(context, response.Body, response.StatusCode);
+   
         }
 
         private static Task BadRequest<T>(HttpContext context, T obj)
@@ -73,6 +75,16 @@ namespace Camaleao.Api
             return Task.Factory.StartNew(() => context);
         }
 
+        private static Task OK<T>(HttpContext context, T obj, int statusCode)
+        {
+            context.Response.StatusCode = statusCode;
+           
+            context.Response.ContentType = "application/json";
+            context.Response.WriteAsync(obj.ToString());
+
+            return Task.Factory.StartNew(() => context);
+        }
+
         private static void _serializeJson<T>(T obj, Stream stream)
         {
          
@@ -80,8 +92,8 @@ namespace Camaleao.Api
                 using (var jsonWriter = new JsonTextWriter(streamWriter))
                 {
                     var serializer = new JsonSerializer();
-                    serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    serializer.Formatting = Formatting.Indented;
+                   serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    serializer.Formatting = Formatting.None;
                     serializer.Serialize(jsonWriter, obj);
                 }      
         }
