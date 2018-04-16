@@ -85,11 +85,9 @@ namespace Camaleao.Api.Controllers
 
                 if (templateOld != null)
                 {
-                    Template templateNew = new Template();
+                    templateRequest.Id = templateOld.Id;
 
-                    templateNew.Id = templateOld.Id;
-
-                    templateNew = _mapper.Map<Template>(templateRequest);
+                    var templateNew = _mapper.Map<Template>(templateRequest);
 
                     _responseService.RemoveByTemplateId(templateOld.Id);
 

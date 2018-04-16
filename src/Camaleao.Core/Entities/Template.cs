@@ -9,9 +9,9 @@ namespace Camaleao.Core.Entities
 {
     public class Template : Notifiable
     {
-        public Template()
+        public Template(string id)
         {
-            this.Id = Guid.NewGuid().ToString();
+            this.Id = id;
             this._responses = new List<ResponseTemplate>();
             this.Rules = new List<RuleTemplate>();
             this.Actions = new List<Action>();

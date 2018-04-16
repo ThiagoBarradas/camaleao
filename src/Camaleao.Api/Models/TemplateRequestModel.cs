@@ -8,6 +8,12 @@ namespace Camaleao.Api.Models
 {
     public class TemplateRequestModel
     {
+        public TemplateRequestModel()
+        {
+            this.Id = Guid.NewGuid().ToString();
+        }
+
+        public string Id { get; set; }
         [JsonRequired()]
         public RouteModel Route { get; set; }
         [Required(ErrorMessageResourceName = "RequestRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
