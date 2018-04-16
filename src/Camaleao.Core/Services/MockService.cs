@@ -36,9 +36,6 @@ namespace Camaleao.Core.Services
             _TemplateRequestMapped = ((JObject)_template.Request.Body).MapperContractFromObject();
             _RequestMapped = _request.MapperContractFromObject();
             _engine.LoadRequest(request, "_request");
-
-
-
         }
         
     

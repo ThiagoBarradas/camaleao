@@ -71,7 +71,7 @@ namespace Camaleao.Core.Entities
                         result = false;
                     }
                 }
-                catch (Newtonsoft.Json.JsonSerializationException js)
+                catch (Newtonsoft.Json.JsonSerializationException)
                 {
                     AddNotification("Context", "Request Body is not a valid json");
                     result = false;

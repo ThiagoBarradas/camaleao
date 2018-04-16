@@ -14,7 +14,7 @@ namespace Camaleao.Core.Test
         public void Template_WithoutContextUseContextInActions_TempalteInvalid()
         {
 
-            Template template = new Template();
+            Template template = new Template(Guid.NewGuid().ToString());
 
             template.Request = new RequestTemplate() {
                 Body = "{ }"
@@ -34,7 +34,7 @@ namespace Camaleao.Core.Test
         public void Template_WithoutContextUseContextInResponses_TempalteInvalid()
         {
 
-            Template template = new Template();
+            Template template = new Template(Guid.NewGuid().ToString());
             template.Request = new RequestTemplate()
             {
                 Body = "{ }"
@@ -69,7 +69,7 @@ namespace Camaleao.Core.Test
         public void Template_WithoutContextUseContextInRules_TempalteInvalid()
         {
 
-            Template template = new Template();
+            Template template = new Template(Guid.NewGuid().ToString());
             template.Request = new RequestTemplate()
             {
                 Body = "{ }"
@@ -109,7 +109,7 @@ namespace Camaleao.Core.Test
         public void Template_WithoutRequest_TempalteInvalid()
         {
 
-            Template template = new Template();
+            Template template = new Template(Guid.NewGuid().ToString());
          
             template.Responses = new List<ResponseTemplate>()
             {
