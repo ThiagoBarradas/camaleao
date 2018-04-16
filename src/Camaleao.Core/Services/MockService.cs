@@ -163,7 +163,6 @@ namespace Camaleao.Core.Services
 
         public ResponseTemplate Response()
         {
-
             _response = _template.Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
 
             ExecuteActionTemplate();
@@ -186,7 +185,7 @@ namespace Camaleao.Core.Services
                     else
                         value = _engine.Execute<string>(variable.Name);
 
-                    if (variable.Type.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
                     else
                         variable.Value = value;
