@@ -56,6 +56,13 @@ namespace Camaleao.Core.Entities
                 return false;
             }
 
+
+            if(!(new string[]{ "GET","POST"}).Contains( this.Route.Method))
+            {
+                AddNotification("Method", "Route method inválid.");
+                return false;
+            }
+
             if (this.Context == null && this.Request.Body != null && !this.Request.Body_.Contains("_context"))
             {
                 if (this.Actions.Any(p => p.Execute.Contains("_context")))

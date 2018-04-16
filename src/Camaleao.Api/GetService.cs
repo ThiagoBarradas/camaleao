@@ -14,7 +14,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Camaleao.Api
 {
-    public class GetService : IGetService
+    public class GetService :IGetService
     {
 
         private readonly IGetMockService _mockService;
@@ -31,7 +31,7 @@ namespace Camaleao.Api
         {
             string[] path = context.Request.Path.Value.Split("/");
 
-            if (path.Length < 4)
+            if(path.Length < 4 || path[2].ToLower().Equals("template"))
                 return next.Invoke(context);
 
             string user = path[2];
@@ -41,7 +41,7 @@ namespace Camaleao.Api
 
             var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Version == version && p.Route.Method == "GET");
 
-            if (template == null)
+            if(template == null)
             {
                 return BadRequest(context, "Identify Not Found");
             }
@@ -51,25 +51,25 @@ namespace Camaleao.Api
             _mockService.StartUp(template, queryString);
 
             var notifications = _mockService.ValidateContract();
-            if (notifications.Any())
+            if(notifications.Any())
                 return BadRequest(context, notifications);
 
             _mockService.LoadContext();
 
             notifications = _mockService.ValidateRules();
-            if (notifications.Any())
+            if(notifications.Any())
                 return BadRequest(context, notifications);
 
-            var response =_mockService.Response();
-             
+            var response = _mockService.Response();
+
             return OK(context, response.Body, response.StatusCode);
-   
+
         }
 
         private static Task BadRequest<T>(HttpContext context, T obj)
         {
             context.Response.StatusCode = 400;
-           
+
             _serializeJson<T>(obj, context.Response.Body);
 
             return Task.Factory.StartNew(() => context);
@@ -78,7 +78,7 @@ namespace Camaleao.Api
         private static Task OK<T>(HttpContext context, T obj, int statusCode)
         {
             context.Response.StatusCode = statusCode;
-           
+
             context.Response.ContentType = "application/json";
             context.Response.WriteAsync(obj.ToString());
 
@@ -87,15 +87,15 @@ namespace Camaleao.Api
 
         private static void _serializeJson<T>(T obj, Stream stream)
         {
-         
-                using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-                using (var jsonWriter = new JsonTextWriter(streamWriter))
-                {
-                    var serializer = new JsonSerializer();
-                   serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    serializer.Formatting = Formatting.None;
-                    serializer.Serialize(jsonWriter, obj);
-                }      
+
+            using(var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+            using(var jsonWriter = new JsonTextWriter(streamWriter))
+            {
+                var serializer = new JsonSerializer();
+                serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                serializer.Formatting = Formatting.None;
+                serializer.Serialize(jsonWriter, obj);
+            }
         }
 
 

@@ -15,6 +15,8 @@ namespace Camaleao.Api.Models
 
         public string Id { get; set; }
         [JsonRequired()]
+
+        [Required(ErrorMessageResourceName = "RouteRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public RouteModel Route { get; set; }
         [Required(ErrorMessageResourceName = "RequestRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public RequestModel Request { get; set; }
@@ -28,8 +30,11 @@ namespace Camaleao.Api.Models
 
     public class RouteModel
     {
+        [Required(ErrorMessageResourceName = "VersionRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public string Version { get; set; }
+        [Required(ErrorMessageResourceName = "NameRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public string Name { get; set; }
+        [Required(ErrorMessageResourceName = "MethodRequired", ErrorMessageResourceType = typeof(ValidationMessageCatalog))]
         public string Method { get; set; }
     }
 
