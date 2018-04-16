@@ -92,13 +92,11 @@ namespace Camaleao.Core.Services
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, true, "NoScope", delimiters: Delimiters.ElementRequest());
-            expression = ExtractFunctions(expression, false);
             return expression;
         }
 
         private string ExtractRulesExpression(string expression)
         {
-            expression = ExtractFunctions(expression, false);
             expression = ExtractProperties(expression, false, "NoScope", "Context", delimiters: Delimiters.ContextVariable());
             expression = ExtractProperties(expression, false, "NoScope", "ContextComplex", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, false, "NoScope", delimiters: Delimiters.ElementRequest());
@@ -113,23 +111,6 @@ namespace Camaleao.Core.Services
             expression = ExtractProperties(expression, true, "Response", "GetContextComplexElement", delimiters: Delimiters.ContextComplexElement());
             expression = ExtractProperties(expression, true, "Response", delimiters: Delimiters.ElementRequest());
             expression = ExtractProperties(expression, true, "Response", "GetComplexElement", Delimiters.ComplexElement());
-
-            return expression;
-        }
-
-        private string ExtractFunctions(string expression, bool execEngine)
-        {
-            var functions = expression.ExtractList("##");
-
-            functions.ForEach(func =>
-            {
-                var function = MapperFunction(func.ExtractBetween("##").Split(','));
-
-                if (execEngine)
-                    expression = expression.Replace(function, _engine.Execute<string>(function));
-                else
-                    expression = expression.Replace(func, function);
-            });
 
             return expression;
         }
