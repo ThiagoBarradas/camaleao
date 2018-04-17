@@ -48,5 +48,11 @@ namespace Camaleao.Core.Entities
 
             return queryStringidentifiers;
         }
+
+
+        public string GetMappedContextKey() { }
+
+        public string GetMappedExternalContextKey() { }
+
     }
 }
