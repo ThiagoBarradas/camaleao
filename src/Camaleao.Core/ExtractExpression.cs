@@ -30,12 +30,16 @@ namespace Camaleao.Core
     {
 
         private readonly IEngineService _engine;
+        private readonly bool execEngine;
+        private readonly ScopeExpression scope;
 
-        public AExtractProperties(IEngineService engine)
+        public AExtractProperties(IEngineService engine, bool execEngine, ScopeExpression scope)
         {
             this._engine = engine;
+            this.execEngine = execEngine;
+            this.scope = scope;
         }
-        protected string ExtractProperties(string expression, bool execEngine, string scope, string nameFunction = "GetElement", params string[] delimiters)
+        protected string ExtractProperties(string expression, string nameFunction = "GetElement", params string[] delimiters)
         {
             var properties = expression.ExtractList(delimiters);
             properties.ForEach(propertie =>
@@ -43,9 +47,9 @@ namespace Camaleao.Core
                 var content = MapperFunction(nameFunction, propertie);
 
                 if(execEngine)
-                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope, nameFunction), propertie), _engine.Execute<dynamic>(content));
+                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope.ToString(), nameFunction), propertie), _engine.Execute<dynamic>(content));
                 else
-                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope, nameFunction), propertie), content);
+                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope.ToString(), nameFunction), propertie), content);
             });
 
             return expression;
@@ -85,12 +89,12 @@ namespace Camaleao.Core
 
     public class ExtractContextExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractContextExpression(IEngineService engine) : base(engine)
+        public ExtractContextExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine,execEngine,scope)
         {
         }
         public string Extract(string expression)
         {
-            expression = ExtractProperties(expression, true, "Response", "Context", delimiters: Delimiters.ContextVariable());
+            expression = ExtractProperties(expression, "Context", delimiters: Delimiters.ContextVariable());
 
             return expression;
         }
@@ -98,40 +102,46 @@ namespace Camaleao.Core
 
     public class ExtractContextComplexElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractContextComplexElementExpression(IEngineService engine) : base(engine)
+        public ExtractContextComplexElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine, execEngine, scope)
         {
         }
 
         public string Extract(string expression)
         {
-            expression = ExtractProperties(expression, true, "Response", "GetContextComplexElement", delimiters: Delimiters.ContextComplexElement());
+            expression = ExtractProperties(expression, "GetContextComplexElement", delimiters: Delimiters.ContextComplexElement());
             return expression;
         }
     }
 
     public class ExtractElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractElementExpression(IEngineService engine) : base(engine)
+        public ExtractElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine, execEngine, scope)
         {
         }
 
         public string Extract(string expression)
         {
-            expression = ExtractProperties(expression, true, "Response", delimiters: Delimiters.ElementRequest());
+            expression = ExtractProperties(expression,  delimiters: Delimiters.ElementRequest());
             return expression;
         }
     }
 
     public class ExtractComplextElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractComplextElementExpression(IEngineService engine) : base(engine)
+        public ExtractComplextElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine,execEngine,scope)
         {
         }
 
         public string Extract(string expression)
         {
-            expression = ExtractProperties(expression, true, "Response", "GetComplexElement", Delimiters.ComplexElement());
+            expression = ExtractProperties(expression, "GetComplexElement", Delimiters.ComplexElement());
             return expression;
         }
+    }
+
+    public enum ScopeExpression
+    {
+        NoScope,
+        Response
     }
 }
