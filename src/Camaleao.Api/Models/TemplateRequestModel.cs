@@ -40,9 +40,12 @@ namespace Camaleao.Api.Models
 
     public class ResponseModel
     {
+        [JsonProperty("actions")]
         public List<ActionModel> Actions { get; set; }
         public string ResponseId { get; set; }
+        [JsonProperty("status_code")]
         public int StatusCode { get; set; }
+        [JsonProperty("body")]
         public dynamic Body { get; set; }
     }
 
@@ -92,8 +95,11 @@ namespace Camaleao.Api.Models
 
     public class RequestModel
     {
+        [JsonProperty("headers")]
         public List<KeyValuePair<string, string>> Headers { get; set; }
+        [JsonProperty("body")]
         public dynamic Body { get; set; }
+        [JsonProperty("query_string")]
         public string QueryString { get; set; }
     }
 }

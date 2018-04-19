@@ -23,7 +23,8 @@ namespace Camaleao.Api.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
-            if((context.Request.Method == "GET" || context.Request.Method == "POST") && !context.Request.Path.ToString().Contains("/api/template/"))
+            if((context.Request.Method == "GET" || context.Request.Method == "POST") 
+                && !RouteConfig.PathContainsRoutes(context.Request.Path))
             {
                 await mockApiService.Invoke(context, _next);
                 return;

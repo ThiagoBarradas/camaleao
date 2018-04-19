@@ -23,11 +23,13 @@ namespace Camaleao.Core.Services
         public MockService(IContextService contextService)
         {
             _contextService = contextService;
+
         }
         public void InitializeMock(RequestMapped request)
         {
 
             requestMapped = request;
+            ((List<Notification>)this.Notifications).Clear();
         }
 
         public void LoadContext()
@@ -89,9 +91,9 @@ namespace Camaleao.Core.Services
 
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
-                new ExtractContextExpression(this.requestMapped.GetEngineService(),false, ScopeExpression.NoScope),
-                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),false,ScopeExpression.NoScope),
-                new ExtractElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.NoScope)
+                new ExtractContextExpression(this.requestMapped.GetEngineService(),false, ScopeExpression.NoScope,true),
+                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),false,ScopeExpression.NoScope,true),
+                new ExtractElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.NoScope,true)
             }, expression);
 
         }
@@ -100,10 +102,10 @@ namespace Camaleao.Core.Services
         {
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
-                new ExtractContextExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response),
-                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response),
-                new ExtractElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response),
-                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response)
+                new ExtractContextExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response,false),
+                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response,false),
+                new ExtractElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response,false),
+                new ExtractContextComplexElementExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response,false)
             }, expression);
         }
 

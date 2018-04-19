@@ -63,10 +63,10 @@ namespace Camaleao.Core
         {
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
-                new ExtractContextExpression(this.GetEngineService(),false, ScopeExpression.NoScope),
-                new ExtractContextComplexElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope),
-                new ExtractElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope),
-                new ExtractComplextElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope)
+                new ExtractContextExpression(this.GetEngineService(),false, ScopeExpression.NoScope,false),
+                new ExtractContextComplexElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope,false),
+                new ExtractElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope,false),
+                new ExtractComplextElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope,false)
             }, expression);
         }
 
@@ -151,8 +151,8 @@ namespace Camaleao.Core
 
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
-                new ExtractContextExpression(this.GetEngineService(),false, ScopeExpression.NoScope),
-                new ExtractContextComplexElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope),
+                new ExtractContextExpression(this.GetEngineService(),false, ScopeExpression.NoScope,false),
+                new ExtractContextComplexElementExpression(this.GetEngineService(),false,ScopeExpression.NoScope,false),
             }, expression);
         }
 

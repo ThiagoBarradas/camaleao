@@ -32,12 +32,14 @@ namespace Camaleao.Core
         private readonly IEngineService _engine;
         private readonly bool execEngine;
         private readonly ScopeExpression scope;
+        private readonly bool persitElement;
 
-        public AExtractProperties(IEngineService engine, bool execEngine, ScopeExpression scope)
+        public AExtractProperties(IEngineService engine, bool execEngine, ScopeExpression scope, bool persitElement)
         {
             this._engine = engine;
             this.execEngine = execEngine;
             this.scope = scope;
+            this.persitElement = persitElement;
         }
         protected string ExtractProperties(string expression, string nameFunction = "GetElement", params string[] delimiters)
         {
@@ -47,9 +49,21 @@ namespace Camaleao.Core
                 var content = MapperFunction(nameFunction, propertie);
 
                 if(execEngine)
-                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope.ToString(), nameFunction), propertie), _engine.Execute<dynamic>(content));
+                {
+                    string variableType = _engine.VariableType(content);
+                    string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
+                    string stringFormatted = String.Format(styleStringFormat, propertie);
+                    string replacedValue = _engine.Execute<dynamic>(content);
+                    expression = expression.Replace(stringFormatted, variableType == "string" && persitElement ? $"'{replacedValue}'" : replacedValue);
+                }
                 else
-                    expression = expression.Replace(String.Format(StyleStringFormat(_engine.VariableType(content), scope.ToString(), nameFunction), propertie), content);
+                {
+                    string variableType = _engine.VariableType(content);
+                    string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
+                    string stringFormatted = String.Format(styleStringFormat, propertie);
+                    expression = expression.Replace(stringFormatted, content);
+                }
+
             });
 
             return expression;
@@ -57,7 +71,7 @@ namespace Camaleao.Core
 
         private string StyleStringFormat(string variableType, string scope, string nameFunction)
         {
-            if(scope == "Response" && (variableType == "object" || variableType == "number" || nameFunction == "GetContextComplexElement"))
+            if(scope == "Response" && (variableType == "object" || nameFunction == "GetContextComplexElement"))
                 return @"""{0}""";
 
             return @"{0}";
@@ -89,7 +103,7 @@ namespace Camaleao.Core
 
     public class ExtractContextExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractContextExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine,execEngine,scope)
+        public ExtractContextExpression(IEngineService engine, bool execEngine, ScopeExpression scope, bool persitElement) : base(engine, execEngine, scope, persitElement)
         {
         }
         public string Extract(string expression)
@@ -102,7 +116,7 @@ namespace Camaleao.Core
 
     public class ExtractContextComplexElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractContextComplexElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine, execEngine, scope)
+        public ExtractContextComplexElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope, bool persitElement) : base(engine, execEngine, scope, persitElement)
         {
         }
 
@@ -115,20 +129,20 @@ namespace Camaleao.Core
 
     public class ExtractElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine, execEngine, scope)
+        public ExtractElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope, bool persitElement) : base(engine, execEngine, scope, persitElement)
         {
         }
 
         public string Extract(string expression)
         {
-            expression = ExtractProperties(expression,  delimiters: Delimiters.ElementRequest());
+            expression = ExtractProperties(expression, delimiters: Delimiters.ElementRequest());
             return expression;
         }
     }
 
     public class ExtractComplextElementExpression :AExtractProperties, ExtractProperties
     {
-        public ExtractComplextElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope) : base(engine,execEngine,scope)
+        public ExtractComplextElementExpression(IEngineService engine, bool execEngine, ScopeExpression scope, bool persitElement) : base(engine, execEngine, scope, persitElement)
         {
         }
 
@@ -142,6 +156,7 @@ namespace Camaleao.Core
     public enum ScopeExpression
     {
         NoScope,
-        Response
+        Response,
+        Action
     }
 }

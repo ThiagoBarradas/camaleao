@@ -35,13 +35,18 @@ namespace Camaleao.Api
 
         public Task Invoke(HttpContext context, RequestDelegate next)
         {
+            
             string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
 
             string user = path[1];
             string version = path[2];
-            
+            string name = path[3];
+
             var template = _templateService
-                .FirstOrDefault(p => p.User == user && p.Route.Version == version && p.Route.Method == context.Request.Method);
+                .FirstOrDefault(p => p.User == user &&
+                p.Route.Version == version &&
+                p.Route.Name == name &&
+                 p.Route.Method == context.Request.Method);
 
             if(template == null)
                 return BadRequest(context, "Identify Not Found");

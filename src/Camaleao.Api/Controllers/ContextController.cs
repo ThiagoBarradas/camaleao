@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Camaleao.Api.Controllers
 {
-    [Route("api/context")]
+    [Route(RouteConfig.Context)]
     public class ContextController : Controller
     {
         private readonly IContextService _contextService;

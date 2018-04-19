@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Api.Controllers
 {
-    [Route("api/script")]
+    [Route(RouteConfig.Script)]
     public class ScriptController : Controller
     {
         private readonly IScriptRepository _scriptRepository;
