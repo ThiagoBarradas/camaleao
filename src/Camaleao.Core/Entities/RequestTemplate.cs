@@ -48,5 +48,7 @@ namespace Camaleao.Core.Entities
 
             return queryStringidentifiers;
         }
+
+        
     }
 }

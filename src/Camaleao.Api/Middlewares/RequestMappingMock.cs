@@ -13,19 +13,20 @@ namespace Camaleao.Api.Middlewares
     {
 
         private readonly RequestDelegate _next;
-        private readonly IGetService _GetService;
+        private readonly IMockApiService mockApiService;
 
-        public RequestMappingMock(RequestDelegate next, IGetService getService)
+        public RequestMappingMock(RequestDelegate next, IMockApiService mockApiService)
         {
             this._next = next;
-            this._GetService = getService;
+            this.mockApiService = mockApiService;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Method == "GET")
+            if((context.Request.Method == "GET" || context.Request.Method == "POST") 
+                && !RouteConfig.PathContainsRoutes(context.Request.Path))
             {
-                await _GetService.Invoke(context, _next);
+                await mockApiService.Invoke(context, _next);
                 return;
             }
             else

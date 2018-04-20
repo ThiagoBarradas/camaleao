@@ -14,7 +14,7 @@ using System.Linq;
 namespace Camaleao.Api.Controllers
 {
 
-    [Route("api/template")]
+    [Route(RouteConfig.Template)]
     public class TemplateController : Controller
     {
         private readonly ITemplateService _templateService;

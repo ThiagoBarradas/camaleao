@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Camaleao.Api
 {
-    public interface IGetService
+    public interface IMockApiService
     {
          Task Invoke(HttpContext context, RequestDelegate next);
     }

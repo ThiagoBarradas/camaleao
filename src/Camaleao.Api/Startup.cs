@@ -73,8 +73,8 @@ namespace Camaleao.Api
             services.AddScoped<IResponseService, ResponseService>();
             services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
-            services.AddScoped<IGetService, GetService>();
-            services.AddScoped<IGetMockService, GetMockService>();
+            services.AddTransient<IMockApiService, MockApiService>();
+      
 
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();
@@ -83,7 +83,7 @@ namespace Camaleao.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IGetService getService)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMockApiService getService)
         {
             if (env.IsDevelopment())
             {
