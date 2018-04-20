@@ -34,6 +34,13 @@ namespace Camaleao.Core.Services
 
             return context;
         }
+        public Context FirstOrDefaultByExternalIdentifier(string externalIdentifier)
+        {
+            Context context = null;
+            context = this.contextRepository.Get(p => p.ExternalIdentifier == externalIdentifier).Result.FirstOrDefault();
+
+            return context;
+        }
 
         public void Update(Context context)
         {

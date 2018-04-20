@@ -8,15 +8,20 @@ namespace Camaleao.Core.Entities
         public string Name { get; set; }
         public dynamic Initialize { get; set; }
 
+        public bool Builded { get; set; }
+
         private string _value = string.Empty;
-        public string Value {
-            get {
-                if (string.IsNullOrEmpty(_value))
+        public string Value
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_value))
                     _value = Initialize;
 
                 return _value;
             }
-            set {
+            set
+            {
                 _value = value;
             }
         }
@@ -25,62 +30,70 @@ namespace Camaleao.Core.Entities
 
         public void BuildVariable()
         {
-            if (Initialize == null)
+            if(!this.Builded)
             {
-                Value = GetTypeValue();
+                if(Initialize == null)
+                {
+                    Value = GetTypeValue();
+                }
+                else
+                {
+                    Value = MapperType();
+                }
+                Initialize = Value;
+                this.Builded = true;
             }
-            else
-            {
-                Value = MapperType();
-            }
-            Initialize = Value;
         }
 
         private string MapperType()
         {
-            switch (Initialize?.GetType()?.FullName)
+            switch(Initialize?.GetType()?.FullName)
             {
-                case "System.String":
-                    {
-                        Type = "text";
-                        return $"'{Initialize}'";
-                    }
+                case "System.Int32":
+                case "System.Int64":
+                {
+                    Type = "integer";
+                    return $"{Initialize}";
+                }
                 case "Newtonsoft.Json.Linq.JArray":
                 case "Newtonsoft.Json.Linq.JObject":
-                    {
-                        Type = "object";
-                        return $"{JsonConvert.SerializeObject(Initialize)}";
-                    }
+                {
+                    Type = "object";
+                    return $"{JsonConvert.SerializeObject(Initialize)}";
+                }
                 case "System.Double":
-                    {
-                        Type = "double";
-                        return $"{Initialize.ToString().Replace(',', '.')}";
-                    }
+                {
+                    Type = "double";
+                    return $"{Initialize.ToString().Replace(',', '.')}";
+                }
                 case "System.Boolean":
-                    {
-                        Type = "bool";
-                        return $"{Initialize.ToString().ToLower()}";
-                    }
+                {
+                    Type = "bool";
+                    return $"{Initialize.ToString().ToLower()}";
+                }
                 default:
-                    return $"{Initialize}";
+                {
+                    Type = "text";
+                    return $"'{Initialize}'";
+                }
             }
         }
 
         private string GetTypeValue()
         {
-            switch (Type)
+            switch(Type)
             {
                 case "text":
-                    return "''";
+                return "''";
                 case "integer":
                 case "double":
-                    return "0";
+                return "0";
                 case "bool":
-                    return "true";
+                return "true";
                 case "array":
-                    return "[]";
+                return "[]";
                 default:
-                    return "''";
+                return "''";
             }
         }
 

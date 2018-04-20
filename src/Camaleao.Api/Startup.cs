@@ -17,6 +17,7 @@ using Camaleao.Core.Services.Interfaces;
 using Jint;
 using System.IO;
 using Newtonsoft.Json.Serialization;
+using Camaleao.Api.Middlewares;
 
 namespace Camaleao.Api
 {
@@ -72,6 +73,8 @@ namespace Camaleao.Api
             services.AddScoped<IResponseService, ResponseService>();
             services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
+            services.AddTransient<IMockApiService, MockApiService>();
+      
 
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();
@@ -80,12 +83,14 @@ namespace Camaleao.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMockApiService getService)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<RequestMappingMock>(getService);
 
             app.UseMvc();
         }

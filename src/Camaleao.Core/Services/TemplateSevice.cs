@@ -20,43 +20,25 @@ namespace Camaleao.Core.Services
             _templateRepository = templateRepository;
         }
 
-        public void Add(Template template)
-        {
-
-            template.Id = Guid.NewGuid().ToString();
-
+        public void Add(Template template) =>
             _templateRepository.Add(template);
-        }
 
-        public List<Template> Find(Expression<Func<Template, bool>> expression)
+
+        public List<Template> Find(Expression<Func<Template, bool>> expression) =>
+            _templateRepository.Get(expression).Result;
+
+
+        public Template FirstOrDefault(Expression<Func<Template, bool>> expression) =>
+            _templateRepository.Get(expression).Result.FirstOrDefault();
+
+        public void Remove(Template template) =>
+            _templateRepository.Remove(p => p.Id == template.Id);
+
+        public void Update(Template template)
         {
-            return _templateRepository.Get(expression).Result;
+            _templateRepository.Update(p => p.Id == template.Id, template);
         }
 
-        public Template FirstOrDefault(Expression<Func<Template, bool>> expression)
-        {
-            return _templateRepository.Get(expression).Result.FirstOrDefault();
-        }
-
-        public IReadOnlyCollection<Notification> ValidateTemplate(Template template)
-        {
-            ValidateContext(template);
-            return Notifications;
-        }
-
-        private void ValidateContext(Template template)
-        {
-            if (template.Context == null && !template.Request_.Contains("_context")) {
-
-                if(template.Request_.Contains("_context"))
-                    AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
-
-                if(JsonConvert.SerializeObject(template.Responses).Contains("_context"))
-                    AddNotification("Context", "Your responses are doing reference to context, but there isn't mapped context in your template");
-
-                if (JsonConvert.SerializeObject(template.Rules).Contains("_context"))
-                    AddNotification("Context", "Your rules are doing reference to context, but there isn't mapped context in your template");
-            }
-        }
+  
     }
 }

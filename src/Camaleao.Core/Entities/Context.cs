@@ -12,6 +12,7 @@ namespace Camaleao.Core.Entities
             this.Id = Guid.NewGuid();
         }
         public Guid Id { get; set; }
+        public string ExternalIdentifier { get; set; }
         public List<Variable> Variables { get; set; }
 
         public string GetVariablesAsString()
@@ -23,6 +24,7 @@ namespace Camaleao.Core.Entities
                 retorno.Append($"var {variable.Name} = {variable.Value};");
             });
 
+            retorno.Append("var _context=true;");
             return retorno.ToString();
         }
     }

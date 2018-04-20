@@ -9,9 +9,11 @@ namespace Camaleao.Core.Services.Interfaces
 {
     public interface IMockService
     {
-        void InitializeMock(Template template, JObject request);
+        void InitializeMock( RequestMapped request);
         IReadOnlyCollection<Notification> ValidateContract();
         IReadOnlyCollection<Notification> ValidateRules();
+
+        void LoadContext();
 
         ResponseTemplate Response();
     }

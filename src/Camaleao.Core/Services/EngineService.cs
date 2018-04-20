@@ -33,13 +33,26 @@ namespace Camaleao.Core.Services
 
         public T Execute<T>(string expression)
         {
-            var result = _engine.Execute(expression).GetCompletionValue().ToString();
-            return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
+            try
+            {
+                var result = _engine.Execute(expression).GetCompletionValue().ToString();
+                return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
+            }catch(Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public string VariableType(string variable)
         {
-            return _engine.Execute($"typeof {variable}").GetCompletionValue().ToString();
+            try
+            {
+                return _engine.Execute($"typeof {variable}").GetCompletionValue().ToString();
+            }catch(Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ using System.Linq;
 namespace Camaleao.Api.Controllers
 {
 
-    [Route("api/template")]
+    [Route(RouteConfig.Template)]
     public class TemplateController : Controller
     {
         private readonly ITemplateService _templateService;
@@ -35,7 +35,7 @@ namespace Camaleao.Api.Controllers
         {
             var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Name == routeName && p.Route.Version == version);
 
-            if(template == null)
+            if (template == null)
                 return NotFound("Identify Not Found");
 
             template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
@@ -51,28 +51,69 @@ namespace Camaleao.Api.Controllers
         [HttpPost("{user}")]
         public IActionResult Create(string user, [FromBody]TemplateRequestModel templateRequest)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var template = _mapper.Map<Template>(templateRequest);
 
-                var notifications = _templateService.ValidateTemplate(template);
-                if(notifications.Any())
-                    return new ObjectResult(notifications) { StatusCode = 400 };
+                if (!template.IsValid())
+                    return new ObjectResult(template.Notifications) { StatusCode = 400 };
 
-                template.Context?.Variables.ForEach(variable => variable.BuildVariable());
+                if(_templateService.FirstOrDefault(p => p.Route.Name == template.Route.Name
+                                                                && p.Route.Version==template.Route.Version 
+                                                                && p.Route.Method==template.Route.Method)!=null)
+                    return new ObjectResult("This template already exists. Please update or create another version") { StatusCode = 400 };
+
                 template.User = user;
+
                 _templateService.Add(template);
-
-                template.Responses.ForEach(resp => resp.TemplateId = template.Id);
                 _responseService.Add(template.Responses);
-
 
                 TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
                 {
                     Token = template.Id,
-                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}"
+                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}",
+                    Method=template.Route.Method
                 };
                 return Ok(templateResponse);
+            }
+            else
+                return BadRequest(ModelState.GetErrorResponse());
+        }
+
+        [HttpPut("{user}/{token}")]
+        public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
+        {
+
+            if (ModelState.IsValid)
+            {
+
+                var templateOld = _templateService.FirstOrDefault(p => p.Id == token);
+
+                if (templateOld != null)
+                {
+                    templateRequest.Id = templateOld.Id;
+
+                    var templateNew = _mapper.Map<Template>(templateRequest);
+
+                    _responseService.RemoveByTemplateId(templateOld.Id);
+
+                    if (!templateNew.IsValid())
+                        return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
+
+                    templateNew.User = user;
+
+                    _responseService.Add(templateNew.Responses);
+                    _templateService.Update(templateNew);
+
+                    TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
+                    {
+                        Token = templateNew.Id,
+                        Route = $"{_Configuration["Host:Url"]}api/{user}/{templateNew.Route.Version}/{templateNew.Route.Name}"
+                    };
+                    return Ok(templateResponse);
+                }
+                else
+                    return BadRequest("Template Not Exist!");
             }
             else
                 return BadRequest(ModelState.GetErrorResponse());
