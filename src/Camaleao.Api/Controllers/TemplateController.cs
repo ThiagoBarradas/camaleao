@@ -59,6 +59,7 @@ namespace Camaleao.Api.Controllers
                     return new ObjectResult(template.Notifications) { StatusCode = 400 };
 
                 if(_templateService.FirstOrDefault(p => p.Route.Name == template.Route.Name
+                                                                && p.User== user
                                                                 && p.Route.Version==template.Route.Version 
                                                                 && p.Route.Method==template.Route.Method)!=null)
                     return new ObjectResult("This template already exists. Please update or create another version") { StatusCode = 400 };

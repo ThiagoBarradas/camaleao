@@ -81,12 +81,17 @@ namespace Camaleao.Core
 
         public override string GetExternalContext()
         {
-            string key = (_TemplateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty);
+            string key = GetKeyExternalContext();
 
             if(!string.IsNullOrEmpty(key))
                 return _RequestMapped[key];
 
             return string.Empty;
+        }
+
+        private string GetKeyExternalContext()
+        {
+            return (_TemplateRequestMapped.FirstOrDefault(r => r.Value.ToString().Equals("_context.external")).Key ?? string.Empty);
         }
 
         public override bool HasContext()
@@ -117,7 +122,7 @@ namespace Camaleao.Core
             string externalIdentifier = this.GetExternalContext();
 
             if(!string.IsNullOrEmpty(externalIdentifier) && !externalIdentifier.IsGuid())
-                notification.Add(new Notification("Context", "The external context does not have a valid value"));
+                notification.Add(new Notification(GetKeyExternalContext(), $"This property is required and should be a Guid."));
 
             return notification;
         }
