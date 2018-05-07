@@ -62,8 +62,8 @@ namespace Camaleao.Api
 
             services.AddSingleton<Settings>(new Settings()
             {
-                ConnectionString = this.Configuration["Mongo:ConnectionString"],
-                Database = this.Configuration["Mongo:Database"]
+                ConnectionString = this.Configuration["MongoConnectionString"],
+                Database = this.Configuration["MongoDatabase"]
             });
 
             services.AddTransient<Engine>();

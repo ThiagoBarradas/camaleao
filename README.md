@@ -19,7 +19,7 @@ Essas instruções farão com que você tenha uma cópia do projeto em execuçã
 
 1. Faça o clone deste projeto com `git clone https://github.com/mundipagg/camaleao.git`
 2. Entre na pasta do projeto e navegue até ./devops
-3. Build a imagem do docker `docker image build`
+3. Build a imagem do docker `docker image build .`
 
 Levantar o container
 

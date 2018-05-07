@@ -7,7 +7,7 @@ RUN dotnet restore
 RUN dotnet publish --output /app/
 
 # Default Environment
-ENV ASPNETCORE_ENVIRONMENT="Development"
+ENV ASPNETCORE_ENVIRONMENT="Docker"
 
 # Build runtime image
 FROM microsoft/aspnetcore:2.0
