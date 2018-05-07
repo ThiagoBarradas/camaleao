@@ -18,18 +18,22 @@ Essas instruções farão com que você tenha uma cópia do projeto em execuçã
 ### Instalando
 
 1. Faça o clone deste projeto com `git clone https://github.com/mundipagg/camaleao.git`
-2. Entre na pasta do projeto e navegue até ./devops
-3. Build a imagem do docker `docker image build .`
+2. Entre na pasta do projeto e Build a imagem do docker `docker build -f devops/dockerfile .` 
+3. Navegue até ./devops para trabalhar com os containers.
 
-Levantar o container
+Sendo `camelao/devops` o path no qual se encontra, temos:
 
+Caso seja a primeira vez, build o docker-compose
 ```
-PATH: camelao/devops
+docker-compose build
+```
+
+Subir o container
+```
 docker-compose up
 ```
 
 Derrubar o container
-
 ```
 docker-compose down
 ```
