@@ -44,11 +44,11 @@ Consulte a [Wiki](https://github.com/mundipagg/camaleao/wiki).
 
 ## Contribuindo
 
-Por favor, leia [CONTRIBUTING](https://github.com/mundipagg/camaleao/blob/feature/documentacao/CONTRIBUTING.md) para detalhes sobre o nosso código de conduta, e o processo para enviar pull request para nós.
+Por favor, leia [CONTRIBUTING](https://github.com/mundipagg/camaleao/blob/master/CONTRIBUTING.md) para detalhes sobre o nosso código de conduta, e o processo para enviar pull request para nós.
 
 ## Versionamento
 
-Por favor, leia o [CHANGELOG](https://github.com/mundipagg/camaleao/blob/feature/documentacao/CHANGELOG.md) para mais detalhes sobre mudanças e versões.
+Por favor, leia o [CHANGELOG](https://github.com/mundipagg/camaleao/blob/master/CHANGELOG.md) para mais detalhes sobre mudanças e versões.
 
 ## Autores
 
