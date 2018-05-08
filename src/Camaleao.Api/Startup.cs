@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Camaleao.Api.Middlewares;
+using Camaleao.Api.Profilers;
+using Camaleao.Core.Repository;
+using Camaleao.Core.Services;
+using Camaleao.Core.Services.Interfaces;
 using Camaleao.Repository;
+using Jint;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Camaleao.Core.Services;
-using AutoMapper;
-using Camaleao.Core.Repository;
-using Camaleao.Api.Profilers;
-using Camaleao.Core.Services.Interfaces;
-using Jint;
-using System.IO;
 using Newtonsoft.Json.Serialization;
-using Camaleao.Api.Middlewares;
+using System.IO;
 
 namespace Camaleao.Api
 {
@@ -26,13 +19,14 @@ namespace Camaleao.Api
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true);
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables("CAMALEAO_");
 
             Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
        
 
         // This method gets called by the runtime. Use this method to add services to the container.
