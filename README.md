@@ -14,6 +14,7 @@ Essas instruções farão com que você tenha uma cópia do projeto em execuçã
 ### Pré-requisitos
 
 - Docker
+- Docker-Compose
 
 ### Instalando
 
