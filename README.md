@@ -1,8 +1,7 @@
+[![CircleCI](https://circleci.com/gh/mundipagg/camaleao.svg?style=svg&circle-token=5a6f757966c5d66f3e845148331dc0da10620672)](https://circleci.com/gh/mundipagg/camaleao) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/690600ea223f42d7b4fd3ba8868205e4)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mundipagg/camaleao&amp;utm_campaign=Badge_Grade)
+
 # Camaleão
-> É um Mock API que te permite trabalhar com responses dinâmicos com base em regras que você pré define.
-
-[![CircleCI](https://circleci.com/gh/mundipagg/camaleao.svg?style=svg&circle-token=5a6f757966c5d66f3e845148331dc0da10620672)](https://circleci.com/gh/mundipagg/camaleao)
-
+### É um Mock API que te permite trabalhar com responses dinâmicos com base em regras que você pré define.
 O camaleão trabalha com template, que é onde você define toda a estrutura do seu Mock. Nele, irá conter a rota que usará para efetuar a chamada, o padrão de requisição que é esperado, os possíveis responses que terá, as regras para definir qual será o response, o contexto para criar variáveis e poder trabalhar em cima de futuras requisições e também em outros templates e, por fim, as actions para executar ações globais antes de processar o response.
 
 ![](/img/camaleao.jpg) 
@@ -14,6 +13,7 @@ Essas instruções farão com que você tenha uma cópia do projeto em execuçã
 ### Pré-requisitos
 
 - Docker
+- Docker-Compose
 
 ### Instalando
 
