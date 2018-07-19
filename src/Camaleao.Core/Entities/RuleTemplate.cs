@@ -4,6 +4,8 @@
     {
         public string Expression { get; set; }
         public string ResponseId { get; set; }
+
+        public PostbackTemplate Postback { get; set; }
     }
 
 }

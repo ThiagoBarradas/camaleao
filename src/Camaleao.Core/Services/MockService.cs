@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Camaleao.Core.Services
 {
@@ -17,7 +18,8 @@ namespace Camaleao.Core.Services
         private RequestMapped requestMapped;
         private readonly IContextService _contextService;
         private Context _context;
-        private ResponseTemplate _response;
+        private string _responseId;
+        private PostbackTemplate _postbackTemplate;
 
 
         public MockService(IContextService contextService)
@@ -77,10 +79,10 @@ namespace Camaleao.Core.Services
                 });
         }
 
-        private void ExecuteActionResponse()
+        private void ExecuteActionResponse(ResponseTemplate responseTemplate)
         {
-            if(_response.Actions != null)
-                _response.Actions.ForEach(action =>
+            if(responseTemplate.Actions != null)
+                responseTemplate.Actions.ForEach(action =>
                 {
                     requestMapped.GetEngineService().Execute<string>(ExtractActionExpression(action.Execute));
                 });
@@ -109,31 +111,29 @@ namespace Camaleao.Core.Services
             }, expression);
         }
 
-        public ResponseTemplate Response()
-        {
-            _response = requestMapped.GetTemplate().Responses.FirstOrDefault(r => r.ResponseId == _response.ResponseId);
+        
 
-            ExecuteActionTemplate();
+        private ResponseTemplate GetResponse(string responseId) {
 
-            ExecuteActionResponse();
+            var response= requestMapped.GetTemplate().Responses.FirstOrDefault(r => r.ResponseId == responseId);
 
-            _response.Body = ExtractResponseExpression(Convert.ToString(_response.Body));
+            ExecuteActionResponse(response);
 
-            if(_context != null)
-            {
-                _response.Body = Convert.ToString(_response.Body).Replace("_context.external", _context.ExternalIdentifier);
-                _response.Body = Convert.ToString(_response.Body).Replace("_context", _context.Id.ToString());
+            response.Body = ExtractResponseExpression(Convert.ToString(response.Body));
 
-                _context.Variables.ForEach(variable =>
-                {
+            if (_context != null) {
+                response.Body = Convert.ToString(response.Body).Replace("_context.external",_context.ExternalIdentifier);
+                response.Body = Convert.ToString(response.Body).Replace("_context",_context.Id.ToString());
+
+                _context.Variables.ForEach(variable => {
                     string value = "";
 
-                    if(variable.Type == "object" || variable.Type == "array")
+                    if (variable.Type == "object" || variable.Type == "array")
                         value = requestMapped.GetEngineService().Execute<string>($"JSON.stringify({variable.Name})");
                     else
                         value = requestMapped.GetEngineService().Execute<string>(variable.Name);
 
-                    if(variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
                     else
                         variable.Value = value;
@@ -143,7 +143,21 @@ namespace Camaleao.Core.Services
                 _contextService.Update(_context);
             }
 
-            return _response;
+            return response;
+        }
+        public ResponseTemplate Response()
+        {
+
+            ExecuteActionTemplate();
+
+            var response = this.GetResponse(this._responseId);
+
+            if (_postbackTemplate != null) {
+                Task.Run(() => { _postbackTemplate.Send(this.GetResponse(_postbackTemplate.ResponseId).Body); });
+                
+            }
+            
+            return response;
         }
 
         public IReadOnlyCollection<Notification> ValidateContract()
@@ -157,7 +171,9 @@ namespace Camaleao.Core.Services
             {
                 if(requestMapped.GetEngineService().Execute<bool>(requestMapped.ExtractRulesExpression(rule.Expression)))
                 {
-                    _response = new ResponseTemplate() { ResponseId = rule.ResponseId };
+                    this._responseId = rule.ResponseId;
+                    if (rule.Postback != null)
+                        this._postbackTemplate = rule.Postback;
                     return Notifications;
                 }
             }
