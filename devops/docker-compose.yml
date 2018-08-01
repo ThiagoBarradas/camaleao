@@ -6,7 +6,7 @@ services:
       dockerfile: ./devops/dockerfile
     container_name: camaleaoapi
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_ENVIRONMENT=Release
     ports:
       - "5000:5000"
     links:
