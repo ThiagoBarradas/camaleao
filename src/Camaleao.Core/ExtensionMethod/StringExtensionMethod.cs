@@ -34,7 +34,7 @@ namespace Camaleao.Core.ExtensionMethod
 
         public static Type GetTypeJson(this JToken content)
         {
-            string type = null;
+            string type = "System.String";
 
             switch (content.Type)
             {
