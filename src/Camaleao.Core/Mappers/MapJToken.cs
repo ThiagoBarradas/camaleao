@@ -37,7 +37,7 @@ namespace Camaleao.Core.Mappers
             {
                 if (item.HasValues && item.First != null)
                 {
-                    mapper = item.MapperContract();
+                    mapper.AddRange(item.MapperContract());
                 }
                 else
                 {
