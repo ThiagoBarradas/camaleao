@@ -12,12 +12,12 @@ namespace Camaleao.Core.Entities {
         public string Url { get; set; }
 
 
-        public async Task Send(dynamic body) {
+        public async Task Send(dynamic body, string url) {
 
             if (this.DelayInSeconds > 0)
                 Thread.Sleep(this.DelayInSeconds * 1000);
 
-            RestClient restClient = new RestClient(this.Url);
+            RestClient restClient = new RestClient(url);
             RestRequest restRequest = new RestRequest(Method.POST);
 
             restRequest.AddParameter("application/json",body,ParameterType.RequestBody);
