@@ -9,10 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Camaleao.Core.Services
-{
-    public class MockService :Notifiable, IMockService
-    {
+namespace Camaleao.Core.Services {
+    public class MockService : Notifiable, IMockService {
 
 
         private RequestMapped requestMapped;
@@ -22,74 +20,62 @@ namespace Camaleao.Core.Services
         private PostbackTemplate _postbackTemplate;
 
 
-        public MockService(IContextService contextService)
-        {
+        public MockService(IContextService contextService) {
             _contextService = contextService;
 
         }
-        public void InitializeMock(RequestMapped request)
-        {
+        public void InitializeMock(RequestMapped request) {
 
             requestMapped = request;
             ((List<Notification>)this.Notifications).Clear();
         }
 
-        public void LoadContext()
-        {
+        public void LoadContext() {
 
 
-            if(requestMapped.HasContext())
+            if (requestMapped.HasContext())
                 _context = _contextService.FirstOrDefault(requestMapped.GetContext());
-            else if(requestMapped.HasExternalContext())
-            {
+            else if (requestMapped.HasExternalContext()) {
                 LoadContextByExternalIdentifier(requestMapped.GetExternalContext());
             }
             else
                 CreateNewContext();
 
-            if(_context != null)
+            if (_context != null)
                 requestMapped.GetEngineService().Execute<string>(_context.GetVariablesAsString());
 
         }
 
-        private void LoadContextByExternalIdentifier(string externalIdentifier)
-        {
+        private void LoadContextByExternalIdentifier(string externalIdentifier) {
 
             _context = _contextService.FirstOrDefaultByExternalIdentifier(externalIdentifier);
-            if(_context == null && externalIdentifier.IsGuid())
+            if (_context == null && externalIdentifier.IsGuid())
                 CreateNewContext(externalIdentifier);
         }
 
-        private void CreateNewContext(string externalIdentifier = "")
-        {
-            if(requestMapped.GetTemplate().Context != null)
-            {
+        private void CreateNewContext(string externalIdentifier = "") {
+            if (requestMapped.GetTemplate().Context != null) {
                 _context = requestMapped.GetTemplate().Context.CreateContext();
                 _context.ExternalIdentifier = externalIdentifier;
                 _contextService.Add(_context);
             }
         }
 
-        private void ExecuteActionTemplate()
-        {
-            if(requestMapped.GetTemplate().Actions != null)
-                requestMapped.GetTemplate().Actions.ForEach(action =>
-                {
+        private void ExecuteActionTemplate() {
+            if (requestMapped.GetTemplate().Actions != null)
+                requestMapped.GetTemplate().Actions.ForEach(action => {
                     requestMapped.GetEngineService().Execute<string>(ExtractActionExpression(action.Execute));
                 });
         }
 
-        private void ExecuteActionResponse(ResponseTemplate responseTemplate)
-        {
-            if(responseTemplate.Actions != null)
-                responseTemplate.Actions.ForEach(action =>
-                {
+        private void ExecuteActionResponse(ResponseTemplate responseTemplate) {
+            if (responseTemplate.Actions != null)
+                responseTemplate.Actions.ForEach(action => {
                     requestMapped.GetEngineService().Execute<string>(ExtractActionExpression(action.Execute));
                 });
         }
 
-        private string ExtractActionExpression(string expression)
-        {
+        private string ExtractActionExpression(string expression) {
 
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
@@ -100,8 +86,7 @@ namespace Camaleao.Core.Services
 
         }
 
-        private string ExtractResponseExpression(string expression)
-        {
+        private string ExtractResponseExpression(string expression) {
             return new ExtractExpression().Extract(new List<ExtractProperties>()
             {
                 new ExtractContextExpression(this.requestMapped.GetEngineService(),true,ScopeExpression.Response,false),
@@ -111,19 +96,19 @@ namespace Camaleao.Core.Services
             }, expression);
         }
 
-        
+
 
         private ResponseTemplate GetResponse(string responseId) {
 
-            var response= requestMapped.GetTemplate().Responses.FirstOrDefault(r => r.ResponseId == responseId);
+            var response = requestMapped.GetTemplate().Responses.FirstOrDefault(r => r.ResponseId == responseId);
 
             ExecuteActionResponse(response);
 
             response.Body = ExtractResponseExpression(Convert.ToString(response.Body));
 
             if (_context != null) {
-                response.Body = Convert.ToString(response.Body).Replace("_context.external",_context.ExternalIdentifier);
-                response.Body = Convert.ToString(response.Body).Replace("_context",_context.Id.ToString());
+                response.Body = Convert.ToString(response.Body).Replace("_context.external", _context.ExternalIdentifier);
+                response.Body = Convert.ToString(response.Body).Replace("_context", _context.Id.ToString());
 
                 _context.Variables.ForEach(variable => {
                     string value = "";
@@ -145,32 +130,27 @@ namespace Camaleao.Core.Services
 
             return response;
         }
-        public ResponseTemplate Response()
-        {
+        public ResponseTemplate Response() {
 
             ExecuteActionTemplate();
 
             var response = this.GetResponse(this._responseId);
 
             if (_postbackTemplate != null) {
-                Task.Run(() => { _postbackTemplate.Send(this.GetResponse(_postbackTemplate.ResponseId).Body); });
-                
+                Task.Run(() => { _postbackTemplate.Send(this.GetResponse(_postbackTemplate.ResponseId).Body, ExtractResponseExpression(_postbackTemplate.Url)); });
             }
-            
+
             return response;
         }
 
-        public IReadOnlyCollection<Notification> ValidateContract()
-        {
+        public IReadOnlyCollection<Notification> ValidateContract() {
             return requestMapped.ValidateContract();
         }
 
-        public IReadOnlyCollection<Notification> ValidateRules()
-        {
-            foreach(var rule in requestMapped.GetTemplate().Rules)
-            {
-                if(requestMapped.GetEngineService().Execute<bool>(requestMapped.ExtractRulesExpression(rule.Expression)))
-                {
+        public IReadOnlyCollection<Notification> ValidateRules() {
+
+            foreach (var rule in requestMapped.GetTemplate().Rules) {
+                if (string.IsNullOrWhiteSpace(rule.Expression) == false && requestMapped.GetEngineService().Execute<bool>(requestMapped.ExtractRulesExpression(rule.Expression))) {
                     this._responseId = rule.ResponseId;
                     if (rule.Postback != null)
                         this._postbackTemplate = rule.Postback;
