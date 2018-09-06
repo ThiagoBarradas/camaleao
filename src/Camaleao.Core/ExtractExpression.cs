@@ -54,6 +54,7 @@ namespace Camaleao.Core
                     string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
                     string stringFormatted = String.Format(styleStringFormat, propertie);
                     string replacedValue = _engine.Execute<dynamic>(content);
+                    replacedValue = variableType == "boolean" ? replacedValue.ToLower() : replacedValue;
                     expression = expression.Replace(stringFormatted, variableType == "string" && persitElement ? $"'{replacedValue}'" : replacedValue);
                 }
                 else
