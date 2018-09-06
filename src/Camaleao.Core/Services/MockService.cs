@@ -149,6 +149,8 @@ namespace Camaleao.Core.Services {
 
         public IReadOnlyCollection<Notification> ValidateRules() {
 
+            this._postbackTemplate = null;
+
             foreach (var rule in requestMapped.GetTemplate().Rules) {
                 if (string.IsNullOrWhiteSpace(rule.Expression) == false && requestMapped.GetEngineService().Execute<bool>(requestMapped.ExtractRulesExpression(rule.Expression))) {
                     this._responseId = rule.ResponseId;
