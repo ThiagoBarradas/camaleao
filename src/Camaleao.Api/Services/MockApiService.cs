@@ -23,14 +23,14 @@ namespace Camaleao.Api {
         private readonly ITemplateService _templateService;
         private readonly IResponseService _responseService;
         private readonly IEngineService _engineService;
-     
+
         RequestMapped requestMapped = null;
         public MockApiService(IMockService mockService, ITemplateService templateService, IResponseService responseService, IEngineService engineService) {
             _mockService = mockService;
             _templateService = templateService;
             _responseService = responseService;
             _engineService = engineService;
-        
+
         }
 
         public Task Invoke(HttpContext context, RequestDelegate next) {
@@ -59,11 +59,13 @@ namespace Camaleao.Api {
                     requestMapped = new GetRequestMapped(template, this._engineService, queryString);
                 }
                 else if (template.Route.Method.ToUpper() == "POST") {
-                    using (LogContext.PushProperty("Content", context.Request.Body))
+
+                    var body = DeserializeJson<JObject>(context.Request.Body);
+                    using (LogContext.PushProperty("Content", body))
                     using (LogContext.PushProperty("RequestKey", requestKey)) {
                         Log.Information("Request recived");
                     }
-                    requestMapped = new PostRequestMapped(template, this._engineService, DeserializeJson<JObject>(context.Request.Body));
+                    requestMapped = new PostRequestMapped(template, this._engineService, body);
                 }
 
                 _mockService.InitializeMock(requestMapped);
@@ -86,7 +88,7 @@ namespace Camaleao.Api {
                 using (LogContext.PushProperty("RequestKey", requestKey)) {
                     Log.Error(ex, "Error in Invoke");
                 }
- 
+
                 return InternalServerError(context, ex.Message);
             }
         }
