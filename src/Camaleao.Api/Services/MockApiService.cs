@@ -61,7 +61,8 @@ namespace Camaleao.Api {
                 else if (template.Route.Method.ToUpper() == "POST") {
 
                     var body = DeserializeJson<JObject>(context.Request.Body);
-                    using (LogContext.PushProperty("Content", DeserializeJson<string>(context.Request.Body)))
+                    string bodyText = body.ToString();
+                    using (LogContext.PushProperty("Content", bodyText))
                     using (LogContext.PushProperty("RequestKey", requestKey)) {
                         Log.Information("Request recived");
                     }
