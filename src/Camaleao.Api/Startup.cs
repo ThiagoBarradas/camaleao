@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using System.IO;
+using Serilog;
 
 namespace Camaleao.Api
 {
@@ -62,6 +63,7 @@ namespace Camaleao.Api
 
             services.AddTransient<Engine>();
 
+            services.AddSingleton<ILogger>(Log.Logger);
             services.AddTransient<IEngineService, EngineService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IResponseService, ResponseService>();
@@ -87,6 +89,7 @@ namespace Camaleao.Api
             app.UseMiddleware<RequestMappingMock>(getService);
 
             app.UseMvc();
+  
         }
     }
 }

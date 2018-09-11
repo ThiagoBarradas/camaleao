@@ -13,77 +13,85 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Serilog;
+using Serilog.Context;
 
-
-namespace Camaleao.Api
-{
-    public class MockApiService :IMockApiService
-    {
+namespace Camaleao.Api {
+    public class MockApiService : IMockApiService {
 
         private readonly IMockService _mockService;
         private readonly ITemplateService _templateService;
         private readonly IResponseService _responseService;
         private readonly IEngineService _engineService;
+        private readonly ILogger _logger;
         RequestMapped requestMapped = null;
-        public MockApiService(IMockService mockService, ITemplateService templateService, IResponseService responseService, IEngineService engineService)
-        {
+        public MockApiService(IMockService mockService, ITemplateService templateService, IResponseService responseService, IEngineService engineService, ILogger logger) {
             _mockService = mockService;
             _templateService = templateService;
             _responseService = responseService;
             _engineService = engineService;
+            _logger = logger;
         }
 
-        public Task Invoke(HttpContext context, RequestDelegate next)
-        {
-            
-            string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
+        public Task Invoke(HttpContext context, RequestDelegate next) {
+            Guid requestKey = Guid.NewGuid();
+            try {
+                string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
 
-            string user = path[1];
-            string version = path[2];
-            string name = path[3];
 
-            var template = _templateService
-                .FirstOrDefault(p => p.User == user &&
-                p.Route.Version == version &&
-                p.Route.Name == name &&
-                 p.Route.Method == context.Request.Method);
+                string user = path[1];
+                string version = path[2];
+                string name = path[3];
 
-            if(template == null)
-                return BadRequest(context, "Identify Not Found");
+                var template = _templateService
+                    .FirstOrDefault(p => p.User == user &&
+                    p.Route.Version == version &&
+                    p.Route.Name == name &&
+                     p.Route.Method == context.Request.Method);
 
-            template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+                if (template == null)
+                    return BadRequest(context, "Rule Not Found");
 
-            if(template.Route.Method.ToUpper() == "GET")
-            {
-                string[] queryString = path.Skip(4).ToArray();
-                requestMapped = new GetRequestMapped(template, this._engineService, queryString);
+                template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+
+                if (template.Route.Method.ToUpper() == "GET") {
+                    string[] queryString = path.Skip(4).ToArray();
+                    requestMapped = new GetRequestMapped(template, this._engineService, queryString);
+                }
+                else if (template.Route.Method.ToUpper() == "POST") {
+                    using (LogContext.PushProperty("Content", context.Request.Body))
+                    using (LogContext.PushProperty("RequestKey", requestKey)) {
+                        _logger.Information("Request recived");
+                    }
+                    requestMapped = new PostRequestMapped(template, this._engineService, DeserializeJson<JObject>(context.Request.Body));
+                }
+
+                _mockService.InitializeMock(requestMapped);
+
+                var notifications = _mockService.ValidateContract();
+                if (notifications.Any())
+                    return BadRequest(context, notifications);
+
+                _mockService.LoadContext();
+
+                notifications = _mockService.ValidateRules();
+                if (notifications.Any())
+                    return BadRequest(context, notifications);
+
+                var response = _mockService.Response();
+
+                return OK(context, response.Body, response.StatusCode);
             }
-            else if(template.Route.Method.ToUpper() == "POST")
-            {
-                requestMapped = new PostRequestMapped(template, this._engineService, DeserializeJson<JObject>(context.Request.Body));
+            catch (Exception ex) {
+                using (LogContext.PushProperty("RequestKey", requestKey)) {
+                    this._logger.Error(ex, "Error in Invoke");
+                }
+ 
+                return InternalServerError(context, ex.Message);
             }
-
-
-            _mockService.InitializeMock(requestMapped);
-
-            var notifications = _mockService.ValidateContract();
-            if(notifications.Any())
-                return BadRequest(context, notifications);
-
-            _mockService.LoadContext();
-
-            notifications = _mockService.ValidateRules();
-            if(notifications.Any())
-                return BadRequest(context, notifications);
-
-            var response = _mockService.Response();
-
-            return OK(context, response.Body, response.StatusCode);
-
         }
 
-        private static Task BadRequest<T>(HttpContext context, T obj)
-        {
+        private static Task BadRequest<T>(HttpContext context, T obj) {
             context.Response.StatusCode = 400;
             context.Response.ContentType = "application/json";
             _serializeJson<T>(obj, context.Response.Body);
@@ -91,8 +99,7 @@ namespace Camaleao.Api
             return Task.Factory.StartNew(() => context);
         }
 
-        private static Task OK<T>(HttpContext context, T obj, int statusCode)
-        {
+        private static Task OK<T>(HttpContext context, T obj, int statusCode) {
             context.Response.StatusCode = statusCode;
 
             context.Response.ContentType = "application/json";
@@ -101,24 +108,24 @@ namespace Camaleao.Api
             return Task.Factory.StartNew(() => context);
         }
 
-        private static T DeserializeJson<T>(Stream stream)
-        {
+        private static Task InternalServerError<T>(HttpContext context, T obj) {
+            return OK(context, obj, 500);
+        }
+
+        private static T DeserializeJson<T>(Stream stream) {
 
             var serializer = new JsonSerializer();
 
-            using(var sr = new StreamReader(stream))
-            using(var jsonTextReader = new JsonTextReader(sr))
-            {
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr)) {
                 return serializer.Deserialize<T>(jsonTextReader);
             }
         }
 
-        private static void _serializeJson<T>(T obj, Stream stream)
-        {
+        private static void _serializeJson<T>(T obj, Stream stream) {
 
-            using(var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-            using(var jsonWriter = new JsonTextWriter(streamWriter))
-            {
+            using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+            using (var jsonWriter = new JsonTextWriter(streamWriter)) {
                 var serializer = new JsonSerializer();
                 serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 serializer.Formatting = Formatting.None;
