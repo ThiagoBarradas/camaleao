@@ -2,6 +2,8 @@
 using Camaleao.Core.Services.Interfaces;
 using Jint;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Context;
 using System;
 using System.Text;
 
@@ -23,13 +25,21 @@ namespace Camaleao.Core.Services {
         }
 
         public void LoadRequest(JObject request, string variavel) {
+       
             _engine.Execute($"{variavel} = {request}");
         }
 
         public T Execute<T>(string expression) {
 
-            var result = _engine.Execute(expression).GetCompletionValue().ToString();
-            return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
+            try {
+                var result = _engine.Execute(expression).GetCompletionValue().ToString();
+                return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
+            }catch(Exception ex) {
+                using (LogContext.PushProperty("Content", expression)) {
+                    Log.Error(ex, "Error in execute script");
+                }
+                throw ex;   
+            }
 
         }
 
