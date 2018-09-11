@@ -120,6 +120,8 @@ namespace Camaleao.Core.Services {
 
                     if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
                         variable.Value = $"'{value}'";
+                    else if (variable.Type?.ToLower() == "bool" && value != null)
+                        variable.Value = value.ToLower();
                     else
                         variable.Value = value;
 
