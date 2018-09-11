@@ -50,8 +50,7 @@ namespace Camaleao.Core {
                 else {
                     string variableType = _engine.VariableType(content);
                     string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
-                    string stringFormatted = String.Format(styleStringFormat, propertie);
-                    stringFormatted = (variableType == "boolean" || variableType == "bool" || stringFormatted == "True") ? stringFormatted.ToLower() : stringFormatted;
+                    string stringFormatted = String.Format(styleStringFormat, propertie);                 
                     expression = expression.Replace(stringFormatted, content);
                 }
 

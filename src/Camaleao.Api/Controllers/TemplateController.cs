@@ -45,7 +45,11 @@ namespace Camaleao.Api.Controllers
             var response = JsonConvert.SerializeObject(templateResponse);
             response = response.Replace(JsonConvert.SerializeObject(templateResponse.Context.Variables), templateResponse.Context.BuildVariables());
 
-            return new ObjectResult(response) { StatusCode = 200 };
+            var result = new {
+                Token=template.Id,
+                Template=response
+            };
+            return new ObjectResult(result) { StatusCode = 200 };
         }
 
         [HttpPost("{user}")]
