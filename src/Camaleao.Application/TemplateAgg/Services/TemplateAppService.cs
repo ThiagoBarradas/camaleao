@@ -8,10 +8,8 @@ using System.Linq;
 using Camaleao.Core.Repository;
 using Camaleao.Core.Validates;
 
-namespace Camaleao.Application.TemplateAgg.Services
-{
-    public class TemplateAppService : ITemplateAppService
-    {
+namespace Camaleao.Application.TemplateAgg.Services {
+    public class TemplateAppService : ITemplateAppService {
 
         private readonly IMapper _mapper;
         private readonly ITemplateRepository _templateRepository;
@@ -21,8 +19,7 @@ namespace Camaleao.Application.TemplateAgg.Services
         public TemplateAppService(IMapper mapper,
                                     ITemplateRepository templateRepository,
                                     IResponseRepository responseRepository,
-                                    ICreateTemplateValidate createTemplateValidate)
-        {
+                                    ICreateTemplateValidate createTemplateValidate) {
             this._mapper = mapper;
             this._templateRepository = templateRepository;
             this._responseRepository = responseRepository;
@@ -35,8 +32,7 @@ namespace Camaleao.Application.TemplateAgg.Services
         /// <param name="user"></param>
         /// <param name="createTemplateRequestModel"></param>
         /// <returns></returns>
-        public CreateTemplateResponseModel Create(string user, CreateTemplateRequestModel createTemplateRequestModel)
-        {
+        public CreateTemplateResponseModel Create(string user, CreateTemplateRequestModel createTemplateRequestModel) {
 
             Template template = _mapper.Map<Template>(createTemplateRequestModel);
             var responses = _mapper.Map<List<ResponseTemplate>>(createTemplateRequestModel.Responses);
@@ -44,8 +40,8 @@ namespace Camaleao.Application.TemplateAgg.Services
             if (!template.IsValid())
                 return new CreateTemplateResponseModel(400)
                     .AddErros(template.Notifications.Select(p => p.Message).ToList());
-            
-            if(!this._createTemplateValidate.Validate(template))
+
+            if (!this._createTemplateValidate.Validate(template, responses))
                 return new CreateTemplateResponseModel(400)
                    .AddErros(_createTemplateValidate.GetNotifications().Select(p => p.Message).ToList());
 
@@ -64,8 +60,7 @@ namespace Camaleao.Application.TemplateAgg.Services
 
             _templateRepository.Add(template);
             _responseRepository.Add(responses);
-            return new CreateTemplateResponseModel(201)
-            {
+            return new CreateTemplateResponseModel(201) {
                 Token = template.Id.ToString(),
                 Route = $"api/{user}/{template.Route.Version}/{template.Route.Name}",
                 Method = template.Route.Method
@@ -77,8 +72,7 @@ namespace Camaleao.Application.TemplateAgg.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public GetRequestTemplateResponseModel Get(GetRequestTemplateRequestModel request)
-        {
+        public GetRequestTemplateResponseModel Get(GetRequestTemplateRequestModel request) {
 
             var template = _templateRepository.Get(p => p.Route.Name.ToLower() == request.RouteName.ToLower()
                                         && p.User.ToLower() == request.User.ToLower()

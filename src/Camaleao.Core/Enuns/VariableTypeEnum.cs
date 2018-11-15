@@ -25,16 +25,16 @@ namespace Camaleao.Core.Enuns
             return values;
         }
 
-        public static object GetMockValueByType(string variableType)
+        public static string GetMockValueByType(string variableType)
         {
             switch (variableType)
             {
                 case Integer:
-                    return 0;
+                    return "0";
                 case Boolean:
-                    return true;
+                    return "true";
                 case Text:
-                    return "abc";
+                    return "'abc'";
                 default:
                     return "";
             }

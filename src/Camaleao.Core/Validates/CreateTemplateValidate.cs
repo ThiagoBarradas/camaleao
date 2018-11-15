@@ -13,21 +13,29 @@ namespace Camaleao.Core.Validates {
             this.engineService = engineService;
         }
 
-        public bool Validate(Template template) {
+        public bool Validate(Template template, IList<ResponseTemplate> responses) {
 
-            if (template.Context == null && template.Request is PostRequestTemplate) {
-                var requestContainsContext = ((PostRequestTemplate)template.Request).HasContext();
-                if (!requestContainsContext && template.Actions.Any(p => p.UseContext())) {
+            if (template.Request is PostRequestTemplate) {
+
+                var requestContainsContext = ((PostRequestTemplate)template.Request).UseContext();
+                var requestContainsExternalContext = ((PostRequestTemplate)template.Request).UseExternalContext();
+
+                if (!requestContainsContext && !requestContainsExternalContext && template.Actions.Any(p => p.UseContext())) {
                     AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
                     return false;
                 }
-                if (!requestContainsContext && template.Rules.Any(p => p.UseContext())) {
+                if (!requestContainsContext && !requestContainsExternalContext && template.Rules.Any(p => p.UseContext())) {
                     AddNotification("Context", "Your rules are doing reference to context, but there isn't mapped context in your template");
                     return false;
                 }
             }
 
             foreach (var rule in template.Rules) {
+                if (!responses.Any(p => string.Compare(p.ResponseId, rule.ResponseId, true) == 0)) {
+                    AddNotification("Rule", string.Format("[rule]({0}) contains invalid [response_id].", rule.Expression));
+                    return false;
+                }
+
                 var result = this.ValidateRule(template, rule);
                 if (!result)
                     return false;
@@ -47,13 +55,13 @@ namespace Camaleao.Core.Validates {
             if (template.Request is PostRequestTemplate) {
                 var postRequestTemplate = ((PostRequestTemplate)template.Request);
                 var requestMapped = postRequestTemplate.GetBodyMapped();
-                hasContext = postRequestTemplate.HasContext();
+                hasContext = postRequestTemplate.UseContext();
 
                 foreach (var key in requestMapped.Keys) {
                     var variable = $"{{{{{key}}}}}";
                     if (expression.Contains(variable)) {
                         var value = Convert.ToString(requestMapped[key]);
-                        expression = expression.Replace(variable, Enuns.VariableTypeEnum.GetMockValueByType(value).ToString().ToLower());
+                        expression = expression.Replace(variable, Enuns.VariableTypeEnum.GetMockValueByType(value));
                     }
                 }
 
@@ -75,7 +83,7 @@ namespace Camaleao.Core.Validates {
             }
 
             try {
-                this.engineService.Execute<bool>(rule.Expression);
+                this.engineService.Execute<bool>(expression);
             }
             catch {
                 AddNotification("Rule", string.Format("[Rule]({0}) contains an invalid logical expression", rule.Expression));

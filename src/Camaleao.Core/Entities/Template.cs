@@ -58,7 +58,7 @@ namespace Camaleao.Core.Entities
                 return false;
             }
 
-            if (this.Rules.Any(p => !p.IsValid(this)))
+            if (this.Rules.Any(p => !p.IsValid()))
             {
                 this.Rules.ForEach(p => AddNotifications(p.Notifications));
                 return false;

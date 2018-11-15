@@ -37,10 +37,14 @@ namespace Camaleao.Core.Entities
             var body = JsonConvert.DeserializeObject<JObject>(Body_);
             return body.MapperContractFromObject();
         }
-        public bool HasContext()
+        public bool UseContext()
         {
             var bodyMapped = GetBodyMapped();
             return bodyMapped.Values.Any(p => VariableTypeEnum.Context.Equals(Convert.ToString(p), comparisonType: StringComparison.InvariantCultureIgnoreCase));
+        }
+        public bool UseExternalContext() {
+            var bodyMapped = GetBodyMapped();
+            return bodyMapped.Values.Any(p => VariableTypeEnum.ExternalContext.Equals(Convert.ToString(p), comparisonType: StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
