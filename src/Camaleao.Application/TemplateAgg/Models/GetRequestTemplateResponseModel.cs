@@ -1,14 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace Camaleao.Api.Models
+namespace Camaleao.Application.TemplateAgg.Models
 {
+    public class GetRequestTemplateResponseModel {
 
-    
+        public Guid Token { get; set; }
+        public TemplateResponseModel Template { get; set; }
+    }
+
     public class TemplateResponseModel
     {
-     
         public RouteModel Route { get; set; }
         public RequestModel Request { get; set; }
         public List<ActionModel> Actions { get; set; }

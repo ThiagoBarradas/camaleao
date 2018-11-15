@@ -2,14 +2,16 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Camaleao.Core.Entities
 {
     public class ResponseTemplate
     {
-        public Guid Id { get; set; }
-        public string TemplateId { get; set; }
+        public ResponseTemplate()
+        {
+            this.Id = Guid.NewGuid();
+        }
+        public Guid Id { get; private set; }
         public List<Action> Actions { get; set; }
         public string ResponseId { get; set; }
         public int StatusCode { get; set; }
@@ -24,5 +26,6 @@ namespace Camaleao.Core.Entities
             }
         }
         public string Body_ { get; set; }
+
     }
 }

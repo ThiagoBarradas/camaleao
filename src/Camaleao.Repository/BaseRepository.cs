@@ -33,14 +33,14 @@ namespace Camaleao.Repository
             return GetMongoCollection().InsertOneAsync(filter);
         }
 
-        public Task<List<TEntity>> Get(Expression<Func<TEntity, bool>> filter)
+        public List<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
-            return GetMongoCollection().Find(filter).ToListAsync();
+            return GetMongoCollection().Find(filter).ToListAsync().Result;
         }
 
-        public Task<List<TEntity>> GetAll()
+        public List<TEntity> GetAll()
         {
-            return GetMongoCollection().Find(_ => true).ToListAsync();
+            return GetMongoCollection().Find(_ => true).ToListAsync().Result;
         }
 
         public bool Remove(Expression<Func<TEntity, bool>> filter)

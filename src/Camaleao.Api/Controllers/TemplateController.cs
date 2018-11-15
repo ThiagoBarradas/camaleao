@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Camaleao.Api.Models;
+using Camaleao.Application.TemplateAgg.Models;
+using Camaleao.Application.TemplateAgg.Services;
 using Camaleao.Core;
 using Camaleao.Core.Entities;
 using Camaleao.Core.ExtensionMethod;
@@ -17,111 +19,92 @@ namespace Camaleao.Api.Controllers
     [Route(RouteConfig.Template)]
     public class TemplateController : Controller
     {
-        private readonly ITemplateService _templateService;
+
         private readonly IResponseService _responseService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _Configuration;
+        private readonly ITemplateAppService _templateAppService;
 
-        public TemplateController(ITemplateService templateService, IResponseService responseService, IMapper mapper, IConfiguration configuration)
+        public TemplateController(IResponseService responseService,
+                                    IMapper mapper,
+                                    IConfiguration configuration,
+                                    ITemplateAppService templateAppService)
         {
-            _templateService = templateService;
+
             _responseService = responseService;
             _mapper = mapper;
             _Configuration = configuration;
+            _templateAppService = templateAppService;
         }
 
-        [HttpGet("{user}/{version}/{routeName}")]
-        public IActionResult Get(string user, string version, string routeName)
+        [HttpGet("{user}/{version}/{routeName}/{method}")]
+        public IActionResult Get(string user, string version, string routeName, string method)
         {
-            var template = _templateService.FirstOrDefault(p => p.User == user && p.Route.Name == routeName && p.Route.Version == version);
 
-            if (template == null)
-                return NotFound("Identify Not Found");
-
-            template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
-
-            var templateResponse = _mapper.Map<TemplateResponseModel>(template);
-
-            var response = JsonConvert.SerializeObject(templateResponse);
-            response = response.Replace(JsonConvert.SerializeObject(templateResponse.Context.Variables), templateResponse.Context.BuildVariables());
-
-            var result = new {
-                Token=template.Id,
-                Template=response
-            };
-            return new ObjectResult(result) { StatusCode = 200 };
+            var response = _templateAppService.Get(new GetRequestTemplateRequestModel()
+            {
+                Method = method,
+                RouteName = routeName,
+                User = user,
+                Version = version
+            });
+           
+            return new ObjectResult(response) { StatusCode = 200 };
         }
 
         [HttpPost("{user}")]
-        public IActionResult Create(string user, [FromBody]TemplateRequestModel templateRequest)
+        public IActionResult Create(string user, [FromBody]CreateTemplateRequestModel templateModel)
         {
             if (ModelState.IsValid)
             {
-                var template = _mapper.Map<Template>(templateRequest);
+                var response = _templateAppService.Create(user, templateModel);
 
-                if (!template.IsValid())
-                    return new ObjectResult(template.Notifications) { StatusCode = 400 };
-
-                if(_templateService.FirstOrDefault(p => p.Route.Name == template.Route.Name
-                                                                && p.User== user
-                                                                && p.Route.Version==template.Route.Version 
-                                                                && p.Route.Method==template.Route.Method)!=null)
-                    return new ObjectResult("This template already exists. Please update or create another version") { StatusCode = 400 };
-
-                template.User = user;
-
-                _templateService.Add(template);
-                _responseService.Add(template.Responses);
-
-                TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
-                {
-                    Token = template.Id,
-                    Route = $"{_Configuration["Host:Url"]}api/{user}/{template.Route.Version}/{template.Route.Name}",
-                    Method=template.Route.Method
-                };
-                return Ok(templateResponse);
-            }
-            else
-                return BadRequest(ModelState.GetErrorResponse());
-        }
-
-        [HttpPut("{user}/{token}")]
-        public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
-        {
-
-            if (ModelState.IsValid)
-            {
-
-                var templateOld = _templateService.FirstOrDefault(p => p.Id == token);
-
-                if (templateOld != null)
-                {
-                    templateRequest.Id = templateOld.Id;
-
-                    var templateNew = _mapper.Map<Template>(templateRequest);
-
-                    _responseService.RemoveByTemplateId(templateOld.Id);
-
-                    if (!templateNew.IsValid())
-                        return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
-
-                    templateNew.User = user;
-
-                    _responseService.Add(templateNew.Responses);
-                    _templateService.Update(templateNew);
-
-                    TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
-                    {
-                        Token = templateNew.Id,
-                        Route = $"{_Configuration["Host:Url"]}api/{user}/{templateNew.Route.Version}/{templateNew.Route.Name}"
-                    };
-                    return Ok(templateResponse);
-                }
+                if (response.StatusCode == 201)
+                    return new CreatedResult("create", response);
                 else
-                    return BadRequest("Template Not Exist!");
+                   return BadRequest(response);          
             }
             else
                 return BadRequest(ModelState.GetErrorResponse());
         }
+
+        //[HttpPut("{user}/{token}")]
+        //public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
+        //{
+
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        var templateOld = _templateService.Find(p => p.Id == token).FirstOrDefault();
+
+        //        if (templateOld != null)
+        //        {
+        //            templateRequest.Id = templateOld.Id;
+
+        //            var templateNew = _mapper.Map<Template>(templateRequest);
+
+        //            _responseService.RemoveByTemplateId(templateOld.Id);
+
+        //            if (!templateNew.IsValid())
+        //                return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
+
+        //            templateNew.User = user;
+
+        //            _responseService.Add(templateNew.ResponsesId);
+        //            _templateService.Update(templateNew);
+
+        //            TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
+        //            {
+        //                Token = templateNew.Id,
+        //                Route = $"{_Configuration["Host:Url"]}api/{user}/{templateNew.Route.Version}/{templateNew.Route.Name}"
+        //            };
+        //            return Ok(templateResponse);
+        //        }
+        //        else
+        //            return BadRequest("Template Not Exist!");
+        //    }
+        //    else
+        //        return BadRequest(ModelState.GetErrorResponse());
+        //}
     }
 }

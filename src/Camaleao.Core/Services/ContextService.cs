@@ -27,7 +27,7 @@ namespace Camaleao.Core.Services
         public Context FirstOrDefault(string contextKey)
         {
             Context context =null;
-            context = this.contextRepository.Get(p => p.Id == Guid.Parse(contextKey)).Result.FirstOrDefault();
+            context = this.contextRepository.Get(p => p.Id == Guid.Parse(contextKey)).FirstOrDefault();
 
             if(context==null)
                 AddNotification($"Context", $"There isn't registered context with this ID: {contextKey}");
@@ -37,7 +37,7 @@ namespace Camaleao.Core.Services
         public Context FirstOrDefaultByExternalIdentifier(string externalIdentifier)
         {
             Context context = null;
-            context = this.contextRepository.Get(p => p.ExternalIdentifier == externalIdentifier).Result.FirstOrDefault();
+            context = this.contextRepository.Get(p => p.ExternalIdentifier == externalIdentifier).FirstOrDefault();
 
             return context;
         }

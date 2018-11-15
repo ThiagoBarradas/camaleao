@@ -23,14 +23,14 @@ namespace Camaleao.Core.Services
             _responseRepository.Add(responses);
 
         public List<ResponseTemplate> Find(Expression<Func<ResponseTemplate, bool>> expression) =>
-            _responseRepository.Get(expression).Result;
+            _responseRepository.Get(expression);
 
         public ResponseTemplate FirstOrDefault(Expression<Func<ResponseTemplate, bool>> expression) =>
-             _responseRepository.Get(expression).Result.FirstOrDefault();
+             _responseRepository.Get(expression).FirstOrDefault();
 
         public void RemoveByTemplateId(string templateId) =>
-            _responseRepository.Remove(p => p.TemplateId == templateId);
+            _responseRepository.Remove(p => p.StatusCode == int.Parse(templateId));
             
-    
+   
     }
 }

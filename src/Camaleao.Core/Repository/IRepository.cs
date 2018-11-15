@@ -9,8 +9,8 @@ namespace Camaleao.Core.Repository
 {
     public interface IRepository<TEntity>
     {
-        Task<List<TEntity>> GetAll();
-        Task<List<TEntity>> Get(Expression<Func<TEntity, bool>> filter);
+        List<TEntity> GetAll();
+        List<TEntity> Get(Expression<Func<TEntity, bool>> filter);
         Task Add(TEntity entity);
         bool Update(Expression<Func<TEntity, bool>> filter, TEntity entity);
         bool Remove(Expression<Func<TEntity, bool>> filter);

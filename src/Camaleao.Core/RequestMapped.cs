@@ -47,7 +47,7 @@ namespace Camaleao.Core {
             _template = template;
             _engine = engine;
             _request = request;
-            _TemplateRequestMapped = ((JObject)template.Request.Body).MapperContractFromObject();
+            _TemplateRequestMapped = ((JObject)((PostRequestTemplate)(template.Request)).Body).MapperContractFromObject();
             _RequestMapped = request.MapperContractFromObject();
 
             _engine.LoadRequest(request, "_request");
@@ -132,7 +132,7 @@ namespace Camaleao.Core {
             return identifier;
         }
         public override string ExtractRulesExpression(string expression) {
-            this._template.Request.GetIdentifierFromQueryString()
+            ((GetRequestTemplate)(this._template.Request)).GetIdentifierFromQueryString()
                 .ForEach(x => expression = expression.Replace(x.Value, $"'{this._QueryStringMapped[x.Key]}'"));
 
             return new ExtractExpression().Extract(new List<ExtractProperties>()
@@ -143,7 +143,7 @@ namespace Camaleao.Core {
         }
 
         public override string GetContext() {
-            var key = this._template.Request.GetIdentifierFromQueryString().FirstOrDefault(p => p.Value.Equals("_context"));
+            var key = ((GetRequestTemplate)this._template.Request).GetIdentifierFromQueryString().FirstOrDefault(p => p.Value.Equals("_context"));
             if (!key.Equals(default(KeyValuePair<int, string>)) && _QueryStringMapped.ContainsKey(key.Key))
                 return _QueryStringMapped[key.Key].ToString();
 
@@ -152,7 +152,7 @@ namespace Camaleao.Core {
 
 
         public override string GetExternalContext() {
-            var key = this._template.Request.GetIdentifierFromQueryString().FirstOrDefault(p => p.Value.Equals("_context.external"));
+            var key = ((GetRequestTemplate)this._template.Request).GetIdentifierFromQueryString().FirstOrDefault(p => p.Value.Equals("_context.external"));
             if (!key.Equals(default(KeyValuePair<int, string>)) && _QueryStringMapped.ContainsKey(key.Key))
                 return _QueryStringMapped[key.Key].ToString();
 
@@ -169,7 +169,7 @@ namespace Camaleao.Core {
 
         public override IReadOnlyCollection<Notification> ValidateContract() {
             List<Notification> notification = new List<Notification>();
-            foreach (var item in _template.Request.GetIdentifierFromQueryString()) {
+            foreach (var item in ((GetRequestTemplate)_template.Request).GetIdentifierFromQueryString()) {
 
                 if (!this._QueryStringMapped.ContainsKey(item.Key)) {
                     notification.Add(new Notification($"{item.Value}", "The propertie name don't reflect the contract"));

@@ -1,5 +1,4 @@
 ﻿using Camaleao.Api.Middlewares;
-using Camaleao.Api.Profilers;
 using Camaleao.Core.Repository;
 using Camaleao.Core.Services;
 using Camaleao.Core.Services.Interfaces;
@@ -10,8 +9,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using System.IO;
 using Serilog;
+using Camaleao.Application.TemplateAgg.Profiles;
+using Camaleao.Application.TemplateAgg.Services;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.Reflection;
+using System.IO;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Camaleao.Api
 {
@@ -41,6 +45,7 @@ namespace Camaleao.Api
                     {
                         NamingStrategy = new SnakeCaseNamingStrategy()
                     };
+                    p.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 });
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {
@@ -49,6 +54,7 @@ namespace Camaleao.Api
 
             var mapper = config.CreateMapper();
             services.AddSingleton(mapper);
+            ConfigureSwaggerService(services);
             InitializeInstances(services);
         }
 
@@ -70,6 +76,7 @@ namespace Camaleao.Api
             services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
             services.AddTransient<IMockApiService, MockApiService>();
+            services.AddTransient<ITemplateAppService, TemplateAppService>();
       
 
             services.AddScoped<ITemplateRepository, TemplateRepository>();
@@ -87,9 +94,44 @@ namespace Camaleao.Api
             }
 
             app.UseMiddleware<RequestMappingMock>(getService);
-
+            ConfigureSwagger(app, env);
             app.UseMvc();
-  
+    
+        }
+
+        private void ConfigureSwagger(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseStaticFiles();
+
+            if (env.IsDevelopment())
+            {
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs"));
+            }
+
+            app.UseSwagger(c => c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value));
+        }
+
+        private void ConfigureSwaggerService(IServiceCollection services)
+        {
+            services.AddSwaggerGen(options =>
+            {
+                string basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                string moduleName = GetType().GetTypeInfo().Module.Name.Replace(".dll", ".xml");
+                string filePath = Path.Combine(basePath, moduleName);
+                string readme = File.ReadAllText(Path.Combine(basePath, "docs\\README.md"));
+
+                ApiKeyScheme scheme = Configuration.GetSection("ApiKeyScheme").Get<ApiKeyScheme>();
+                options.AddSecurityDefinition("Authentication", scheme);
+
+                Info info = Configuration.GetSection("Info").Get<Info>();
+                info.Description = readme;
+                options.SwaggerDoc(info.Version, info);
+
+                options.IncludeXmlComments(filePath);
+                options.DescribeAllEnumsAsStrings();
+                //options.OperationFilter<ExamplesOperationFilter>();
+                //options.DocumentFilter<HideInDocsFilter>();
+            });
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Camaleao.Core.Services {
 
         private void LoadPreScript() {
             StringBuilder script = new StringBuilder();
-            _scriptRepository.GetAll().Result.ForEach(p => script.AppendLine(p.Script));
+            _scriptRepository.GetAll().ForEach(p => script.AppendLine(p.Script));
             _engine.Execute(script.ToString());
         }
 

@@ -1,5 +1,4 @@
 ﻿using Flunt.Notifications;
-using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,42 +8,27 @@ namespace Camaleao.Core.Entities
 {
     public class Template : Notifiable
     {
-        public Template(string id)
+        public Template(Guid id) : this()
         {
             this.Id = id;
-            this._responses = new List<ResponseTemplate>();
+
+        }
+        public Template()
+        {
+            this.ResponsesId = new List<Guid>();
             this.Rules = new List<RuleTemplate>();
             this.Actions = new List<Action>();
+            this.Variables = new List<Variable>();
         }
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string User { get; set; }
-        public Route Route { get; set; }
+        public RouteTemplate Route { get; set; }
         public RequestTemplate Request { get; set; }
-
-        List<ResponseTemplate> _responses;
-        [BsonIgnore]
-        public List<ResponseTemplate> Responses {
-            get {
-                return _responses;
-            }
-            set {
-                value.ForEach(resp => resp.TemplateId = this.Id);
-                this._responses = value;
-
-            }
-        }
-
-        private ContextTemplate _context;
-        public ContextTemplate Context {
-            get { return _context; }
-            set {
-                value?.BuildVaribles();
-                _context = value;
-            }
-        }
+        public List<Guid> ResponsesId { get; private set; }
+        public ContextTemplate Context { get; private set; }
         public List<RuleTemplate> Rules { get; set; }
         public List<Action> Actions { get; set; }
-
+        public List<Variable> Variables { get; set; }
 
         public bool IsValid()
         {
@@ -52,46 +36,60 @@ namespace Camaleao.Core.Entities
 
             if (this.Request == null)
             {
-                AddNotification("Context", "Request is Required in Template");
+                AddNotification("Request", "[request] is required in template");
                 return false;
             }
 
-
-            if(!(new string[]{ "GET","POST"}).Contains( this.Route.Method))
+            if (this.Route == null)
             {
-                AddNotification("Method", "Route method inválid.");
+                AddNotification("Route", "[route] is required in template");
                 return false;
             }
 
-            if (this.Context == null && this.Request.Body != null && !this.Request.Body_.Contains("_context"))
+            if (!this.Route.IsValid())
             {
-                if (this.Actions.Any(p => p.Execute.Contains("_context")))
+                AddNotifications(this.Route.Notifications);
+                return false;
+            }
+
+            if (!this.Request.IsValid())
+            {
+                AddNotifications(this.Request.Notifications);
+                return false;
+            }
+
+            if (this.Rules.Any(p => !p.IsValid(this)))
+            {
+                this.Rules.ForEach(p => AddNotifications(p.Notifications));
+                return false;
+            }
+
+            if(Context==null && Request is PostRequestTemplate)
+            {
+                var requestContainsContext = ((PostRequestTemplate)Request).HasContext();
+                if (!requestContainsContext && Actions.Any(p => p.UseContext()))
                 {
                     AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
-                    result = false;
+                    return false;
                 }
-                try
-                {
-                    if (JsonConvert.SerializeObject(this.Responses).Contains("_context"))
-                    {
-                        AddNotification("Context", "Your responses are doing reference to context, but there isn't mapped context in your template");
-                        result = false;
-                    }
-                }
-                catch (Newtonsoft.Json.JsonSerializationException)
-                {
-                    AddNotification("Context", "Request Body is not a valid json");
-                    result = false;
-                }
-
-                if (JsonConvert.SerializeObject(this.Rules).Contains("_context"))
+                if(!requestContainsContext && Rules.Any(p => p.UseContext()))
                 {
                     AddNotification("Context", "Your rules are doing reference to context, but there isn't mapped context in your template");
-                    result = false;
+                    return false;
                 }
             }
 
             return result;
+        }
+
+        public void AddContext(ContextTemplate context)
+        {
+            context.BuildVaribles();
+        }
+
+        public void AddResponses(List<ResponseTemplate> responseTemplates)
+        {
+            this.ResponsesId = responseTemplates.Select(p => p.Id).ToList();
         }
     }
 }

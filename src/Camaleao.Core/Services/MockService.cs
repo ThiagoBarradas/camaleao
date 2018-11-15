@@ -100,8 +100,9 @@ namespace Camaleao.Core.Services {
 
         private ResponseTemplate GetResponse(string responseId) {
 
-            var response = requestMapped.GetTemplate().Responses.FirstOrDefault(r => r.ResponseId == responseId);
+            //  var response = requestMapped.GetTemplate().ResponsesId.FirstOrDefault(r => r.ResponseId == responseId);
 
+            var response = new ResponseTemplate();
             ExecuteActionResponse(response);
 
             response.Body = ExtractResponseExpression(Convert.ToString(response.Body));

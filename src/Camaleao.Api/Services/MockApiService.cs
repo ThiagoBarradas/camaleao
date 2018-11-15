@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using Camaleao.Core;
+using Camaleao.Core.Entities;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,21 +39,19 @@ namespace Camaleao.Api {
             try {
                 string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
 
+                string user = path[1].ToLower();
 
-                string user = path[1];
-                string version = path[2];
-                string name = path[3];
+                var route = RouteTemplate.Create(path[3], path[2], context.Request.Method);
 
-                var template = _templateService
-                    .FirstOrDefault(p => p.User == user &&
-                    p.Route.Version == version &&
-                    p.Route.Name == name &&
-                     p.Route.Method == context.Request.Method);
+                if (!route.IsValid())
+                    return BadRequest(context, "Route Invalid");
+
+                var template = _templateService.FindByRoute(user, route);
 
                 if (template == null)
-                    return BadRequest(context, "Rule Not Found");
+                    return BadRequest(context, "Route Not Found");
 
-                template.Responses = _responseService.Find(p => p.TemplateId == template.Id);
+               // template.AddResponses(_responseService.Find(p => p.Id == template.Id));
 
                 if (template.Route.Method.ToUpper() == "GET") {
                     string[] queryString = path.Skip(4).ToArray();

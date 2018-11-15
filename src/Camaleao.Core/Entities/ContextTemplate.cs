@@ -6,7 +6,11 @@ namespace Camaleao.Core.Entities
 {
     public class ContextTemplate
     {
-        public Guid Id { get; set; }
+        public ContextTemplate()
+        {
+            this.Id = Guid.NewGuid();
+        }
+        public Guid Id { get; private set; }
         public List<Variable> Variables { get; set; }
 
         public Context CreateContext()
