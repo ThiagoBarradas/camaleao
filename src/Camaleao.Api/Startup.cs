@@ -16,6 +16,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using System.Reflection;
 using System.IO;
 using Swashbuckle.AspNetCore.Swagger;
+using Camaleao.Core.Validates;
 
 namespace Camaleao.Api
 {
@@ -75,6 +76,7 @@ namespace Camaleao.Api
             services.AddScoped<IResponseService, ResponseService>();
             services.AddScoped<IContextService, ContextService>();
             services.AddTransient<IMockService, MockService>();
+            services.AddTransient<ICreateTemplateValidate, CreateTemplateValidate>();
             services.AddTransient<IMockApiService, MockApiService>();
             services.AddTransient<ITemplateAppService, TemplateAppService>();
       

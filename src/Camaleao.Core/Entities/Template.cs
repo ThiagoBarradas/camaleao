@@ -64,24 +64,8 @@ namespace Camaleao.Core.Entities
                 return false;
             }
 
-            if(Context==null && Request is PostRequestTemplate)
-            {
-                var requestContainsContext = ((PostRequestTemplate)Request).HasContext();
-                if (!requestContainsContext && Actions.Any(p => p.UseContext()))
-                {
-                    AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
-                    return false;
-                }
-                if(!requestContainsContext && Rules.Any(p => p.UseContext()))
-                {
-                    AddNotification("Context", "Your rules are doing reference to context, but there isn't mapped context in your template");
-                    return false;
-                }
-            }
-
             return result;
         }
-
         public void AddContext(ContextTemplate context)
         {
             context.BuildVaribles();

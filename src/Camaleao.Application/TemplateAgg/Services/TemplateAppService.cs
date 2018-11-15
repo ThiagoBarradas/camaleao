@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Camaleao.Core.Repository;
+using Camaleao.Core.Validates;
 
 namespace Camaleao.Application.TemplateAgg.Services
 {
@@ -15,14 +16,17 @@ namespace Camaleao.Application.TemplateAgg.Services
         private readonly IMapper _mapper;
         private readonly ITemplateRepository _templateRepository;
         private readonly IResponseRepository _responseRepository;
+        private readonly ICreateTemplateValidate _createTemplateValidate;
 
         public TemplateAppService(IMapper mapper,
                                     ITemplateRepository templateRepository,
-                                    IResponseRepository responseRepository)
+                                    IResponseRepository responseRepository,
+                                    ICreateTemplateValidate createTemplateValidate)
         {
             this._mapper = mapper;
             this._templateRepository = templateRepository;
             this._responseRepository = responseRepository;
+            this._createTemplateValidate = createTemplateValidate;
         }
 
         /// <summary>
@@ -40,7 +44,10 @@ namespace Camaleao.Application.TemplateAgg.Services
             if (!template.IsValid())
                 return new CreateTemplateResponseModel(400)
                     .AddErros(template.Notifications.Select(p => p.Message).ToList());
-
+            
+            if(!this._createTemplateValidate.Validate(template))
+                return new CreateTemplateResponseModel(400)
+                   .AddErros(_createTemplateValidate.GetNotifications().Select(p => p.Message).ToList());
 
             var templateAux = _templateRepository.Get(p => p.User.ToLower() == user.ToLower() &&
                                            p.Route.Method.ToLower() == template.Route.Method.ToLower() &&
