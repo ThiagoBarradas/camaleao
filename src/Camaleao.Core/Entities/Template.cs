@@ -4,21 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Camaleao.Core.Entities
-{
-    public class Template : Notifiable
-    {
-        public Template(Guid id) : this()
-        {
+namespace Camaleao.Core.Entities {
+    public class Template : Notifiable {
+        public Template(Guid id) : this() {
             this.Id = id;
 
         }
-        public Template()
-        {
+        public Template() {
             this.ResponsesId = new List<Guid>();
             this.Rules = new List<RuleTemplate>();
-            this.Actions = new List<Action>();
-            this.Variables = new List<Variable>();
+            this.Actions = new List<ActionTemplate>();
         }
         public Guid Id { get; set; }
         public string User { get; set; }
@@ -27,52 +22,49 @@ namespace Camaleao.Core.Entities
         public List<Guid> ResponsesId { get; private set; }
         public ContextTemplate Context { get; private set; }
         public List<RuleTemplate> Rules { get; set; }
-        public List<Action> Actions { get; set; }
-        public List<Variable> Variables { get; set; }
+        public List<ActionTemplate> Actions { get; set; }
 
-        public bool IsValid()
-        {
+
+        public bool IsValid() {
             bool result = true;
 
-            if (this.Request == null)
-            {
+            if (this.Request == null) {
                 AddNotification("Request", "[request] is required in template");
                 return false;
             }
 
-            if (this.Route == null)
-            {
+            if (this.Route == null) {
                 AddNotification("Route", "[route] is required in template");
                 return false;
             }
 
-            if (!this.Route.IsValid())
-            {
+            if (!this.Route.IsValid()) {
                 AddNotifications(this.Route.Notifications);
                 return false;
             }
 
-            if (!this.Request.IsValid())
-            {
+            if (!this.Request.IsValid()) {
                 AddNotifications(this.Request.Notifications);
                 return false;
             }
 
-            if (this.Rules.Any(p => !p.IsValid()))
-            {
+            if (this.Rules.Any(p => !p.IsValid())) {
                 this.Rules.ForEach(p => AddNotifications(p.Notifications));
+                return false;
+            }
+
+            if (this.Context != null && !this.Context.IsValid()) {
+                AddNotifications(this.Context.Notifications);
                 return false;
             }
 
             return result;
         }
-        public void AddContext(ContextTemplate context)
-        {
+        public void AddContext(ContextTemplate context) {
             context.BuildVaribles();
         }
 
-        public void AddResponses(List<ResponseTemplate> responseTemplates)
-        {
+        public void AddResponses(List<ResponseTemplate> responseTemplates) {
             this.ResponsesId = responseTemplates.Select(p => p.Id).ToList();
         }
     }

@@ -9,6 +9,7 @@ namespace Camaleao.Core.Enuns
         public const string Integer ="integer";
         public const string Text = "text";
         public const string Boolean = "bool";
+        public const string objectType = "object";
         public const string Context = "_context";
         public const string ExternalContext = "_context.external";
 
@@ -20,6 +21,7 @@ namespace Camaleao.Core.Enuns
                 Text,
                 Boolean,
                 Context,
+                objectType,
                 ExternalContext
             };
             return values;

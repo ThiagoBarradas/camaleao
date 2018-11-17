@@ -1,9 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using Flunt.Notifications;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace Camaleao.Core.Entities
 {
-    public class Variable
-    {
+    public class Variable: Notifiable {
+
+        public Variable() {
+            this.Name = string.Empty;
+            this.Type = string.Empty;
+        }
+
         public string Name { get; set; }
         public dynamic Initialize { get; set; }
         public bool Builded { get; set; }
@@ -89,6 +96,25 @@ namespace Camaleao.Core.Entities
                 default:
                     return "''";
             }
+        }
+
+        public bool IsValid() {
+
+            if (string.IsNullOrWhiteSpace(Name)) {
+                AddNotification("Variable", "[context.Variables] name is required.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(this.Type)) {
+                AddNotification("Variable", $"[context.Variables] type is required in { this.Name}.");
+                return false;
+            }
+
+            if (!Enuns.VariableTypeEnum.GetValues().Contains(this.Type.ToLower())) {
+                AddNotification("Variable", $"[context.Variables] type is required in { this.Name}.");
+                return false;
+            }
+            return true;
         }
     }
 }

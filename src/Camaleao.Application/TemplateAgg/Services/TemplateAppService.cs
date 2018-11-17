@@ -35,6 +35,8 @@ namespace Camaleao.Application.TemplateAgg.Services {
         public CreateTemplateResponseModel Create(string user, CreateTemplateRequestModel createTemplateRequestModel) {
 
             Template template = _mapper.Map<Template>(createTemplateRequestModel);
+            template.User = user;
+
             var responses = _mapper.Map<List<ResponseTemplate>>(createTemplateRequestModel.Responses);
 
             if (!template.IsValid())
@@ -55,7 +57,9 @@ namespace Camaleao.Application.TemplateAgg.Services {
                     .AddError("This template already exists. Please update or create another version");
 
 
-            template.User = user;
+         
+            if (template.Context != null)
+                template.Context.User = user;
             template.AddResponses(responses);
 
             _templateRepository.Add(template);

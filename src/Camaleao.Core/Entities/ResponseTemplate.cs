@@ -12,7 +12,7 @@ namespace Camaleao.Core.Entities
             this.Id = Guid.NewGuid();
         }
         public Guid Id { get; private set; }
-        public List<Action> Actions { get; set; }
+        public List<ActionTemplate> Actions { get; set; }
         public string ResponseId { get; set; }
         public int StatusCode { get; set; }
 

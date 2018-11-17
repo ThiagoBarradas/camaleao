@@ -2,7 +2,7 @@
 
 namespace Camaleao.Core.Entities
 {
-    public class Action: Notifiable
+    public class ActionTemplate: Notifiable
     {
         public string Execute { get; set; }
 

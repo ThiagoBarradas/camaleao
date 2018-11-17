@@ -18,6 +18,7 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version.ToLower()));
             CreateMap<CreateTemplateRequestModel, Template>()
                 .ConstructUsing(src => new Template(Guid.NewGuid()));
+ 
 
 
             CreateMap<PostRequestTemplate, RequestModel>();
