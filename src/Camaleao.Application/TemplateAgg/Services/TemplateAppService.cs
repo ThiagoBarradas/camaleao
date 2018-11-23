@@ -95,5 +95,18 @@ namespace Camaleao.Application.TemplateAgg.Services {
             getTemplateResponseModel.Token = template.Id;
             return getTemplateResponseModel;
         }
+
+        public object Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel) {
+
+            if(! _templateRepository.Get(p => p.Id == updateTemplateRequestModel.Token).Any())
+                return new CreateTemplateResponseModel(400)
+                    .AddError("Template does not exist to be updated.");
+
+            Template template = _mapper.Map<Template>(updateTemplateRequestModel);
+            template.User = user;
+            var responses = _mapper.Map<List<ResponseTemplate>>(updateTemplateRequestModel.Responses);
+
+
+        }
     }
 }

@@ -2,19 +2,11 @@
 using Camaleao.Api.Models;
 using Camaleao.Application.TemplateAgg.Models;
 using Camaleao.Application.TemplateAgg.Services;
-using Camaleao.Core;
-using Camaleao.Core.Entities;
-using Camaleao.Core.ExtensionMethod;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Camaleao.Api.Controllers
-{
+namespace Camaleao.Api.Controllers {
 
     [Route(RouteConfig.Template)]
     public class TemplateController : Controller
