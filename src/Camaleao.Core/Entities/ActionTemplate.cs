@@ -4,7 +4,13 @@ namespace Camaleao.Core.Entities
 {
     public class ActionTemplate: Notifiable
     {
-        public string Execute { get; set; }
+        private ActionTemplate() {
+
+        }
+        public ActionTemplate(string execute) {
+            this.Execute = execute;
+        }
+        public string Execute { get; private set; }
 
         public bool UseContext()
         {

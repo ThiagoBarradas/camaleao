@@ -6,44 +6,33 @@ namespace Camaleao.Core.Entities
 {
     public class Variable: Notifiable {
 
-        public Variable() {
-            this.Name = string.Empty;
-            this.Type = string.Empty;
+        private Variable() {
         }
 
-        public string Name { get; set; }
-        public dynamic Initialize { get; set; }
-        public bool Builded { get; set; }
-        private string _value;
-        public string Value {
-            get {
-                if (string.IsNullOrEmpty(_value) && Initialize != null)
-                    _value = Initialize.ToString();
-
-                return _value;
-            }
-            set {
-                _value = value;
-            }
+        public Variable(string name, string value, string type, dynamic initialize) {
+            this.Name = name;
+            this.Value = value;
+            this.Type = type;
+            this.Initialize = initialize;
+            BuildVariable();
         }
 
-        public string Type { get; set; }
+        public string Name { get; private set; }
+        public dynamic Initialize { get; private set; }
+        public string Value { get; private set; }
+        public string Type { get; private set; }
 
-        public void BuildVariable()
-        {
-            if (!this.Builded)
-            {
+        private void BuildVariable()
+        {                   
                 if (Initialize == null)
                 {
                     Value = GetTypeValue();
                 }
-                else
+                else if(string.IsNullOrEmpty(Value))
                 {
                     Value = MapperType();
                 }
-                Initialize = Value;
-                this.Builded = true;
-            }
+                Initialize = Value;          
         }
 
         private string MapperType()

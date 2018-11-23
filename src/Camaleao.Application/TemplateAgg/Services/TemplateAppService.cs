@@ -35,7 +35,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
         public CreateTemplateResponseModel Create(string user, CreateTemplateRequestModel createTemplateRequestModel) {
 
             Template template = _mapper.Map<Template>(createTemplateRequestModel);
-            template.User = user;
+            template.AddUser(user);
 
             var responses = _mapper.Map<List<ResponseTemplate>>(createTemplateRequestModel.Responses);
 
@@ -55,11 +55,8 @@ namespace Camaleao.Application.TemplateAgg.Services {
             if (templateAux != null)
                 return new CreateTemplateResponseModel(400)
                     .AddError("This template already exists. Please update or create another version");
-
-
-         
-            if (template.Context != null)
-                template.Context.User = user;
+        
+            
             template.AddResponses(responses);
 
             _templateRepository.Add(template);
@@ -96,17 +93,17 @@ namespace Camaleao.Application.TemplateAgg.Services {
             return getTemplateResponseModel;
         }
 
-        public object Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel) {
+        //public object Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel) {
 
-            if(! _templateRepository.Get(p => p.Id == updateTemplateRequestModel.Token).Any())
-                return new CreateTemplateResponseModel(400)
-                    .AddError("Template does not exist to be updated.");
+        //    if(! _templateRepository.Get(p => p.Id == updateTemplateRequestModel.Token).Any())
+        //        return new CreateTemplateResponseModel(400)
+        //            .AddError("Template does not exist to be updated.");
 
-            Template template = _mapper.Map<Template>(updateTemplateRequestModel);
-            template.User = user;
-            var responses = _mapper.Map<List<ResponseTemplate>>(updateTemplateRequestModel.Responses);
+        //    Template template = _mapper.Map<Template>(updateTemplateRequestModel);
+        //    template.AddUser(user);
+        //    var responses = _mapper.Map<List<ResponseTemplate>>(updateTemplateRequestModel.Responses);
 
 
-        }
+        //}
     }
 }

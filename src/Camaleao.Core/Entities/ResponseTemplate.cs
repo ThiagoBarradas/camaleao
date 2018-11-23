@@ -1,31 +1,31 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace Camaleao.Core.Entities
-{
-    public class ResponseTemplate
-    {
-        public ResponseTemplate()
-        {
+namespace Camaleao.Core.Entities {
+    public class ResponseTemplate {
+
+        public ResponseTemplate(string user, string responseId, int statusCode, dynamic body, List<ActionTemplate> actions) : this() {
+            this.User = user;
+            this.ResponseId = responseId;
+            this.StatusCode = statusCode;
+            this.Body = JsonConvert.SerializeObject(body);
+            this.Actions = actions;
+        }
+        private ResponseTemplate() {
             this.Id = Guid.NewGuid();
         }
         public Guid Id { get; private set; }
-        public List<ActionTemplate> Actions { get; set; }
-        public string ResponseId { get; set; }
-        public int StatusCode { get; set; }
 
-        [BsonIgnore()]
-        public dynamic Body {
-            get {
-                return JsonConvert.DeserializeObject<dynamic>(Body_);
-            }
-            set {
-                this.Body_ = JsonConvert.SerializeObject(value);
-            }
+        public string User { get; private set; }
+        public List<ActionTemplate> Actions { get; private set; }
+        public string ResponseId { get; private set; }
+        public int StatusCode { get; private set; }
+        public string Body { get; private set; }
+
+        public dynamic GetBody() {
+            return JsonConvert.DeserializeObject<dynamic>(this.Body);
         }
-        public string Body_ { get; set; }
 
     }
 }

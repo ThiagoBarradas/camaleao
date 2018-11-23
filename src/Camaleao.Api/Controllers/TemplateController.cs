@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Camaleao.Api.Models;
 using Camaleao.Application.TemplateAgg.Models;
+using Camaleao.Application.TemplateAgg.Models.Exemplos;
 using Camaleao.Application.TemplateAgg.Services;
 using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Swashbuckle.AspNetCore.Examples;
 
 namespace Camaleao.Api.Controllers {
 
@@ -43,8 +45,15 @@ namespace Camaleao.Api.Controllers {
            
             return new ObjectResult(response) { StatusCode = 200 };
         }
-
+        /// <summary>
+        /// Create Template
+        /// </summary>
+        /// <param name="user">user</param>
+        /// <param name="templateModel"></param>
+        /// <response code="201">Template created</response>
         [HttpPost("{user}")]
+        [Consumes("application/json")]
+        [SwaggerRequestExample(typeof(CreateTemplateRequestModel), typeof(CreateTemplateExemple))]
         public IActionResult Create(string user, [FromBody]CreateTemplateRequestModel templateModel)
         {
             if (ModelState.IsValid)

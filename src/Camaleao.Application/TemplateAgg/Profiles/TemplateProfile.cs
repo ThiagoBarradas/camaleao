@@ -7,8 +7,7 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
     public class TemplateProfile:Profile
     {
         public TemplateProfile() {
-            CreateMap<VariableModel, Variable>()
-                .ForMember(dest => dest.Builded, opt => opt.Ignore());
+        
 
             CreateMap<ResponseModel, ResponseTemplate>();
 
@@ -19,6 +18,7 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
             CreateMap<RouteModel, RouteTemplate>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToLower()))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version.ToLower()));
+
             CreateMap<CreateTemplateRequestModel, Template>()
                 .ConstructUsing(src => new Template(Guid.NewGuid()));
 

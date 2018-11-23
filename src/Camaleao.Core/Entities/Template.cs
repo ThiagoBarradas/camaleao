@@ -6,24 +6,28 @@ using System.Linq;
 
 namespace Camaleao.Core.Entities {
     public class Template : Notifiable {
-        public Template(Guid id) : this() {
-            this.Id = id;
+        public Template(string user) : this() {
+     
 
         }
-        public Template() {
+
+        public Template(Guid id):this() {
+            this.Id = id;
+        }
+        private Template() {
+            this.Id = Guid.NewGuid();
             this.ResponsesId = new List<Guid>();
             this.Rules = new List<RuleTemplate>();
             this.Actions = new List<ActionTemplate>();
         }
-        public Guid Id { get; set; }
-        public string User { get; set; }
+        public Guid Id { get; private set; }
+        public string User { get; private set; }
         public RouteTemplate Route { get; set; }
         public RequestTemplate Request { get; set; }
         public List<Guid> ResponsesId { get; private set; }
         public ContextTemplate Context { get; private set; }
         public List<RuleTemplate> Rules { get; set; }
         public List<ActionTemplate> Actions { get; set; }
-
 
         public bool IsValid() {
             bool result = true;
@@ -60,12 +64,15 @@ namespace Camaleao.Core.Entities {
 
             return result;
         }
-        public void AddContext(ContextTemplate context) {
-            context.BuildVaribles();
-        }
-
+      
         public void AddResponses(List<ResponseTemplate> responseTemplates) {
             this.ResponsesId = responseTemplates.Select(p => p.Id).ToList();
+        }
+
+        public void AddUser(string user) {
+            this.User = user;
+            if (this.Context != null)
+                this.Context.AddUser(user);
         }
     }
 }

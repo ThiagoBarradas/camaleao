@@ -1,18 +1,20 @@
 ﻿using Flunt.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Camaleao.Core.Entities
-{
+namespace Camaleao.Core.Entities {
     public class ContextTemplate: Notifiable {
-        public ContextTemplate()
+        private ContextTemplate()
         {
             this.Id = Guid.NewGuid();
         }
+
+        public ContextTemplate(List<Variable> variables) {
+            this.Variables = variables;
+        }
         public Guid Id { get; private set; }
-        public List<Variable> Variables { get; set; }
-        public string User { get; set; }
+        public List<Variable> Variables { get; private set; }
+        public string User { get; private set; }
 
         public Context CreateContext()
         {
@@ -22,11 +24,9 @@ namespace Camaleao.Core.Entities
             };
         }
 
-        public void BuildVaribles()
-        {
-            this.Variables.ForEach(variable => variable.BuildVariable());
+        public void AddUser(string user) {
+            this.User = user;
         }
-
         internal bool IsValid() {
           
             foreach(var variable in this.Variables) {
