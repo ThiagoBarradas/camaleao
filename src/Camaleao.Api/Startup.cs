@@ -12,15 +12,10 @@ using Newtonsoft.Json.Serialization;
 using Serilog;
 using Camaleao.Application.TemplateAgg.Profiles;
 using Camaleao.Application.TemplateAgg.Services;
-using Microsoft.Extensions.PlatformAbstractions;
-using System.Reflection;
-using System.IO;
-using Swashbuckle.AspNetCore.Swagger;
 using Camaleao.Core.Validates;
-using Swashbuckle.AspNetCore.Examples;
 
 namespace Camaleao.Api {
-    public class Startup {
+    public partial class Startup {
         public Startup(IHostingEnvironment env) {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -35,6 +30,9 @@ namespace Camaleao.Api {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+
+            ConfigureSwaggerService(services);
+
             services
                 .AddMvc()
                 .AddJsonOptions(p => {
@@ -50,7 +48,7 @@ namespace Camaleao.Api {
             var mapper = config.CreateMapper();
             services.AddSingleton(mapper);
 
-            ConfigureSwaggerService(services);       
+             
             InitializeInstances(services);
         }
 
@@ -89,38 +87,8 @@ namespace Camaleao.Api {
             app.UseMiddleware<RequestMappingMock>(getService);
             ConfigureSwagger(app, env);
             app.UseMvc();
+         
 
-        }
-
-        public static void ConfigureSwagger(IApplicationBuilder app, IHostingEnvironment env) {
-            app.UseStaticFiles();
-            app.UseSwagger(c => c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value));
-            if (env.IsDevelopment()) {
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs"));
-            }
-
-           
-        }
-        private void ConfigureSwaggerService(IServiceCollection services) {
-            services.AddSwaggerGen(options =>
-            {
-                string basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                string moduleName = GetType().GetTypeInfo().Module.Name.Replace(".dll", ".xml");
-                string filePath = Path.Combine(basePath, moduleName);
-                string readme = File.ReadAllText(Path.Combine(basePath, "docs\\README.md"));
-
-                ApiKeyScheme scheme = Configuration.GetSection("ApiKeyScheme").Get<ApiKeyScheme>();
-                options.AddSecurityDefinition("Authentication", scheme);
-
-                Info info = Configuration.GetSection("Info").Get<Info>();
-                info.Description = readme;
-                options.SwaggerDoc(info.Version, info);
-
-                options.IncludeXmlComments(filePath);
-                options.DescribeAllEnumsAsStrings();
-                options.OperationFilter<ExamplesOperationFilter>();
-               // options.DocumentFilter<HideInDocsFilter>();
-            });
         }
 
     }

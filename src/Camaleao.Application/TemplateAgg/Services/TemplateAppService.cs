@@ -54,9 +54,15 @@ namespace Camaleao.Application.TemplateAgg.Services {
 
             if (templateAux != null)
                 return new CreateTemplateResponseModel(400)
-                    .AddError("This template already exists. Please update or create another version");
-        
-            
+                    .AddError("This template already exists for this user. Please update or create another version");
+
+
+            foreach (var response in responses) {
+                var responseExist = _responseRepository.Get(p => p.ResponseId == response.ResponseId && p.User == user).FirstOrDefault();
+                if (responseExist != null)
+                    return new CreateTemplateResponseModel(400)
+                    .AddError($"This response[{response.ResponseId}] already exists for this user. Please update or create another version");
+            }
             template.AddResponses(responses);
 
             _templateRepository.Add(template);

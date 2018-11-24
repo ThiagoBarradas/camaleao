@@ -3,9 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-  <DocumentationFile>bin\Debug\netcoreapp2.1\Camaleao.Api.xml</DocumentationFile>
-</PropertyGroup>
+ <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.1\Camaleao.Api.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\release\netcoreapp2.1\Camaleao.Api.xml</DocumentationFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\" />

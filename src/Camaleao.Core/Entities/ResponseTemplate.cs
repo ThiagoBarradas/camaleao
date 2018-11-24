@@ -7,10 +7,10 @@ namespace Camaleao.Core.Entities {
 
         public ResponseTemplate(string user, string responseId, int statusCode, dynamic body, List<ActionTemplate> actions) : this() {
             this.User = user;
-            this.ResponseId = responseId;
+            this.ResponseId = responseId.ToLower();
             this.StatusCode = statusCode;
-            this.Body = JsonConvert.SerializeObject(body);
             this.Actions = actions;
+            AddBody(body);
         }
         private ResponseTemplate() {
             this.Id = Guid.NewGuid();
@@ -25,6 +25,10 @@ namespace Camaleao.Core.Entities {
 
         public dynamic GetBody() {
             return JsonConvert.DeserializeObject<dynamic>(this.Body);
+        }
+
+        public void AddBody(dynamic body) {
+            this.Body = JsonConvert.SerializeObject(body);
         }
 
     }

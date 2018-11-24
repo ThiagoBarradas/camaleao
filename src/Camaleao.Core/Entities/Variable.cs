@@ -2,9 +2,8 @@
 using Newtonsoft.Json;
 using System.Linq;
 
-namespace Camaleao.Core.Entities
-{
-    public class Variable: Notifiable {
+namespace Camaleao.Core.Entities {
+    public class Variable : Notifiable {
 
         private Variable() {
         }
@@ -22,57 +21,45 @@ namespace Camaleao.Core.Entities
         public string Value { get; private set; }
         public string Type { get; private set; }
 
-        private void BuildVariable()
-        {                   
-                if (Initialize == null)
-                {
-                    Value = GetTypeValue();
-                }
-                else if(string.IsNullOrEmpty(Value))
-                {
-                    Value = MapperType();
-                }
-                Initialize = Value;          
+        public void BuildVariable() {
+            if (Initialize == null) {
+                Value = GetTypeValue();
+            }
+            else if (string.IsNullOrEmpty(Value)) {
+                Value = MapperType();
+            }
+            Initialize = Value;
         }
 
-        private string MapperType()
-        {
-            switch (Initialize?.GetType()?.FullName)
-            {
+        private string MapperType() {
+            switch (Initialize?.GetType()?.FullName) {
                 case "System.Int32":
-                case "System.Int64":
-                    {
+                case "System.Int64": {
                         Type = "integer";
                         return $"{Initialize}";
                     }
                 case "Newtonsoft.Json.Linq.JArray":
-                case "Newtonsoft.Json.Linq.JObject":
-                    {
+                case "Newtonsoft.Json.Linq.JObject": {
                         Type = "object";
                         return $"{JsonConvert.SerializeObject(Initialize)}";
                     }
-                case "System.Double":
-                    {
+                case "System.Double": {
                         Type = "double";
                         return $"{Initialize.ToString().Replace(',', '.')}";
                     }
-                case "System.Boolean":
-                    {
+                case "System.Boolean": {
                         Type = "bool";
                         return $"{Initialize.ToString().ToLower()}";
                     }
-                default:
-                    {
+                default: {
                         Type = "text";
                         return $"'{Initialize}'";
                     }
             }
         }
 
-        private string GetTypeValue()
-        {
-            switch (Type)
-            {
+        private string GetTypeValue() {
+            switch (Type) {
                 case "text":
                     return "''";
                 case "integer":
