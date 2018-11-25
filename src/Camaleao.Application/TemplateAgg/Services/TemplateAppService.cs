@@ -74,6 +74,21 @@ namespace Camaleao.Application.TemplateAgg.Services {
             };
         }
 
+        public GetRequestTemplateResponseModel Generate(string user, dynamic body) {
+            Template template = new Template(user);
+            PostRequestTemplate request = PostRequestTemplate.CreatePostRequestFromPost(body);
+            template.Request = request;
+            template.Route = new RouteTemplate("v1", "route", "post");
+
+            _templateRepository.Add(template);
+
+            var getTemplateResponseModel = new GetRequestTemplateResponseModel();
+            getTemplateResponseModel.Template = _mapper.Map<TemplateResponseModel>(template);
+            getTemplateResponseModel.Token = template.Id;
+            getTemplateResponseModel.Template.Responses = new List<ResponseModel>();
+            return getTemplateResponseModel;
+        }
+
         /// <summary>
         /// Método responsável por obter um template
         /// </summary>

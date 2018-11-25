@@ -7,6 +7,7 @@ namespace Camaleao.Api {
         public const string Template = "api/template";
         public const string Docs = "docs";
         public const string Swagger = "swagger";
+        public const string GenerateTemplate = "generatetemplate";
 
 
 

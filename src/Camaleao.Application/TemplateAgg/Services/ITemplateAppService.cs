@@ -6,5 +6,6 @@ namespace Camaleao.Application.TemplateAgg.Services
     {
         CreateTemplateResponseModel Create(string user, CreateTemplateRequestModel createTemplateRequestModel);
         GetRequestTemplateResponseModel Get(GetRequestTemplateRequestModel request);
+        GetRequestTemplateResponseModel Generate(string  user, dynamic body);
     }
 }

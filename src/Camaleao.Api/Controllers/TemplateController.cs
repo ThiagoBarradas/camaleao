@@ -69,6 +69,11 @@ namespace Camaleao.Api.Controllers {
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
+        [HttpPost("{user}/generate")]
+        public IActionResult Generate(string user, [FromBody]dynamic body) {
+            var response = _templateAppService.Generate(user, body);
+            return new ObjectResult(response) { StatusCode = 200 };
+        }
         //[HttpPut("{user}/{token}")]
         //public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
         //{
