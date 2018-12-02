@@ -1,21 +1,20 @@
-﻿using Newtonsoft.Json;
+﻿using Flunt.Notifications;
+using MongoDB.Bson;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
 namespace Camaleao.Core.Entities {
-    public class ResponseTemplate {
+    public class ResponseTemplate : Entity {
 
-        public ResponseTemplate(string user, string responseId, int statusCode, dynamic body, List<ActionTemplate> actions) : this() {
+        public ResponseTemplate(ObjectId Id, string user, string responseId, int statusCode, dynamic body, List<ActionTemplate> actions) {
             this.User = user;
             this.ResponseId = responseId.ToLower();
             this.StatusCode = statusCode;
             this.Actions = actions;
             AddBody(body);
         }
-        private ResponseTemplate() {
-            this.Id = Guid.NewGuid();
-        }
-        public Guid Id { get; private set; }
+
 
         public string User { get; private set; }
         public List<ActionTemplate> Actions { get; private set; }
@@ -30,6 +29,16 @@ namespace Camaleao.Core.Entities {
         public void AddBody(dynamic body) {
             this.Body = JsonConvert.SerializeObject(body);
         }
+        public void AddUser(string user) {
+            this.User = user;
+        }
+        public void UpdateId(ObjectId id) {
+            this.Id = id;
+        }
 
+
+        public override bool IsValid() {
+            throw new NotImplementedException();
+        }
     }
 }

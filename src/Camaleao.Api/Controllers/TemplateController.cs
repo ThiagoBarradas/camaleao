@@ -45,6 +45,7 @@ namespace Camaleao.Api.Controllers {
            
             return new ObjectResult(response) { StatusCode = 200 };
         }
+
         /// <summary>
         /// Create Template
         /// </summary>
@@ -69,48 +70,41 @@ namespace Camaleao.Api.Controllers {
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
+        [HttpPost("{user}/response")]
+        public IActionResult CreateResponse(string user, [FromBody]ResponseModel responseModel) {
+
+            if (ModelState.IsValid) {
+                var response = _templateAppService.Create(user, templateModel);
+
+                if (response.StatusCode == 201)
+                    return new CreatedResult("create", response);
+                else
+                    return BadRequest(response);
+            }
+            else
+                return BadRequest(ModelState.GetErrorResponse());
+        }
+
         [HttpPost("{user}/generate")]
         public IActionResult Generate(string user, [FromBody]dynamic body) {
             var response = _templateAppService.Generate(user, body);
             return new ObjectResult(response) { StatusCode = 200 };
         }
-        //[HttpPut("{user}/{token}")]
-        //public IActionResult Update(string user, string token, [FromBody]TemplateRequestModel templateRequest)
-        //{
 
-        //    if (ModelState.IsValid)
-        //    {
+        [HttpPut("{user}/{token}")]
+        public IActionResult Update(string user, string token, [FromBody]UpdateTemplateRequestModel updateTemplateRequestModel)
+        {
+            if (ModelState.IsValid) {
+                var response = _templateAppService.Update(user, updateTemplateRequestModel);
 
-        //        var templateOld = _templateService.Find(p => p.Id == token).FirstOrDefault();
+                if (response.StatusCode == 200)
+                    return new CreatedResult("updated", response);
+                else
+                    return BadRequest(response);
+            }
+            else
+                return BadRequest(ModelState.GetErrorResponse());
 
-        //        if (templateOld != null)
-        //        {
-        //            templateRequest.Id = templateOld.Id;
-
-        //            var templateNew = _mapper.Map<Template>(templateRequest);
-
-        //            _responseService.RemoveByTemplateId(templateOld.Id);
-
-        //            if (!templateNew.IsValid())
-        //                return new ObjectResult(templateNew.Notifications) { StatusCode = 400 };
-
-        //            templateNew.User = user;
-
-        //            _responseService.Add(templateNew.ResponsesId);
-        //            _templateService.Update(templateNew);
-
-        //            TemplateResponseModelOk templateResponse = new TemplateResponseModelOk()
-        //            {
-        //                Token = templateNew.Id,
-        //                Route = $"{_Configuration["Host:Url"]}api/{user}/{templateNew.Route.Version}/{templateNew.Route.Name}"
-        //            };
-        //            return Ok(templateResponse);
-        //        }
-        //        else
-        //            return BadRequest("Template Not Exist!");
-        //    }
-        //    else
-        //        return BadRequest(ModelState.GetErrorResponse());
-        //}
+        }
     }
 }

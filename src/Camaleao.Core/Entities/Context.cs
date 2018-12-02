@@ -4,14 +4,9 @@ using System.Text;
 
 namespace Camaleao.Core.Entities
 {
-    public class Context
-    {
+    public class Context: Entity {
 
-        public Context()
-        {
-            this.Id = Guid.NewGuid();
-        }
-        public Guid Id { get; set; }
+       
         public string ExternalIdentifier { get; set; }
         public List<Variable> Variables { get; set; }
 
@@ -26,6 +21,10 @@ namespace Camaleao.Core.Entities
 
             retorno.Append("var _context=true;");
             return retorno.ToString();
+        }
+
+        public override bool IsValid() {
+            return true;
         }
     }
 }

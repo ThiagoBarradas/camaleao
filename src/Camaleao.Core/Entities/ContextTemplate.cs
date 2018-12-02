@@ -9,10 +9,11 @@ namespace Camaleao.Core.Entities {
             this.Id = Guid.NewGuid();
         }
 
-        public ContextTemplate(List<Variable> variables) {
+        public ContextTemplate(List<Variable> variables):this() {
             this.Variables = variables;
         }
         public Guid Id { get; private set; }
+        public string Indetifier { get; private set; }
         public List<Variable> Variables { get; private set; }
         public string User { get; private set; }
 

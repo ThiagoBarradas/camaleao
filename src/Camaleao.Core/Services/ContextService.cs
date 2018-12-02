@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Camaleao.Core.Entities;
 using Flunt.Notifications;
+using MongoDB.Bson;
 
 namespace Camaleao.Core.Services
 {
@@ -24,10 +25,10 @@ namespace Camaleao.Core.Services
             contextRepository.Add(context);
         }
 
-        public Context FirstOrDefault(string contextKey)
+        public Context FirstOrDefault(ObjectId contextKey)
         {
             Context context =null;
-            context = this.contextRepository.Get(p => p.Id == Guid.Parse(contextKey)).FirstOrDefault();
+            context = this.contextRepository.Get(p => p.Id == contextKey).FirstOrDefault();
 
             if(context==null)
                 AddNotification($"Context", $"There isn't registered context with this ID: {contextKey}");

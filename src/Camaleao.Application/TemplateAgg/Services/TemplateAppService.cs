@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Camaleao.Core.Repository;
 using Camaleao.Core.Validates;
+using MongoDB.Bson;
 
 namespace Camaleao.Application.TemplateAgg.Services {
     public class TemplateAppService : ITemplateAppService {
@@ -24,6 +25,18 @@ namespace Camaleao.Application.TemplateAgg.Services {
             this._templateRepository = templateRepository;
             this._responseRepository = responseRepository;
             this._createTemplateValidate = createTemplateValidate;
+        }
+
+        public object CreateResponse(string user, ResponseModel responseModel) {
+
+            var response = _mapper.Map<ResponseTemplate>(responseModel);
+            response.AddUser(user);
+
+            if (!response.IsValid())
+                return new CreateTemplateResponseModel(400)
+                    .AddErros(response.Notifications.Select(p => p.Message).ToList());
+
+            return null;
         }
 
         /// <summary>
@@ -74,6 +87,12 @@ namespace Camaleao.Application.TemplateAgg.Services {
             };
         }
 
+        /// <summary>
+        /// Método responsável por gerar um template apartir de um request
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public GetRequestTemplateResponseModel Generate(string user, dynamic body) {
             Template template = new Template(user);
             PostRequestTemplate request = PostRequestTemplate.CreatePostRequestFromPost(body);
@@ -84,7 +103,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
 
             var getTemplateResponseModel = new GetRequestTemplateResponseModel();
             getTemplateResponseModel.Template = _mapper.Map<TemplateResponseModel>(template);
-            getTemplateResponseModel.Token = template.Id;
+            getTemplateResponseModel.Token = template.Id.ToString();
             getTemplateResponseModel.Template.Responses = new List<ResponseModel>();
             return getTemplateResponseModel;
         }
@@ -110,21 +129,41 @@ namespace Camaleao.Application.TemplateAgg.Services {
             getTemplateResponseModel.Template = _mapper.Map<TemplateResponseModel>(template);
             var responsesModel = _mapper.Map<List<ResponseModel>>(responses);
             getTemplateResponseModel.Template.Responses = responsesModel;
-            getTemplateResponseModel.Token = template.Id;
+            getTemplateResponseModel.Token = template.Id.ToString();
             return getTemplateResponseModel;
         }
 
-        //public object Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel) {
+        public CreateTemplateResponseModel Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel) {
 
-        //    if(! _templateRepository.Get(p => p.Id == updateTemplateRequestModel.Token).Any())
-        //        return new CreateTemplateResponseModel(400)
-        //            .AddError("Template does not exist to be updated.");
+            if (!_templateRepository.Get(p => p.Id == ObjectId.Parse(updateTemplateRequestModel.Token)).Any())
+                return new CreateTemplateResponseModel(400)
+                    .AddError("Template does not exist to be updated.");
 
-        //    Template template = _mapper.Map<Template>(updateTemplateRequestModel);
-        //    template.AddUser(user);
-        //    var responses = _mapper.Map<List<ResponseTemplate>>(updateTemplateRequestModel.Responses);
+            Template template = _mapper.Map<Template>(updateTemplateRequestModel);
+            template.AddUser(user);
 
 
-        //}
+            var responses = _mapper.Map<List<ResponseTemplate>>(updateTemplateRequestModel.Responses);
+
+            foreach (var response in responses) {
+
+                var responseAux = _responseRepository.Get(p => p.ResponseId == response.ResponseId && p.User == user).FirstOrDefault();
+                if (responseAux != null) {
+                    response.UpdateId(responseAux.Id);
+                    _responseRepository.Update(p => p.Id == response.Id, response);
+                }
+                else {
+                    _responseRepository.Add(response);
+                }
+            }
+            template.AddResponses(responses);
+            _templateRepository.Update(p => p.Id == template.Id, template);
+
+            return new CreateTemplateResponseModel(200) {
+                Token = template.Id.ToString(),
+                Route = $"api/{user}/{template.Route.Version}/{template.Route.Name}",
+                Method = template.Route.Method
+            };
+        }
     }
 }

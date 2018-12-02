@@ -38,10 +38,16 @@ namespace Camaleao.Api {
             app.UseStaticFiles();
 
             if (env.IsDevelopment()) {
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs"));
-            }
 
-            app.UseSwagger(c => c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value));
+                app.UseSwaggerUI(c => {
+                    c.SwaggerEndpoint("../swagger/v1/swagger.json", "V1 Docs");
+                });
+            }
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+            });
+           // app.UseSwagger(c => c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value));
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Camaleao.Application.TemplateAgg.Models
 {
     public class GetRequestTemplateResponseModel {
 
-        public Guid Token { get; set; }
+        public string Token { get; set; }
         public TemplateResponseModel Template { get; set; }
     }
 
