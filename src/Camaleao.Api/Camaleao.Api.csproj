@@ -39,6 +39,7 @@
     <ProjectReference Include="..\Camaleao.Application\Camaleao.Application.csproj" />
     <ProjectReference Include="..\Camaleao.Core\Camaleao.Core.csproj" />
     <ProjectReference Include="..\Camaleao.Repository\Camaleao.Repository.csproj" />
+    <ProjectReference Include="..\Infrastructure.Adapter\Camaleao.Infrastructure.Adapter.csproj" />
   </ItemGroup>
 
   <ItemGroup>

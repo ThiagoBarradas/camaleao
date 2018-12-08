@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,12 +9,8 @@ namespace Camaleao.Core.Entities {
      
         }
 
-        public Template(ObjectId id):this() {
-            this.Id = id;
-        }
-        private Template() {
-         
-            this.ResponsesId = new List<ObjectId>();
+        private Template():base() {
+            this.ResponsesId = new List<Guid>();
             this.Rules = new List<RuleTemplate>();
             this.Actions = new List<ActionTemplate>();
         }
@@ -21,7 +18,7 @@ namespace Camaleao.Core.Entities {
         public string User { get; private set; }
         public RouteTemplate Route { get; set; }
         public RequestTemplate Request { get; set; }
-        public List<ObjectId> ResponsesId { get; private set; }
+        public List<Guid> ResponsesId { get; private set; }
         public ContextTemplate Context { get; private set; }
         public List<RuleTemplate> Rules { get; set; }
         public List<ActionTemplate> Actions { get; set; }

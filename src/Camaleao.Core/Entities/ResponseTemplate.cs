@@ -32,7 +32,7 @@ namespace Camaleao.Core.Entities {
         public void AddUser(string user) {
             this.User = user;
         }
-        public void UpdateId(ObjectId id) {
+        public void UpdateId(Guid id) {
             this.Id = id;
         }
 

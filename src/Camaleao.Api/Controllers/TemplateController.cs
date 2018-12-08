@@ -71,13 +71,14 @@ namespace Camaleao.Api.Controllers {
         }
 
         [HttpPost("{user}/response")]
-        public IActionResult CreateResponse(string user, [FromBody]ResponseModel responseModel) {
+        public IActionResult CreateResponse(string user, [FromBody]CreateResponseTemplateResquestModel responseModel) {
 
+       
             if (ModelState.IsValid) {
-                var response = _templateAppService.Create(user, templateModel);
+                var response = _templateAppService.CreateResponse(user, responseModel);
 
                 if (response.StatusCode == 201)
-                    return new CreatedResult("create", response);
+                    return new CreatedResult("create", response.ResponseModel);
                 else
                     return BadRequest(response);
             }

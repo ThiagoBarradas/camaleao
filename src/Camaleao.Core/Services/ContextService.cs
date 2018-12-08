@@ -25,7 +25,7 @@ namespace Camaleao.Core.Services
             contextRepository.Add(context);
         }
 
-        public Context FirstOrDefault(ObjectId contextKey)
+        public Context FirstOrDefault(Guid contextKey)
         {
             Context context =null;
             context = this.contextRepository.Get(p => p.Id == contextKey).FirstOrDefault();

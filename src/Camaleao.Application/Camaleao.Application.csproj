@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Camaleao.Core\Camaleao.Core.csproj" />
+    <ProjectReference Include="..\Infrastructure.Adapter\Camaleao.Infrastructure.Adapter.csproj" />
   </ItemGroup>
 
 </Project>

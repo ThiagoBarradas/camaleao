@@ -1,13 +1,13 @@
 ﻿using Flunt.Notifications;
-using MongoDB.Bson;
+using System;
 
 namespace Camaleao.Core.Entities {
     public abstract class Entity: Notifiable {
 
         public Entity() {
-            this.Id = new ObjectId();
+            this.Id = Guid.NewGuid();
         }
-        public ObjectId Id { get; protected set; }
+        public Guid Id { get; protected set; }
 
         public abstract bool IsValid();
     }

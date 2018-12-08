@@ -34,7 +34,7 @@ namespace Camaleao.Core.Services {
 
 
             if (requestMapped.HasContext())
-                _context = _contextService.FirstOrDefault(requestMapped.GetContext());
+                _context = _contextService.FirstOrDefault(Guid.NewGuid());//requestMapped.GetContext());
             else if (requestMapped.HasExternalContext()) {
                 LoadContextByExternalIdentifier(requestMapped.GetExternalContext());
             }

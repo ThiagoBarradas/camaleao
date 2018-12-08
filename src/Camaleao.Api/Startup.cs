@@ -13,6 +13,8 @@ using Serilog;
 using Camaleao.Application.TemplateAgg.Profiles;
 using Camaleao.Application.TemplateAgg.Services;
 using Camaleao.Core.Validates;
+using Camaleao.Infrastructure.Adapter.Seedwork;
+using Camaleao.Infrastructure.Adapter;
 
 namespace Camaleao.Api {
     public partial class Startup {
@@ -41,14 +43,7 @@ namespace Camaleao.Api {
                     };
                     p.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 });
-            var config = new AutoMapper.MapperConfiguration(cfg => {
-                cfg.AddProfile(new TemplateProfile());
-            });
 
-            var mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
-
-             
             InitializeInstances(services);
         }
 
@@ -72,6 +67,8 @@ namespace Camaleao.Api {
             services.AddTransient<ITemplateAppService, TemplateAppService>();
 
 
+            services.AddSingleton<ITypeAdapterFactory, AutoMapperTypeAdapterFactory>();
+
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<IResponseRepository, ResponseRepository>();
             services.AddScoped<IContextRepository, ContextRepository>();
@@ -83,13 +80,17 @@ namespace Camaleao.Api {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
-
+            InitializeMapper(app);
             app.UseMiddleware<RequestMappingMock>(getService);
             ConfigureSwagger(app, env);
             app.UseMvc();
-         
+
 
         }
 
+        private static void InitializeMapper(IApplicationBuilder app) {
+            var serviceProvider = app.ApplicationServices;
+            TypeAdapterFactory.SetCurrent((ITypeAdapterFactory)serviceProvider.GetService(typeof(ITypeAdapterFactory)));
+        }
     }
 }
