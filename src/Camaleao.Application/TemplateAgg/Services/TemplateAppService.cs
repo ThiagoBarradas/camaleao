@@ -13,16 +13,14 @@ using Camaleao.Infrastructure.Adapter.Seedwork;
 namespace Camaleao.Application.TemplateAgg.Services {
     public class TemplateAppService : ITemplateAppService {
 
-        private readonly IMapper _mapper;
+
         private readonly ITemplateRepository _templateRepository;
         private readonly IResponseRepository _responseRepository;
         private readonly ICreateTemplateValidate _createTemplateValidate;
 
-        public TemplateAppService(IMapper mapper,
-                                    ITemplateRepository templateRepository,
+        public TemplateAppService(ITemplateRepository templateRepository,
                                     IResponseRepository responseRepository,
                                     ICreateTemplateValidate createTemplateValidate) {
-            this._mapper = mapper;
             this._templateRepository = templateRepository;
             this._responseRepository = responseRepository;
             this._createTemplateValidate = createTemplateValidate;
@@ -160,7 +158,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
         }
 
         public CreateResponseTemplateResponseModel CreateResponse(string user, CreateResponseTemplateResquestModel responseModel) {
-            var response = responseModel.ProjectedAs<ResponseTemplate>();
+            var response = responseModel.ProjectedAs<CreateResponseTemplateResquestModel, ResponseTemplate>();
 
             if (!response.IsValid())
                 return new CreateResponseTemplateResponseModel(400)
@@ -176,8 +174,8 @@ namespace Camaleao.Application.TemplateAgg.Services {
 
             _responseRepository.Add(response);
 
-            return new CreateResponseTemplateResponseModel(200) {
-                ResponseModel = _mapper.Map<ResponseModel>(response)
+            return new CreateResponseTemplateResponseModel(201) {
+                ResponseModel = response.ProjectedAs<ResponseModel>()
             };
         }
     }

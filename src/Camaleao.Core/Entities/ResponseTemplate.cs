@@ -7,6 +7,10 @@ using System.Collections.Generic;
 namespace Camaleao.Core.Entities {
     public class ResponseTemplate : Entity {
 
+        private ResponseTemplate() {
+
+        }
+
         public ResponseTemplate(ObjectId Id, string user, string responseId, int statusCode, dynamic body, List<ActionTemplate> actions) {
             this.User = user;
             this.ResponseId = responseId.ToLower();
@@ -38,7 +42,7 @@ namespace Camaleao.Core.Entities {
 
 
         public override bool IsValid() {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }

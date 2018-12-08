@@ -15,18 +15,15 @@ namespace Camaleao.Api.Controllers {
     {
 
         private readonly IResponseService _responseService;
-        private readonly IMapper _mapper;
         private readonly IConfiguration _Configuration;
         private readonly ITemplateAppService _templateAppService;
 
         public TemplateController(IResponseService responseService,
-                                    IMapper mapper,
                                     IConfiguration configuration,
                                     ITemplateAppService templateAppService)
         {
 
             _responseService = responseService;
-            _mapper = mapper;
             _Configuration = configuration;
             _templateAppService = templateAppService;
         }
@@ -70,7 +67,7 @@ namespace Camaleao.Api.Controllers {
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
-        [HttpPost("{user}/response")]
+        [HttpPost("{user}/createresponse")]
         public IActionResult CreateResponse(string user, [FromBody]CreateResponseTemplateResquestModel responseModel) {
 
        

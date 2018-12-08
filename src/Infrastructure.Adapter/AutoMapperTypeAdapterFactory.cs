@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Camaleao.Infrastructure.Adapter.Seedwork;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
 namespace Camaleao.Infrastructure.Adapter {
     public class AutoMapperTypeAdapterFactory : ITypeAdapterFactory {
 
-        public AutoMapperTypeAdapterFactory() {
+        public AutoMapperTypeAdapterFactory(IServiceProvider provider) {
 
             var profiles = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(p => p.FullName.StartsWith("Camaleao"))
@@ -18,7 +19,7 @@ namespace Camaleao.Infrastructure.Adapter {
 
                 cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
-
+                cfg.ConstructServicesUsing(type => ActivatorUtilities.CreateInstance(provider, type));
                 foreach (var profile in profiles) {
                     cfg.AddProfile(Activator.CreateInstance(profile) as Profile);
                 }
