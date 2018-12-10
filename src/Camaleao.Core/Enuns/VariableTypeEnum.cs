@@ -12,7 +12,8 @@ namespace Camaleao.Core.Enuns
         public const string objectType = "object";
         public const string Context = "_context";
         public const string ExternalContext = "_context.external";
-
+        public const string Default = "default";
+        public const string None = "none";
 
         public static string[] GetValues()
         {

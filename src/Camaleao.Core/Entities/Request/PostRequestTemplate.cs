@@ -5,20 +5,26 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Camaleao.Core.Entities {
     public class PostRequestTemplate : RequestTemplate {
         public PostRequestTemplate(dynamic body) {
             this.Body_ = JsonConvert.SerializeObject(body);
+            LoadContextType();
         }
+ 
         public string Body_ { get; set; }
+        
         [BsonIgnore()]
         public dynamic Body {
             get {
                 return JsonConvert.DeserializeObject<dynamic>(Body_);
             }
         }
+
+        public ContextKey ContextKey { get; private set; }
 
         public override bool IsValid() {
             var bodyMapped = GetBodyMapped();
@@ -28,17 +34,39 @@ namespace Camaleao.Core.Entities {
             return result;
         }
 
+        private Dictionary<string, dynamic> bodyMapped;
         public Dictionary<string, dynamic> GetBodyMapped() {
-            var body = JsonConvert.DeserializeObject<JObject>(Body_);
-            return body.MapperContractFromObject();
+            if (bodyMapped == null) {
+                var body = JsonConvert.DeserializeObject<JObject>(Body_);
+                bodyMapped= body.MapperContractFromObject();
+            }
+            return bodyMapped;
         }
+
         public bool UseContext() {
-            var bodyMapped = GetBodyMapped();
-            return bodyMapped.Values.Any(p => VariableTypeEnum.Context.Equals(Convert.ToString(p), comparisonType: StringComparison.InvariantCultureIgnoreCase));
+              return ContextKey.Type == VariableTypeEnum.Context;
         }
+
         public bool UseExternalContext() {
-            var bodyMapped = GetBodyMapped();
-            return bodyMapped.Values.Any(p => VariableTypeEnum.ExternalContext.Equals(Convert.ToString(p), comparisonType: StringComparison.InvariantCultureIgnoreCase));
+            return ContextKey.Type == VariableTypeEnum.ExternalContext;
+        }
+
+        private void LoadContextType() { 
+
+            foreach(var key in GetBodyMapped().Keys) {
+               
+                if (VariableTypeEnum.ExternalContext.Equals(GetBodyMapped()[key], 
+                    comparisonType: StringComparison.InvariantCultureIgnoreCase)) {
+                    ContextKey = new ContextKey(key, VariableTypeEnum.ExternalContext);
+                    return;
+                }
+                else if(VariableTypeEnum.Context.Equals(GetBodyMapped()[key],
+                    comparisonType: StringComparison.InvariantCultureIgnoreCase)) {
+                    ContextKey = new ContextKey(key, VariableTypeEnum.Context);
+                    return;
+                }
+            }
+            ContextKey = new ContextKey(string.Empty, VariableTypeEnum.None);
         }
 
         public static PostRequestTemplate CreatePostRequestFromPost(dynamic body) {
@@ -47,14 +75,14 @@ namespace Camaleao.Core.Entities {
 
             ReplaceType(jBody.Children().OfType<JProperty>());
 
-           return new PostRequestTemplate(jBody);
-    
+            return new PostRequestTemplate(jBody);
+
         }
 
         private static void ReplaceType(IEnumerable<JProperty> tokens) {
 
             foreach (JProperty token in tokens) {
-            
+
                 if (token.Value.Children().Any())
                     ReplaceType(token.Value.Children().OfType<JProperty>());
                 else {
@@ -76,6 +104,19 @@ namespace Camaleao.Core.Entities {
                     }
                 }
             }
+        } 
+
+
+
+    }
+
+    public class ContextKey {
+
+        public ContextKey(string key,string type) {
+            this.Type = type;
+            this.Key = key;
         }
+        public string Type { get; private set; }
+        public string Key { get; private set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Flunt.Notifications;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Camaleao.Core.Entities {
     [BsonKnownTypes(typeof(PostRequestTemplate), typeof(GetRequestTemplate))]
@@ -11,5 +12,7 @@ namespace Camaleao.Core.Entities {
         public IList<KeyValuePair<string, string>> Headers { get; set; }
 
         public abstract bool IsValid();
+
+       
     }
 }
