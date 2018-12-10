@@ -9,7 +9,7 @@ namespace Camaleao.Core.Entities
        
         public string ExternalIdentifier { get; set; }
         public List<Variable> Variables { get; set; }
-
+        public string User { get; set; }
         public string GetVariablesAsString()
         {
             StringBuilder retorno = new StringBuilder();

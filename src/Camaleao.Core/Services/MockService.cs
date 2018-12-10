@@ -55,7 +55,7 @@ namespace Camaleao.Core.Services {
 
         private void CreateNewContext(string externalIdentifier = "") {
             if (requestMapped.GetTemplate().Context != null) {
-                _context = requestMapped.GetTemplate().Context.CreateContext();
+                _context = requestMapped.GetTemplate().Context.CreateContext("");
                 _context.ExternalIdentifier = externalIdentifier;
                 _contextService.Add(_context);
             }
@@ -100,36 +100,36 @@ namespace Camaleao.Core.Services {
 
         private ResponseTemplate GetResponse(string responseId) {
 
-            //  var response = requestMapped.GetTemplate().ResponsesId.FirstOrDefault(r => r.ResponseId == responseId);
+            var response = requestMapped.GetTemplate().ResponsesId.FirstOrDefault(r => r.ResponseId == responseId);
 
-            //var response = new ResponseTemplate();
-            //ExecuteActionResponse(response);
+            var response = new ResponseTemplate();
+            ExecuteActionResponse(response);
 
-            //response.Body = ExtractResponseExpression(Convert.ToString(response.Body));
+            response.Body = ExtractResponseExpression(Convert.ToString(response.Body));
 
-            //if (_context != null) {
-            //    response.Body = Convert.ToString(response.Body).Replace("_context.external", _context.ExternalIdentifier);
-            //    response.Body = Convert.ToString(response.Body).Replace("_context", _context.Id.ToString());
+            if (_context != null) {
+                response.Body = Convert.ToString(response.Body).Replace("_context.external", _context.ExternalIdentifier);
+                response.Body = Convert.ToString(response.Body).Replace("_context", _context.Id.ToString());
 
-            //    _context.Variables.ForEach(variable => {
-            //        string value = "";
+                _context.Variables.ForEach(variable => {
+                    string value = "";
 
-            //        if (variable.Type == "object" || variable.Type == "array")
-            //            value = requestMapped.GetEngineService().Execute<string>($"JSON.stringify({variable.Name})");
-            //        else
-            //            value = requestMapped.GetEngineService().Execute<string>(variable.Name);
+                    if (variable.Type == "object" || variable.Type == "array")
+                        value = requestMapped.GetEngineService().Execute<string>($"JSON.stringify({variable.Name})");
+                    else
+                        value = requestMapped.GetEngineService().Execute<string>(variable.Name);
 
-            //        if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
-            //            variable.Value = $"'{value}'";
-            //        else if (variable.Type?.ToLower() == "bool" && value != null)
-            //            variable.Value = value.ToLower();
-            //        else
-            //            variable.Value = value;
+                    if (variable.Type?.ToLower() == "text" && !string.IsNullOrEmpty(value))
+                        variable.Value = $"'{value}'";
+                    else if (variable.Type?.ToLower() == "bool" && value != null)
+                        variable.Value = value.ToLower();
+                    else
+                        variable.Value = value;
 
-            //    });
+                });
 
-            //    _contextService.Update(_context);
-            //}
+                _contextService.Update(_context);
+            }
 
             return null;
         }

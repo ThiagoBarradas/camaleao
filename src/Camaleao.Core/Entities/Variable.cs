@@ -1,4 +1,5 @@
-﻿using Flunt.Notifications;
+﻿using Camaleao.Core.Enuns;
+using Flunt.Notifications;
 using Newtonsoft.Json;
 using System.Linq;
 
@@ -91,6 +92,16 @@ namespace Camaleao.Core.Entities {
                 return false;
             }
             return true;
+        }
+
+
+        public void SetValue(string value) {
+            if (this.Type?.ToLower() == VariableTypeEnum.Text && !string.IsNullOrEmpty(value))
+                Value = $"'{value}'";
+            else if (this.Type?.ToLower() == VariableTypeEnum.Boolean && value != null)
+                Value = value.ToLower();
+            else
+                Value = value;
         }
     }
 }

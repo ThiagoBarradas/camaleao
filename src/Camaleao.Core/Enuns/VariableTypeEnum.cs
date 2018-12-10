@@ -14,6 +14,7 @@ namespace Camaleao.Core.Enuns
         public const string ExternalContext = "_context.external";
         public const string Default = "default";
         public const string None = "none";
+        public const string Array = "array";
 
         public static string[] GetValues()
         {
@@ -23,7 +24,9 @@ namespace Camaleao.Core.Enuns
                 Boolean,
                 Context,
                 objectType,
-                ExternalContext
+                ExternalContext,
+                Default,
+                Array
             };
             return values;
         }

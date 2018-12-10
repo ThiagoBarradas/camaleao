@@ -31,6 +31,11 @@ namespace Camaleao.Core.Entities.Request {
 
         }
 
+        public string GetContextIdentifier() {
+            return this.GetBodyMapped()[RequestTemplate.ContextKey.Key];
+        }
+
+
         
     }
 }

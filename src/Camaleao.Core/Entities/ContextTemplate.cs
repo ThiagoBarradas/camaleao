@@ -17,11 +17,13 @@ namespace Camaleao.Core.Entities {
         public List<Variable> Variables { get; private set; }
         public string User { get; private set; }
 
-        public Context CreateContext()
+        public Context CreateContext(string externalIdentifier)
         {
             return new Context()
             {
-                Variables = this.Variables
+                Variables = this.Variables,
+                User=User,
+                ExternalIdentifier=externalIdentifier
             };
         }
 
