@@ -39,13 +39,25 @@ namespace Camaleao.Application.TemplateAgg.Services {
             Template template = createTemplateRequestModel.ProjectedAs<Template>();
             template.AddUser(user);
 
-            var responses = createTemplateRequestModel.Responses.ProjectedAsCollection<ResponseTemplate>();
-
             if (!template.IsValid())
                 return new CreateTemplateResponseModel(400)
                     .AddErros<CreateTemplateResponseModel>(template.Notifications.Select(p => p.Message).ToList());
 
-            if (!this._createTemplateValidate.Validate(template, responses))
+            var responsesToCreated = createTemplateRequestModel.Responses?.ProjectedAsCollection<ResponseTemplate>();
+            var responsesFromUser = _responseRepository.Get(p => p.User == user);
+
+            if (responsesToCreated != null) {
+                responsesFromUser.AddRange(responsesToCreated);
+                foreach (var response in responsesToCreated) {
+                    response.AddUser(user);
+                    var responseExist = _responseRepository.Get(p => p.ResponseId == response.ResponseId && p.User == user).FirstOrDefault();
+                    if (responseExist != null)
+                        return new CreateTemplateResponseModel(400)
+                        .AddError<CreateTemplateResponseModel>($"This response[{response.ResponseId}] already exists for this user. Please update or create another version");
+                }
+            }
+             
+            if (!this._createTemplateValidate.Validate(template, responsesFromUser))
                 return new CreateTemplateResponseModel(400)
                    .AddErros<CreateTemplateResponseModel>(_createTemplateValidate.GetNotifications().Select(p => p.Message).ToList());
 
@@ -58,18 +70,11 @@ namespace Camaleao.Application.TemplateAgg.Services {
                 return new CreateTemplateResponseModel(400)
                     .AddError<CreateTemplateResponseModel>("This template already exists for this user. Please update or create another version");
 
-
-            foreach (var response in responses) {
-                response.AddUser(user);
-                var responseExist = _responseRepository.Get(p => p.ResponseId == response.ResponseId && p.User == user).FirstOrDefault();
-                if (responseExist != null)
-                    return new CreateTemplateResponseModel(400)
-                    .AddError<CreateTemplateResponseModel>($"This response[{response.ResponseId}] already exists for this user. Please update or create another version");
+            if (responsesToCreated != null) {
+                template.AddResponses(responsesToCreated);
+                _responseRepository.Add(responsesToCreated);
             }
-            template.AddResponses(responses);
-
             _templateRepository.Add(template);
-            _responseRepository.Add(responses);
             return new CreateTemplateResponseModel(201) {
                 Token = template.Id.ToString(),
                 Route = $"api/{user}/{template.Route.Version}/{template.Route.Name}",

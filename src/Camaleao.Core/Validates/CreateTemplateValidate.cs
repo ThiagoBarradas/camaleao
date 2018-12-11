@@ -1,4 +1,7 @@
-﻿using Camaleao.Core.Entities;
+﻿
+
+using Camaleao.Core.Entities;
+using Camaleao.Core.Enuns;
 using Camaleao.Core.Repository;
 using Camaleao.Core.SeedWork;
 using Camaleao.Core.Services.Interfaces;
@@ -36,7 +39,7 @@ namespace Camaleao.Core.Validates {
                 }
             }
 
-            foreach (var rule in template.Rules) {
+            foreach (var rule in template.Rules.Where(p=>p.Expression.Equals(VariableTypeEnum.Default)==false)) {
                 if (!responses.Any(p => string.Compare(p.ResponseId, rule.ResponseId, true) == 0)) {
                     AddNotification("Rule", string.Format("[rule]({0}) contains invalid [response_id].", rule.Expression));
                     return false;
@@ -61,6 +64,14 @@ namespace Camaleao.Core.Validates {
             if (template.Request is PostRequestTemplate) {
                 PostRequestReplaceContextValues(template, ref expression);
             }
+            else if (template.Request is GetRequestTemplate) {
+                GetRequestReplacedContextValues(template, ref expression);
+            }
+
+            if (template.Context != null)
+                foreach (var variable in template.Context.Variables) {
+                    expression = ReplateExpressionFromVariable(expression, variable);
+                }
             else {
                 ReplaceExpressionFromContext(ref expression, template.User);
             }
@@ -80,11 +91,22 @@ namespace Camaleao.Core.Validates {
             return true;
         }
 
+        private void GetRequestReplacedContextValues(Template template, ref string expression) {
+
+            var getRequestTemplate = ((GetRequestTemplate)template.Request);
+            var keys = getRequestTemplate.GetIdentifierFromQueryString();
+            foreach (var value in keys.Values) {
+                if (expression.Contains(value)) {
+                    expression = expression.Replace(value, Enuns.VariableTypeEnum.GetMockValueByType(VariableTypeEnum.Text));
+                }
+            }
+
+        }
         private void PostRequestReplaceContextValues(Template template, ref string expression) {
-            bool hasContext;
+
             var postRequestTemplate = ((PostRequestTemplate)template.Request);
             var requestMapped = postRequestTemplate.GetBodyMapped();
-            hasContext = template.Context != null;
+
 
             foreach (var key in requestMapped.Keys) {
                 var variable = $"{{{{{key}}}}}";
@@ -94,15 +116,6 @@ namespace Camaleao.Core.Validates {
                 }
             }
 
-            if (hasContext)
-                foreach (var variable in template.Context.Variables) {
-                    expression = ReplateExpressionFromVariable(expression, variable);
-                }
-            else {
-                ReplaceExpressionFromContext(ref expression, template.User);
-            }
-
-        
         }
 
         private static string ReplateExpressionFromVariable(string expression, Variable variable) {
@@ -118,13 +131,13 @@ namespace Camaleao.Core.Validates {
             var variables = ExpressionUtility.ExtractVariables(expression).ToArray();
             var templates = this.templateRepository.Get(p => p.User == user);
 
-            foreach(var template in templates) {
+            foreach (var template in templates) {
                 if (template.Context != null) {
                     var contextVariables = template.Context.Variables.Where(p => variables.Contains(p.Name)).ToList();
                     foreach (var variable in contextVariables) {
                         expression = ReplateExpressionFromVariable(expression, variable);
                     }
-                }   
+                }
             }
         }
 

@@ -9,7 +9,6 @@ namespace Camaleao.Application.TemplateAgg.Models {
         public RouteModel Route { get; set; }
         [Required(ErrorMessageResourceName = "RequestRequired")]
         public RequestModel Request { get; set; }
-        [Required(ErrorMessageResourceName = "ResponseRequired")]
         public List<ResponseModel> Responses { get; set; }
         [JsonRequired()]
         public List<RuleModel> Rules { get; set; }

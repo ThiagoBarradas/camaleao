@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Camaleao.Core.Enuns;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,10 +15,13 @@ namespace Camaleao.Core.Entities {
             else
                 return queryStringidentifiers;
 
-            var queryStringArray = QueryString.Split('/');
+            var queryStringArray = QueryString.Split(new Char[] { '/', '?','&','=' });
             for (int i = 0; i < queryStringArray.Length; i++) {
 
-                if ((queryStringArray[i].Contains("{{") && queryStringArray[i].Contains("}}")) || queryStringArray[i].Contains("_context") || queryStringArray[i].Contains("_context.external"))
+
+                if ((queryStringArray[i].Contains("{{") && queryStringArray[i].Contains("}}")) 
+                    || queryStringArray[i].Contains(VariableTypeEnum.Context) 
+                    || queryStringArray[i].Contains(VariableTypeEnum.ExternalContext))
                     queryStringidentifiers.Add(i, queryStringArray[i]);
             }
 
