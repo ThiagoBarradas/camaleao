@@ -14,16 +14,14 @@ namespace Camaleao.Api.Controllers {
     public class TemplateController : Controller
     {
 
-        private readonly IResponseService _responseService;
+     
         private readonly IConfiguration _Configuration;
         private readonly ITemplateAppService _templateAppService;
 
-        public TemplateController(IResponseService responseService,
-                                    IConfiguration configuration,
+        public TemplateController(  IConfiguration configuration,
                                     ITemplateAppService templateAppService)
         {
 
-            _responseService = responseService;
             _Configuration = configuration;
             _templateAppService = templateAppService;
         }

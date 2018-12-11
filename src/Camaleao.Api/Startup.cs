@@ -58,10 +58,6 @@ namespace Camaleao.Api {
 
             services.AddSingleton<ILogger>(Log.Logger);
             services.AddTransient<IEngineService, EngineService>();
-            services.AddScoped<ITemplateService, TemplateService>();
-            services.AddScoped<IResponseService, ResponseService>();
-            services.AddScoped<IContextService, ContextService>();
-            services.AddTransient<IMockService, MockService>();
             services.AddTransient<ICreateTemplateValidate, CreateTemplateValidate>();
             services.AddTransient<IMockApiService, MockApiService>();
             services.AddTransient<ITemplateAppService, TemplateAppService>();

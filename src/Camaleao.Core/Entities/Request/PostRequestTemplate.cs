@@ -1,4 +1,5 @@
 ﻿using Camaleao.Core.Enuns;
+using Camaleao.Core.Mappers;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
