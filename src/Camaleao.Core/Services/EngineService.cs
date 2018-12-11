@@ -25,7 +25,7 @@ namespace Camaleao.Core.Services {
         }
 
         public void LoadRequest(JObject request, string variavel) {
-       
+
             _engine.Execute($"{variavel} = {request}");
         }
 
@@ -34,11 +34,14 @@ namespace Camaleao.Core.Services {
             try {
                 var result = _engine.Execute(expression).GetCompletionValue().ToString();
                 return (T)Convert.ChangeType(result, Type.GetType(typeof(T).FullName, false, true));
-            }catch(Exception ex) {
+            }
+            catch (Exception ex) {
                 using (LogContext.PushProperty("Content", expression)) {
                     Log.Error(ex, "Error in execute script");
                 }
-                throw ex;   
+                if (typeof(T) == typeof(String))
+                    return (T)(object)String.Empty;
+                throw ex;
             }
 
         }

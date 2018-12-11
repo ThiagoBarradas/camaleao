@@ -4,8 +4,7 @@ using Camaleao.Core.Entities;
 using System;
 
 namespace Camaleao.Application.TemplateAgg.Profiles {
-    public class TemplateProfile:Profile
-    {
+    public class TemplateProfile : Profile {
         public TemplateProfile() {
             MapRequest();
 
@@ -54,11 +53,21 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
             CreateMap<ContextModel, ContextTemplate>();
 
 
+            
             CreateMap<RouteModel, RouteTemplate>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToLower()))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version.ToLower()));
 
-            CreateMap<CreateTemplateRequestModel, Template>();
+            CreateMap<CreateTemplateRequestModel, Template>()
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+                .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
+                .ForMember(dest => dest.Request, opt => opt.MapFrom(src => src.Request))
+                .ForMember(dest => dest.Route, opt => opt.MapFrom(src => src.Route))
+                .ForMember(dest => dest.Rules, opt => opt.MapFrom(src => src.Rules))
+                .ForMember(dest => dest.Invalid, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.ResponsesId, opt => opt.Ignore())
+                .ForMember(dest => dest.Notifications, opt => opt.Ignore());
 
             CreateMap<UpdateTemplateRequestModel, Template>()
              .ConstructUsing(src => new Template(src.Token));
@@ -69,13 +78,12 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
             return $"api/{template.User}/{template.Route.Version}/{template.Route.Name}";
         }
 
-        private static RequestTemplate GetRequest(RequestModel requestModel)
-        {
+        private static RequestTemplate GetRequest(RequestModel requestModel) {
             if (requestModel.Body != null)
                 return new PostRequestTemplate(requestModel.Body) { Headers = requestModel.Headers };
             else
                 return new GetRequestTemplate() { Headers = requestModel.Headers, QueryString = requestModel.QueryString };
-            
+
         }
     }
 }

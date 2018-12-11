@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
-using Camaleao.Core;
-using Camaleao.Core.Entities;
-using Camaleao.Core.Services.Interfaces;
+using Camaleao.Application.TemplateAgg.Models;
+using Camaleao.Application.TemplateAgg.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 using Serilog.Context;
@@ -20,18 +14,12 @@ using Serilog.Context;
 namespace Camaleao.Api {
     public class MockApiService : IMockApiService {
 
-        private readonly IMockService _mockService;
-        private readonly ITemplateService _templateService;
-        private readonly IResponseService _responseService;
-        private readonly IEngineService _engineService;
+        private readonly IMockAppService mockAppService;
 
-        RequestMapped requestMapped = null;
-        public MockApiService(IMockService mockService, ITemplateService templateService, IResponseService responseService, IEngineService engineService) {
-            _mockService = mockService;
-            _templateService = templateService;
-            _responseService = responseService;
-            _engineService = engineService;
 
+        public MockApiService(IMockAppService mockAppService) {
+
+            this.mockAppService = mockAppService;
         }
 
         public Task Invoke(HttpContext context, RequestDelegate next) {
@@ -39,48 +27,16 @@ namespace Camaleao.Api {
             try {
                 string[] path = context.Request.Path.Value.Split("/").Skip(1).ToArray();
 
-                string user = path[1].ToLower();
 
-                var route = RouteTemplate.Create(path[3], path[2], context.Request.Method);
+                var mockRequestModel = new MockRequestModel() {
+                    HttpContext = context,
+                    Method = context.Request.Method.ToLower(),
+                    User = path[1].ToLower(),
+                    Name = path[3].ToLower(),
+                    Version = path[2].ToLower()
+                };
 
-                if (!route.IsValid())
-                    return BadRequest(context, "Route Invalid");
-
-                var template = _templateService.FindByRoute(user, route);
-
-                if (template == null)
-                    return BadRequest(context, "Route Not Found");
-
-               // template.AddResponses(_responseService.Find(p => p.Id == template.Id));
-
-                if (template.Route.Method.ToUpper() == "GET") {
-                    string[] queryString = path.Skip(4).ToArray();
-                    requestMapped = new GetRequestMapped(template, this._engineService, queryString);
-                }
-                else if (template.Route.Method.ToUpper() == "POST") {
-
-                    var body = DeserializeJson<JObject>(context.Request.Body);
-                    string bodyText = body.ToString();
-                    using (LogContext.PushProperty("Content", bodyText))
-                    using (LogContext.PushProperty("RequestKey", requestKey)) {
-                        Log.Information("Request recived");
-                    }
-                    requestMapped = new PostRequestMapped(template, this._engineService, body);
-                }
-
-                _mockService.InitializeMock(requestMapped);
-
-                var notifications = _mockService.ValidateContract();
-                if (notifications.Any())
-                    return BadRequest(context, notifications);
-
-                _mockService.LoadContext();
-
-                notifications = _mockService.ValidateRules();
-                if (notifications.Any())
-                    return BadRequest(context, notifications);
-
-                var response = _mockService.Response();
+                MockResponseModel response = mockAppService.Execute(mockRequestModel);
 
                 return OK(context, response.Body, response.StatusCode);
             }

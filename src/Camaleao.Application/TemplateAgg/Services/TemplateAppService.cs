@@ -60,6 +60,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
 
 
             foreach (var response in responses) {
+                response.AddUser(user);
                 var responseExist = _responseRepository.Get(p => p.ResponseId == response.ResponseId && p.User == user).FirstOrDefault();
                 if (responseExist != null)
                     return new CreateTemplateResponseModel(400)

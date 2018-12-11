@@ -65,6 +65,7 @@ namespace Camaleao.Api {
             services.AddTransient<ICreateTemplateValidate, CreateTemplateValidate>();
             services.AddTransient<IMockApiService, MockApiService>();
             services.AddTransient<ITemplateAppService, TemplateAppService>();
+            services.AddTransient<IMockAppService, MockAppService>();
 
 
             services.AddSingleton<ITypeAdapterFactory, AutoMapperTypeAdapterFactory>();

@@ -14,9 +14,9 @@ namespace Camaleao.Core.Entities {
             this.Body_ = JsonConvert.SerializeObject(body);
             LoadContextType();
         }
- 
+
         public string Body_ { get; set; }
-        
+
         [BsonIgnore()]
         public dynamic Body {
             get {
@@ -38,33 +38,36 @@ namespace Camaleao.Core.Entities {
         public Dictionary<string, dynamic> GetBodyMapped() {
             if (bodyMapped == null) {
                 var body = JsonConvert.DeserializeObject<JObject>(Body_);
-                bodyMapped= body.MapperContractFromObject();
+                bodyMapped = body.MapperContractFromObject();
             }
             return bodyMapped;
         }
 
         public bool UseContext() {
-              return ContextKey.Type == VariableTypeEnum.Context;
+            return ContextKey.Type == VariableTypeEnum.Context;
         }
 
         public bool UseExternalContext() {
             return ContextKey.Type == VariableTypeEnum.ExternalContext;
         }
 
-        private void LoadContextType() { 
+        private void LoadContextType() {
 
-            foreach(var key in GetBodyMapped().Keys) {
-               
-                if (VariableTypeEnum.ExternalContext.Equals(GetBodyMapped()[key], 
-                    comparisonType: StringComparison.InvariantCultureIgnoreCase)) {
+            foreach (var key in GetBodyMapped().Keys) {
+
+                var value = Convert.ToString(GetBodyMapped()[key]);
+
+                if (VariableTypeEnum.ExternalContext.Equals(value,
+         comparisonType: StringComparison.InvariantCultureIgnoreCase)) {
                     ContextKey = new ContextKey(key, VariableTypeEnum.ExternalContext);
                     return;
                 }
-                else if(VariableTypeEnum.Context.Equals(GetBodyMapped()[key],
+                else if (VariableTypeEnum.Context.Equals(value,
                     comparisonType: StringComparison.InvariantCultureIgnoreCase)) {
                     ContextKey = new ContextKey(key, VariableTypeEnum.Context);
                     return;
                 }
+
             }
             ContextKey = new ContextKey(string.Empty, VariableTypeEnum.None);
         }
@@ -104,7 +107,7 @@ namespace Camaleao.Core.Entities {
                     }
                 }
             }
-        } 
+        }
 
 
 
@@ -112,7 +115,7 @@ namespace Camaleao.Core.Entities {
 
     public class ContextKey {
 
-        public ContextKey(string key,string type) {
+        public ContextKey(string key, string type) {
             this.Type = type;
             this.Key = key;
         }
