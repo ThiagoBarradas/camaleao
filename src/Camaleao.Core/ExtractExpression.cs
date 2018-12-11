@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Camaleao.Core.ExtensionMethod;
 using Camaleao.Core.Services.Interfaces;
 
 namespace Camaleao.Core {

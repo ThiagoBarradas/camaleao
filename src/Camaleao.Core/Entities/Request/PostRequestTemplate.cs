@@ -1,11 +1,9 @@
 ﻿using Camaleao.Core.Enuns;
-using Camaleao.Core.Mappers;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Camaleao.Core.Entities {
