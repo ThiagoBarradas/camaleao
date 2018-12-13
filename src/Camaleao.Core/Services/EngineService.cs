@@ -1,10 +1,12 @@
-﻿using Camaleao.Core.Repository;
+﻿using Camaleao.Core.Entities;
+using Camaleao.Core.Repository;
 using Camaleao.Core.Services.Interfaces;
 using Jint;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Context;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Camaleao.Core.Services {
@@ -27,6 +29,9 @@ namespace Camaleao.Core.Services {
         public void LoadRequest(JObject request, string variavel) {
 
             _engine.Execute($"{variavel} = {request}");
+        }
+        public void SetVariable(string variable, string value) {
+            _engine.Execute($"{variable} = '{value}'");
         }
 
         public T Execute<T>(string expression) {

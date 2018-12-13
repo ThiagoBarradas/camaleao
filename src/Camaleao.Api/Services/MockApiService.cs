@@ -1,13 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Camaleao.Application.TemplateAgg.Models;
 using Camaleao.Application.TemplateAgg.Services;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Serilog;
 using Serilog.Context;
 
@@ -33,7 +29,8 @@ namespace Camaleao.Api {
                     Method = context.Request.Method.ToLower(),
                     User = path[1].ToLower(),
                     Name = path[3].ToLower(),
-                    Version = path[2].ToLower()
+                    Version = path[2].ToLower(),
+                    QueryString= path.Skip(4).ToArray()
                 };
 
                 MockResponseModel response = mockAppService.Execute(mockRequestModel);
@@ -49,13 +46,6 @@ namespace Camaleao.Api {
             }
         }
 
-        private static Task BadRequest<T>(HttpContext context, T obj) {
-            context.Response.StatusCode = 400;
-            context.Response.ContentType = "application/json";
-            _serializeJson<T>(obj, context.Response.Body);
-
-            return Task.Factory.StartNew(() => context);
-        }
 
         private static Task OK<T>(HttpContext context, T obj, int statusCode) {
             context.Response.StatusCode = statusCode;
@@ -69,27 +59,5 @@ namespace Camaleao.Api {
         private static Task InternalServerError<T>(HttpContext context, T obj) {
             return OK(context, obj, 500);
         }
-
-        private static T DeserializeJson<T>(Stream stream) {
-
-            var serializer = new JsonSerializer();
-
-            using (var sr = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(sr)) {
-                return serializer.Deserialize<T>(jsonTextReader);
-            }
-        }
-
-        private static void _serializeJson<T>(T obj, Stream stream) {
-
-            using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-            using (var jsonWriter = new JsonTextWriter(streamWriter)) {
-                var serializer = new JsonSerializer();
-                serializer.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                serializer.Formatting = Formatting.None;
-                serializer.Serialize(jsonWriter, obj);
-            }
-        }
     }
-
 }

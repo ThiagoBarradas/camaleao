@@ -94,10 +94,10 @@ namespace Camaleao.Core.Validates {
         private void GetRequestReplacedContextValues(Template template, ref string expression) {
 
             var getRequestTemplate = ((GetRequestTemplate)template.Request);
-            var keys = getRequestTemplate.GetIdentifierFromQueryString();
-            foreach (var value in keys.Values) {
-                if (expression.Contains(value)) {
-                    expression = expression.Replace(value, Enuns.VariableTypeEnum.GetMockValueByType(VariableTypeEnum.Text));
+            var indentifiers = getRequestTemplate.GetIdentifierFromQueryString();
+            foreach (var identifier in indentifiers) {
+                if (expression.Contains(identifier.Value)) {
+                    expression = expression.Replace(identifier.Value, Enuns.VariableTypeEnum.GetMockValueByType(VariableTypeEnum.Text));
                 }
             }
 

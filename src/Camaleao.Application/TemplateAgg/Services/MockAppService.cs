@@ -28,76 +28,66 @@ namespace Camaleao.Application.TemplateAgg.Services {
             this._engineService = engineService;
         }
 
-        public MockResponseModel Get(MockRequestModel mockRequestModel) {
-
+        public MockResponseModel Execute(MockRequestModel mockRequestModel) {
             var template = _templateRepository.Get(p => p.Route.Name.ToLower() == mockRequestModel.Name.ToLower()
-                                       && p.User.ToLower() == mockRequestModel.User.ToLower()
-                                       && p.Route.Method.ToLower() == mockRequestModel.Method.ToLower()
-                                       && p.Route.Version.ToLower() == mockRequestModel.Version.ToLower()).FirstOrDefault();
+                                 && p.User.ToLower() == mockRequestModel.User.ToLower()
+                                 && p.Route.Method.ToLower() == mockRequestModel.Method.ToLower()
+                                 && p.Route.Version.ToLower() == mockRequestModel.Version.ToLower()).FirstOrDefault();
 
             if (template == null)
                 return new MockResponseModel(404, "Page Not Found!");
 
-            return new MockResponseModel(404, "Page Not Found!");
+            RequestRecived requestRecived;
 
-        }
-
-        public MockResponseModel Execute(MockRequestModel mockRequestModel) {
             if (mockRequestModel.Method.Equals("post"))
-                return Post(mockRequestModel);
+                requestRecived = Post(mockRequestModel, template);
             else
-                return Get(mockRequestModel);
-        }
+                requestRecived = Get(mockRequestModel, template);
 
-        private MockResponseModel Post(MockRequestModel mockRequestModel) {
-            // buscar o template
-            var template = _templateRepository.Get(p => p.User == mockRequestModel.User &&
-                    p.Route.Version == mockRequestModel.Version &&
-                    p.Route.Name == mockRequestModel.Name &&
-                     p.Route.Method == mockRequestModel.Method).FirstOrDefault();
+            if (!requestRecived.IsValid())
+                return new MockResponseModel(400, $"Invalid {mockRequestModel.Method}");
 
+            Context context = GetContext(mockRequestModel.User, template, requestRecived);
 
-            //Comparar se o Request recebido satifaz as informações do template
-            var postRequestTemplate = (PostRequestTemplate)template.Request;
-            var postRequestRecived = new PostRequestRecived(postRequestTemplate, mockRequestModel.HttpContext.Request.Body);
-
-            //Se o request não for válido eu retorno um badrequest
-            if (!postRequestRecived.IsValid())
-                return new MockResponseModel(400, "Request Inválid");
-
-            // Carrego a requisição no engine
-            this._engineService.LoadRequest(postRequestRecived.RequestRecived, "_request");
-
-            //Pesquiso o contexto
-            Context context = GetContext(mockRequestModel.User, template, postRequestTemplate, postRequestRecived);
-
-            //Percorro as regras para achar o response
             RuleTemplate ruleAnswered = GetRuleAnswered(template);
 
             if (ruleAnswered == null)
-                return new MockResponseModel(400, "Request Inválid");
+                return new MockResponseModel(400, "Rule Not Found");
 
-            //Executo as actions globais
             template.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
 
-            //Executo as actions do response
-            var response = GetResponse(ruleAnswered.ResponseId, mockRequestModel.User, postRequestRecived, context);
+            var response = GetResponse(ruleAnswered.ResponseId, mockRequestModel.User, requestRecived, context);
 
             if (ruleAnswered.Postback != null)
-                Task.Run(() => ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, postRequestRecived, context),
+                Task.Run(() => ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, getRequestRecived, context),
                                                                       ruleAnswered.Postback.Url.ExtractExpressionResponse(this._engineService)));
 
             return response;
         }
 
-        private MockResponseModel GetResponse(string responseid, string user, PostRequestRecived postRequestRecived, Context context) {
+        private GetRequestRecived Get(MockRequestModel mockRequestModel, Template template) {
+
+            var getRequestTemplate = (GetRequestTemplate)template.Request;
+            return new GetRequestRecived(getRequestTemplate, mockRequestModel.QueryString);
+        }
+
+
+
+        private RequestRecived Post(MockRequestModel mockRequestModel, Template template) {
+
+            //Comparar se o Request recebido satifaz as informações do template
+            var postRequestTemplate = (PostRequestTemplate)template.Request;
+            return new PostRequestRecived(postRequestTemplate, mockRequestModel.HttpContext.Request.Body);
+        }
+
+        private MockResponseModel GetResponse(string responseid, string user, RequestRecived requestRecived, Context context) {
             var response = _responseRepository.Get(p => p.ResponseId == responseid && p.User == user).First();
             response.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
 
             var bodyResponse = response.Body.ExtractExpressionResponse(this._engineService) ?? string.Empty;
 
-            bodyResponse = bodyResponse.Replace(VariableTypeEnum.ExternalContext, postRequestRecived.GetContextIdentifier())
-                          .Replace(VariableTypeEnum.Context, postRequestRecived.GetContextIdentifier());
+            bodyResponse = bodyResponse.Replace(VariableTypeEnum.ExternalContext, requestRecived.GetContextIdentifier())
+                          .Replace(VariableTypeEnum.Context, requestRecived.GetContextIdentifier());
 
             context.Variables.ForEach(variable => {
                 if (variable.Type == VariableTypeEnum.objectType || variable.Type == VariableTypeEnum.Array)
@@ -110,19 +100,19 @@ namespace Camaleao.Application.TemplateAgg.Services {
             return new MockResponseModel(response.StatusCode, bodyResponse);
         }
 
-        private Context GetContext(string user, Template template, PostRequestTemplate postRequestTemplate, PostRequestRecived postRequestRecived) {
+        private Context GetContext(string user, Template template, RequestRecived requestRecived) {
             Context context = null;
 
-            if (postRequestTemplate.UseContext()) {
-                Guid identifier = Guid.Parse(postRequestRecived.GetContextIdentifier());
+            if (requestRecived.GetRequestTemplate().UseContext()) {
+                Guid identifier = Guid.Parse(requestRecived.GetContextIdentifier());
                 context = _contextRepository.Get(p => p.Id == identifier).FirstOrDefault();
             }
-            else if (postRequestTemplate.UseExternalContext()) {
-                context = _contextRepository.Get(p => p.ExternalIdentifier == postRequestRecived.GetContextIdentifier() && p.User == user).FirstOrDefault();
+            else if (requestRecived.GetRequestTemplate().UseExternalContext()) {
+                context = _contextRepository.Get(p => p.ExternalIdentifier == requestRecived.GetContextIdentifier() && p.User == user).FirstOrDefault();
             }
 
             if (context == null) {
-                context = template.Context.CreateContext(postRequestRecived.GetContextIdentifier());
+                context = template.Context.CreateContext(requestRecived.GetContextIdentifier());
                 _contextRepository.Add(context);
             }
 

@@ -11,7 +11,9 @@ namespace Camaleao.Application.TemplateAgg.Models {
         public string Method { get; set; }
         public string User { get; set; }
         public HttpContext HttpContext { get; set; }
+        public string[] QueryString { get; set; }
 
-        
+
+
     }
 }

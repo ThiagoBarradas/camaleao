@@ -12,7 +12,10 @@ namespace Camaleao.Core.Entities {
         public IList<KeyValuePair<string, string>> Headers { get; set; }
 
         public abstract bool IsValid();
+        public abstract bool UseContext();
+        public abstract bool UseExternalContext();
 
-       
+
+
     }
 }

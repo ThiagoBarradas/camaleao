@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 
 namespace Camaleao.Core.Entities.Request {
-    public class PostRequestRecived : Notifiable {
+    public class PostRequestRecived: RequestRecived {
 
         public PostRequestRecived(PostRequestTemplate requestTemplate, Stream requestRecived) {
             this.RequestTemplate = requestTemplate;
@@ -24,18 +24,19 @@ namespace Camaleao.Core.Entities.Request {
             return bodyMapped;
         }
 
-        public bool IsValid() {
+        public override bool IsValid() {
 
             var verify = this.RequestTemplate.GetBodyMapped().Keys.All(this.GetBodyMapped().Keys.Contains);
             return verify;
 
         }
 
-        public string GetContextIdentifier() {
+        public override string GetContextIdentifier() {
             return this.GetBodyMapped()[RequestTemplate.ContextKey.Key];
         }
 
-
-        
+        public override RequestTemplate GetRequestTemplate() {
+            return this.RequestTemplate;
+        }
     }
 }

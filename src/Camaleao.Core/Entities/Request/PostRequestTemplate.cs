@@ -42,11 +42,11 @@ namespace Camaleao.Core.Entities {
             return bodyMapped;
         }
 
-        public bool UseContext() {
+        public override bool UseContext() {
             return ContextKey.Type == VariableTypeEnum.Context;
         }
 
-        public bool UseExternalContext() {
+        public override bool UseExternalContext() {
             return ContextKey.Type == VariableTypeEnum.ExternalContext;
         }
 
