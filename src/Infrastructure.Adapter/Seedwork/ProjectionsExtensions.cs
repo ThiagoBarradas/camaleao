@@ -22,6 +22,10 @@ namespace Camaleao.Infrastructure.Adapter.Seedwork {
             return adapter.Adapt<TSource, TProjection>(item);
         }
 
+        public static TProjection ProjectedAs<TSource, TProjection>(this TSource item, TProjection projection) where TProjection : class where TSource : class {
+            var adapter = TypeAdapterFactory.CreateAdapter();
+            return adapter.Adapt<TSource, TProjection>(item, projection);
+        }
         /// <summary>
         /// projected a enumerable collection of items
         /// </summary>

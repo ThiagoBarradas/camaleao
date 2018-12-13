@@ -18,6 +18,8 @@
         /// <returns><paramref name="source"/> mapped to <typeparamref name="TTarget"/></returns>
         TTarget Adapt<TSource, TTarget>(TSource source) where TTarget : class where TSource : class;
 
+        TTarget Adapt<TSource, TTarget>(TSource source, TTarget target) where TTarget : class where TSource : class;
+
         /// <summary>
         /// Adapt a source object to an instnace of type <paramref name="TTarget"/>
         /// </summary>

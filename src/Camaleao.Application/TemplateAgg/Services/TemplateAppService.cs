@@ -56,7 +56,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
                         .AddError<CreateTemplateResponseModel>($"This response[{response.ResponseId}] already exists for this user. Please update or create another version");
                 }
             }
-             
+
             if (!this._createTemplateValidate.Validate(template, responsesFromUser))
                 return new CreateTemplateResponseModel(400)
                    .AddErros<CreateTemplateResponseModel>(_createTemplateValidate.GetNotifications().Select(p => p.Message).ToList());
@@ -163,26 +163,54 @@ namespace Camaleao.Application.TemplateAgg.Services {
             };
         }
 
-        public CreateResponseTemplateResponseModel CreateResponse(string user, CreateResponseTemplateResquestModel responseModel) {
-            var response = responseModel.ProjectedAs<CreateResponseTemplateResquestModel, ResponseTemplate>();
+        public CreateOrUpdateResponseTemplateResponseModel CreateResponse(string user, ResponseTemplateResquestModel responseModel) {
+            var response = responseModel.ProjectedAs<ResponseTemplateResquestModel, ResponseTemplate>();
 
             if (!response.IsValid())
-                return new CreateResponseTemplateResponseModel(400)
-                    .AddErros<CreateResponseTemplateResponseModel>(response.Notifications.Select(p => p.Message).ToList());
+                return new CreateOrUpdateResponseTemplateResponseModel(400)
+                    .AddErros<CreateOrUpdateResponseTemplateResponseModel>(response.Notifications.Select(p => p.Message).ToList());
 
             response.AddUser(user);
 
             var responses = _responseRepository.Get(p => p.User == user && p.ResponseId == response.ResponseId);
 
             if (responses != null && responses.Any())
-                return new CreateResponseTemplateResponseModel(400)
-                    .AddError<CreateResponseTemplateResponseModel>("[response_id] exist for this user.");
+                return new CreateOrUpdateResponseTemplateResponseModel(400)
+                    .AddError<CreateOrUpdateResponseTemplateResponseModel>("[response_id] exist for this user.");
 
             _responseRepository.Add(response);
 
-            return new CreateResponseTemplateResponseModel(201) {
+            return new CreateOrUpdateResponseTemplateResponseModel(201) {
                 ResponseModel = response.ProjectedAs<ResponseModel>()
             };
+        }
+
+        public CreateOrUpdateResponseTemplateResponseModel UpdateResponse(string user, ResponseTemplateResquestModel responseModel) {
+
+
+            var response = _responseRepository.Get(p => p.User == user && p.ResponseId == responseModel.ResponseId).FirstOrDefault();
+
+            if (response == null)
+                return new CreateOrUpdateResponseTemplateResponseModel(404)
+                    .AddError<CreateOrUpdateResponseTemplateResponseModel>("[response] not exist");
+
+            response = responseModel.ProjectedAs<ResponseTemplateResquestModel, ResponseTemplate>(response);
+
+            if (!response.IsValid())
+                return new CreateOrUpdateResponseTemplateResponseModel(400)
+                    .AddErros<CreateOrUpdateResponseTemplateResponseModel>(response.Notifications.Select(p => p.Message).ToList());
+
+            _responseRepository.Update(p => p.Id == response.Id, response);
+
+            return new CreateOrUpdateResponseTemplateResponseModel(200) {
+                ResponseModel = response.ProjectedAs<ResponseModel>()
+            };
+        }
+
+
+        public List<ResponseModel> GetResponsesByUser(string user) {
+
+            return _responseRepository.Get(p => p.User == user).ProjectedAsCollection<ResponseModel>();
         }
     }
 }

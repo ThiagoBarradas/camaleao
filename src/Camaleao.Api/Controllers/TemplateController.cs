@@ -66,7 +66,7 @@ namespace Camaleao.Api.Controllers {
         }
 
         [HttpPost("{user}/createresponse")]
-        public IActionResult CreateResponse(string user, [FromBody]CreateResponseTemplateResquestModel responseModel) {
+        public IActionResult CreateResponse(string user, [FromBody]ResponseTemplateResquestModel responseModel) {
 
        
             if (ModelState.IsValid) {

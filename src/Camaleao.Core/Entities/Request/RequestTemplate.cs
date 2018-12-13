@@ -15,7 +15,5 @@ namespace Camaleao.Core.Entities {
         public abstract bool UseContext();
         public abstract bool UseExternalContext();
 
-
-
     }
 }

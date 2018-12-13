@@ -11,5 +11,8 @@ namespace Camaleao.Infrastructure.Adapter {
         public TTarget Adapt<TSource, TTarget>(TSource source) where TSource : class where TTarget : class {
             return Mapper.Map<TSource, TTarget>(source);
         }
+        public TTarget Adapt<TSource, TTarget>(TSource source,TTarget target) where TSource : class where TTarget : class {
+            return Mapper.Map<TSource, TTarget>(source,target);
+        }
     }
 }

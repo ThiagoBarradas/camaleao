@@ -1,7 +1,7 @@
 ﻿namespace Camaleao.Application.TemplateAgg.Models {
-    public class CreateResponseTemplateResponseModel : BaseResponseModel {
+    public class CreateOrUpdateResponseTemplateResponseModel : BaseResponseModel {
 
-        public CreateResponseTemplateResponseModel(int statusCode):base(statusCode) {
+        public CreateOrUpdateResponseTemplateResponseModel(int statusCode):base(statusCode) {
         }
         public ResponseModel ResponseModel { get; set; }
     }
