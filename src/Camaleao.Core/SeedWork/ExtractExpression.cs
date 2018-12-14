@@ -43,13 +43,17 @@ namespace Camaleao.Core {
                     string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
                     string stringFormatted = String.Format(styleStringFormat, propertie);
                     string replacedValue = _engine.Execute<dynamic>(content);
-                    replacedValue = (variableType == "boolean" || variableType == "bool" || replacedValue=="True") ? replacedValue.ToLower() : replacedValue;
-                    expression = expression.Replace(stringFormatted, variableType == "string" && persitElement ? $"'{replacedValue}'" : replacedValue);
+                    replacedValue = (variableType == "boolean" || variableType == "bool" || replacedValue == "True") ? replacedValue.ToLower() : replacedValue;
+
+                    if (variableType != "string" || replacedValue == "null")
+                        expression = expression.Replace("\"" + stringFormatted + "\"", replacedValue);
+                    else
+                        expression = expression.Replace(stringFormatted, variableType == "string" && persitElement ? $"'{replacedValue}'" : replacedValue);
                 }
                 else {
                     string variableType = _engine.VariableType(content);
                     string styleStringFormat = StyleStringFormat(variableType, scope.ToString(), nameFunction);
-                    string stringFormatted = String.Format(styleStringFormat, propertie);                 
+                    string stringFormatted = String.Format(styleStringFormat, propertie);
                     expression = expression.Replace(stringFormatted, content);
                 }
 

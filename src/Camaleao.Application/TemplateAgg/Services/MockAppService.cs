@@ -59,7 +59,7 @@ namespace Camaleao.Application.TemplateAgg.Services {
             var response = GetResponse(ruleAnswered.ResponseId, mockRequestModel.User, requestRecived, context);
 
             if (ruleAnswered.Postback != null)
-                Task.Run(() => ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, getRequestRecived, context),
+                Task.Run(() => ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, requestRecived, context),
                                                                       ruleAnswered.Postback.Url.ExtractExpressionResponse(this._engineService)));
 
             return response;
@@ -74,14 +74,18 @@ namespace Camaleao.Application.TemplateAgg.Services {
 
 
         private RequestRecived Post(MockRequestModel mockRequestModel, Template template) {
-
-            //Comparar se o Request recebido satifaz as informações do template
             var postRequestTemplate = (PostRequestTemplate)template.Request;
-            return new PostRequestRecived(postRequestTemplate, mockRequestModel.HttpContext.Request.Body);
+            var request = new PostRequestRecived(postRequestTemplate, mockRequestModel.HttpContext.Request.Body);
+            this._engineService.LoadRequest(request.RequestRecived, "_request");
+            return request;
         }
 
         private MockResponseModel GetResponse(string responseid, string user, RequestRecived requestRecived, Context context) {
-            var response = _responseRepository.Get(p => p.ResponseId == responseid && p.User == user).First();
+            var response = _responseRepository.Get(p => p.ResponseId == responseid && p.User == user).FirstOrDefault();
+
+            if (response == null)
+                return new MockResponseModel(400, "Rule Not Found");
+
             response.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
 
             var bodyResponse = response.Body.ExtractExpressionResponse(this._engineService) ?? string.Empty;
@@ -90,10 +94,16 @@ namespace Camaleao.Application.TemplateAgg.Services {
                           .Replace(VariableTypeEnum.Context, requestRecived.GetContextIdentifier());
 
             context.Variables.ForEach(variable => {
+
+                
                 if (variable.Type == VariableTypeEnum.objectType || variable.Type == VariableTypeEnum.Array)
-                    variable.SetValue(this._engineService.Execute<string>($"JSON.stringify({variable.Name})"));
+                    variable.SetValue(this._engineService.Execute<string>($"JSON.stringify({variable.Name})", true));
+                else if(variable.Type == VariableTypeEnum.Integer)
+                    variable.SetValue(this._engineService.Execute<int>(variable.Name, true));
+                else if(variable.Type == VariableTypeEnum.Boolean)
+                    variable.SetValue(this._engineService.Execute<bool>(variable.Name, true));
                 else
-                    variable.SetValue(this._engineService.Execute<string>(variable.Name));
+                    variable.SetValue(this._engineService.Execute<string>(variable.Name, true));
             });
             _contextRepository.Update(p => p.Id == context.Id, context);
 
@@ -116,11 +126,14 @@ namespace Camaleao.Application.TemplateAgg.Services {
                 _contextRepository.Add(context);
             }
 
+            foreach (var variable in context.Variables) {
+                _engineService.SetVariable(variable.Name, variable.Value, variable.Type);
+            }
             return context;
         }
 
         private RuleTemplate GetRuleAnswered(Template template) {
-            foreach (var rule in template.Rules) {
+            foreach (var rule in template.Rules.Where(p => !p.Expression.Equals(VariableTypeEnum.Default))) {
                 if (this._engineService.Execute<bool>(rule.Expression.ExtractExpression(this._engineService))) {
                     return rule;
                 }

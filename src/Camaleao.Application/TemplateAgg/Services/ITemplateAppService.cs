@@ -14,6 +14,6 @@ namespace Camaleao.Application.TemplateAgg.Services
         CreateTemplateResponseModel Update(string user, UpdateTemplateRequestModel updateTemplateRequestModel);
         CreateOrUpdateResponseTemplateResponseModel CreateResponse(string user, ResponseTemplateResquestModel responseModel);
         CreateOrUpdateResponseTemplateResponseModel UpdateResponse(string user, ResponseTemplateResquestModel responseModel);
-        List<ResponseModel> GetResponsesByUser(string user)
+        List<ResponseModel> GetResponsesByUser(string user);
     }
 }

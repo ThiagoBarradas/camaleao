@@ -1,15 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Camaleao.Core.Services.Interfaces
-{
+namespace Camaleao.Core.Services.Interfaces {
     public interface IEngineService
     {
-        T Execute<T>(string expression);
+        T Execute<T>(string expression, bool ignoreError = false);
         void LoadRequest(JObject request, string variavel);
         string VariableType(string variable);
-        void SetVariable(string variable, string value);
+        void SetVariable(string variable, dynamic value, string type);
+        void SetVariable(string variable);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Camaleao.Core.Mappers;
 using Camaleao.Core.SeedWork;
-using Flunt.Notifications;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;

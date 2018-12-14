@@ -9,7 +9,7 @@ namespace Camaleao.Core.Entities {
         private Variable() {
         }
 
-        public Variable(string name, string value, string type, dynamic initialize) {
+        public Variable(string name, dynamic value, string type, dynamic initialize) {
             this.Name = name;
             this.Value = value;
             this.Type = type;
@@ -19,17 +19,16 @@ namespace Camaleao.Core.Entities {
 
         public string Name { get; private set; }
         public dynamic Initialize { get; private set; }
-        public string Value { get; private set; }
+        public dynamic Value { get; private set; }
         public string Type { get; private set; }
 
         public void BuildVariable() {
             if (Initialize == null) {
                 Value = GetTypeValue();
             }
-            else if (string.IsNullOrEmpty(Value)) {
+            else {
                 Value = MapperType();
             }
-            Initialize = Value;
         }
 
         private string MapperType() {
@@ -95,8 +94,8 @@ namespace Camaleao.Core.Entities {
         }
 
 
-        public void SetValue(string value) {
-            if (this.Type?.ToLower() == VariableTypeEnum.Text && !string.IsNullOrEmpty(value))
+        public void SetValue(dynamic value) {
+            if (this.Type?.ToLower() == VariableTypeEnum.Text && !string.IsNullOrWhiteSpace(value))
                 Value = $"'{value}'";
             else if (this.Type?.ToLower() == VariableTypeEnum.Boolean && value != null)
                 Value = value.ToLower();
