@@ -7,14 +7,15 @@ using Camaleao.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Examples;
+using System.Net;
 
 namespace Camaleao.Api.Controllers {
 
     [Route(RouteConfig.Template)]
+    [Produces("application/json")]
     public class TemplateController : Controller
     {
-
-     
+    
         private readonly IConfiguration _Configuration;
         private readonly ITemplateAppService _templateAppService;
 
@@ -26,7 +27,17 @@ namespace Camaleao.Api.Controllers {
             _templateAppService = templateAppService;
         }
 
+        /// <summary>
+        /// Return Template 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="version"></param>
+        /// <param name="routeName"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
         [HttpGet("{user}/{version}/{routeName}/{method}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult Get(string user, string version, string routeName, string method)
         {
 
@@ -49,7 +60,10 @@ namespace Camaleao.Api.Controllers {
         /// <response code="201">Template created</response>
         [HttpPost("{user}")]
         [Consumes("application/json")]
-        [SwaggerRequestExample(typeof(CreateTemplateRequestModel), typeof(CreateTemplateExemple))]
+        [SwaggerRequestExample(typeof(CreateTemplateRequestModel), typeof(CreateTemplateSample))]
+        [SwaggerResponseExample((int)HttpStatusCode.Created, typeof(CreateTemplateResponseModelSample))]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult Create(string user, [FromBody]CreateTemplateRequestModel templateModel)
         {
             if (ModelState.IsValid)
@@ -65,7 +79,15 @@ namespace Camaleao.Api.Controllers {
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
+        /// <summary>
+        /// Create Response
+        /// </summary>
+        /// <param name="user">user</param>
+        /// <param name="responseModel"></param>
+        /// <returns></returns>
         [HttpPost("{user}/createresponse")]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult CreateResponse(string user, [FromBody]ResponseTemplateResquestModel responseModel) {
 
        
@@ -81,13 +103,30 @@ namespace Camaleao.Api.Controllers {
                 return BadRequest(ModelState.GetErrorResponse());
         }
 
+        /// <summary>
+        /// Generate Template
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         [HttpPost("{user}/generate")]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult Generate(string user, [FromBody]dynamic body) {
             var response = _templateAppService.Generate(user, body);
             return new ObjectResult(response) { StatusCode = 200 };
         }
 
+        /// <summary>
+        /// Update Template
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="token"></param>
+        /// <param name="updateTemplateRequestModel"></param>
+        /// <returns></returns>
         [HttpPut("{user}/{token}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult Update(string user, string token, [FromBody]UpdateTemplateRequestModel updateTemplateRequestModel)
         {
             if (ModelState.IsValid) {

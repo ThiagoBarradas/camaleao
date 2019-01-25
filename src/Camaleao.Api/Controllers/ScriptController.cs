@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Camaleao.Api.Controllers
 {
     [Route(RouteConfig.Script)]
+    [Produces("application/json")]
     public class ScriptController : Controller
     {
         private readonly IScriptRepository _scriptRepository;
@@ -18,7 +20,14 @@ namespace Camaleao.Api.Controllers
             _scriptRepository = scriptRepository;
         }
 
+        /// <summary>
+        /// Create scripts 
+        /// </summary>
+        /// <param name="scriptRequest"></param>
+        /// <returns></returns>
         [HttpPost()]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public IActionResult Add([FromBody]ScriptRequest scriptRequest)
         {
             try

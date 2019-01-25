@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Camaleao.Application</name>
+    </assembly>
+    <members>
+        <member name="T:Camaleao.Application.TemplateAgg.Services.ITemplateAppService">
+            <summary>
+            ITemplateAppService
+            </summary>
+        </member>
+        <member name="M:Camaleao.Application.TemplateAgg.Services.TemplateAppService.Create(System.String,Camaleao.Application.TemplateAgg.Models.CreateTemplateRequestModel)">
+            <summary>
+            Método responsável por criar um novo Template
+            </summary>
+            <param name="user"></param>
+            <param name="createTemplateRequestModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Application.TemplateAgg.Services.TemplateAppService.Generate(System.String,System.Object)">
+            <summary>
+            Método responsável por gerar um template apartir de um request
+            </summary>
+            <param name="user"></param>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Application.TemplateAgg.Services.TemplateAppService.Get(Camaleao.Application.TemplateAgg.Models.GetRequestTemplateRequestModel)">
+            <summary>
+            Método responsável por obter um template
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
