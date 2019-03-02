@@ -29,7 +29,7 @@ namespace Camaleao.Core.Validates {
                 var requestContainsContext = ((PostRequestTemplate)template.Request).UseContext();
                 var requestContainsExternalContext = ((PostRequestTemplate)template.Request).UseExternalContext();
 
-                if (!requestContainsContext && !requestContainsExternalContext && template.Actions.Any(p => p.UseContext())) {
+                if (!requestContainsContext && !requestContainsExternalContext && template.Actions != null && template.Actions.Any(p => p.UseContext())) {
                     AddNotification("Context", "Your request is doing reference to context, but there isn't mapped context in your template");
                     return false;
                 }
@@ -39,7 +39,7 @@ namespace Camaleao.Core.Validates {
                 }
             }
 
-            foreach (var rule in template.Rules.Where(p=>p.Expression.Equals(VariableTypeEnum.Default)==false)) {
+            foreach (var rule in template.Rules.Where(p => p.Expression.Equals(VariableTypeEnum.Default) == false)) {
                 if (!responses.Any(p => string.Compare(p.ResponseId, rule.ResponseId, true) == 0)) {
                     AddNotification("Rule", string.Format("[rule]({0}) contains invalid [response_id].", rule.Expression));
                     return false;

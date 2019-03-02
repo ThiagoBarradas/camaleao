@@ -18,7 +18,7 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
                 .ForMember(dest => dest.ResponseId, opt => opt.MapFrom(src => src.ResponseId.ToLower()))
                 .ForMember(dest => dest.StatusCode, opt => opt.MapFrom(src => src.StatusCode))
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.Body, opt => opt.MapFrom(src => src.GetBody()));
+                .ForMember(dest => dest.Body, opt => opt.MapFrom(src => src.GetBodyInJson()));
         }
 
         private void MapRequest() {
@@ -48,7 +48,7 @@ namespace Camaleao.Application.TemplateAgg.Profiles {
                 .AfterMap((src, dest) => dest.BuildVariable());
 
             CreateMap<RequestModel, RequestTemplate>()
-                .ConstructUsing(GetRequest);
+                .ConstructUsing(src => GetRequest(src));
 
             CreateMap<ContextModel, ContextTemplate>();
 

@@ -8,7 +8,7 @@ using System.Linq;
 using Camaleao.Core.Repository;
 using Camaleao.Core.Validates;
 using MongoDB.Bson;
-using Camaleao.Infrastructure.Adapter.Seedwork;
+using Camaleao.Infra.Adaper.Seedwork;
 
 namespace Camaleao.Application.TemplateAgg.Services {
     public class TemplateAppService : ITemplateAppService {

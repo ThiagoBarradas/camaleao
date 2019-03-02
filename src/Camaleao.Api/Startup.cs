@@ -10,11 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Serilog;
-using Camaleao.Application.TemplateAgg.Profiles;
 using Camaleao.Application.TemplateAgg.Services;
 using Camaleao.Core.Validates;
-using Camaleao.Infrastructure.Adapter.Seedwork;
-using Camaleao.Infrastructure.Adapter;
+using Camaleao.Infra.Adaper.Seedwork;
+using Camaleao.Infra.Adaper;
+using Newtonsoft.Json;
 
 namespace Camaleao.Api {
     public partial class Startup {
@@ -42,6 +42,7 @@ namespace Camaleao.Api {
                         NamingStrategy = new SnakeCaseNamingStrategy()
                     };
                     p.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                    p.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
                 });
 
             InitializeInstances(services);

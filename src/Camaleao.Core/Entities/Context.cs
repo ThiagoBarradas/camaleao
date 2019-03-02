@@ -6,6 +6,9 @@ namespace Camaleao.Core.Entities
 {
     public class Context: Entity {
 
+        public Context() {
+            this.ExpiredAt = DateTime.Now.AddMonths(1);
+        }
        
         public string ExternalIdentifier { get; set; }
         public List<Variable> Variables { get; set; }
@@ -23,6 +26,7 @@ namespace Camaleao.Core.Entities
             return retorno.ToString();
         }
 
+        public DateTime ExpiredAt { get; set; }
         public override bool IsValid() {
             return true;
         }

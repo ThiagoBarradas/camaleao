@@ -1,12 +1,13 @@
 ﻿using Camaleao.Core.Mappers;
 using Camaleao.Core.SeedWork;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace Camaleao.Core.Entities.Request {
-    public class PostRequestRecived: RequestRecived {
+    public class PostRequestRecived : RequestRecived {
 
         public PostRequestRecived(PostRequestTemplate requestTemplate, Stream requestRecived) {
             this.RequestTemplate = requestTemplate;
@@ -31,7 +32,11 @@ namespace Camaleao.Core.Entities.Request {
         }
 
         public override string GetContextIdentifier() {
-            return this.GetBodyMapped()[RequestTemplate.ContextKey.Key];
+
+            if (this.GetBodyMapped().Keys.Contains(RequestTemplate.ContextKey.Key))
+                return this.GetBodyMapped()[RequestTemplate.ContextKey.Key];
+            else
+                return string.Empty;
         }
 
         public override RequestTemplate GetRequestTemplate() {

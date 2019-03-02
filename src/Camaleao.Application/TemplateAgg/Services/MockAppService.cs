@@ -55,16 +55,19 @@ namespace Camaleao.Application.TemplateAgg.Services {
                 return new MockResponseModel(400, "Rule Not Found");
 
             template.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
+            ruleAnswered.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
 
             var response = GetResponse(ruleAnswered.ResponseId, mockRequestModel.User, requestRecived, context);
 
-            if (ruleAnswered.Postback != null)
-                Task.Run(() => ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, requestRecived, context),
-                                                                      ruleAnswered.Postback.Url.ExtractExpressionResponse(this._engineService)));
+            if (ruleAnswered.Postback != null) {
+                ruleAnswered.Postback.ExecuteActions(this._engineService);
+                ruleAnswered.Postback.Send(GetResponse(ruleAnswered.Postback.ResponseId, mockRequestModel.User, requestRecived, context), this._engineService);
+            }
+         
 
             return response;
         }
-
+        
         private GetRequestRecived Get(MockRequestModel mockRequestModel, Template template) {
 
             var getRequestTemplate = (GetRequestTemplate)template.Request;
@@ -81,33 +84,29 @@ namespace Camaleao.Application.TemplateAgg.Services {
         }
 
         private MockResponseModel GetResponse(string responseid, string user, RequestRecived requestRecived, Context context) {
-            var response = _responseRepository.Get(p => p.ResponseId == responseid && p.User == user).FirstOrDefault();
+            var response = _responseRepository.Get(p => p.ResponseId == responseid.ToLower() && p.User == user).FirstOrDefault();
 
             if (response == null)
                 return new MockResponseModel(400, "Rule Not Found");
 
-            response.Actions?.ForEach(p => this._engineService.Execute<string>(p.Execute.ExtractExpressionAction(this._engineService)));
+            response.ProcessBody(this._engineService, requestRecived);
 
-            var bodyResponse = response.Body.ExtractExpressionResponse(this._engineService) ?? string.Empty;
+            if (context != null) {
+                context.Variables.ForEach(variable => {
 
-            bodyResponse = bodyResponse.Replace(VariableTypeEnum.ExternalContext, requestRecived.GetContextIdentifier())
-                          .Replace(VariableTypeEnum.Context, requestRecived.GetContextIdentifier());
 
-            context.Variables.ForEach(variable => {
-
-                
-                if (variable.Type == VariableTypeEnum.objectType || variable.Type == VariableTypeEnum.Array)
-                    variable.SetValue(this._engineService.Execute<string>($"JSON.stringify({variable.Name})", true));
-                else if(variable.Type == VariableTypeEnum.Integer)
-                    variable.SetValue(this._engineService.Execute<int>(variable.Name, true));
-                else if(variable.Type == VariableTypeEnum.Boolean)
-                    variable.SetValue(this._engineService.Execute<bool>(variable.Name, true));
-                else
-                    variable.SetValue(this._engineService.Execute<string>(variable.Name, true));
-            });
-            _contextRepository.Update(p => p.Id == context.Id, context);
-
-            return new MockResponseModel(response.StatusCode, bodyResponse);
+                    if (variable.Type == VariableTypeEnum.objectType || variable.Type == VariableTypeEnum.Array)
+                        variable.SetValue(this._engineService.Execute<string>($"JSON.stringify({variable.Name})", true));
+                    else if (variable.Type == VariableTypeEnum.Integer)
+                        variable.SetValue(this._engineService.Execute<int>(variable.Name, true));
+                    else if (variable.Type == VariableTypeEnum.Boolean)
+                        variable.SetValue(this._engineService.Execute<bool>(variable.Name, true));
+                    else
+                        variable.SetValue(this._engineService.Execute<string>(variable.Name, true));
+                });
+                _contextRepository.Update(p => p.Id == context.Id, context);
+            }
+            return new MockResponseModel(response.StatusCode, response.Body);
         }
 
         private Context GetContext(string user, Template template, RequestRecived requestRecived) {
@@ -121,10 +120,12 @@ namespace Camaleao.Application.TemplateAgg.Services {
                 context = _contextRepository.Get(p => p.ExternalIdentifier == requestRecived.GetContextIdentifier() && p.User == user).FirstOrDefault();
             }
 
-            if (context == null) {
+            if (context == null && template.Context != null) {
                 context = template.Context.CreateContext(requestRecived.GetContextIdentifier());
                 _contextRepository.Add(context);
             }
+            else if (context == null)
+                return null;
 
             foreach (var variable in context.Variables) {
                 _engineService.SetVariable(variable.Name, variable.Value, variable.Type);

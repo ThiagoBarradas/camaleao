@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Application", "Cam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Application.Test", "Camaleao.Application.Test\Camaleao.Application.Test.csproj", "{FF7814DD-CBF9-4DDD-A6C9-D2FD87A7317D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Camaleao.Infrastructure.Adapter", "Infrastructure.Adapter\Camaleao.Infrastructure.Adapter.csproj", "{EF9A58D7-21C5-49AB-BD0E-2145839CC8E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Camaleao.Infra.Adaper", "Camaleao.Infra.Adaper\Camaleao.Infra.Adaper.csproj", "{EE131B4C-9659-45A7-AF96-FE49F8285924}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,10 @@ Global
 		{FF7814DD-CBF9-4DDD-A6C9-D2FD87A7317D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF7814DD-CBF9-4DDD-A6C9-D2FD87A7317D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF7814DD-CBF9-4DDD-A6C9-D2FD87A7317D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF9A58D7-21C5-49AB-BD0E-2145839CC8E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF9A58D7-21C5-49AB-BD0E-2145839CC8E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF9A58D7-21C5-49AB-BD0E-2145839CC8E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF9A58D7-21C5-49AB-BD0E-2145839CC8E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE131B4C-9659-45A7-AF96-FE49F8285924}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE131B4C-9659-45A7-AF96-FE49F8285924}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE131B4C-9659-45A7-AF96-FE49F8285924}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE131B4C-9659-45A7-AF96-FE49F8285924}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

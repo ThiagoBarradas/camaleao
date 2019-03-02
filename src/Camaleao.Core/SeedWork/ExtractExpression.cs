@@ -46,7 +46,7 @@ namespace Camaleao.Core {
                     replacedValue = (variableType == "boolean" || variableType == "bool" || replacedValue == "True") ? replacedValue.ToLower() : replacedValue;
 
                     if (variableType != "string" || replacedValue == "null")
-                        expression = expression.Replace("\"" + stringFormatted + "\"", replacedValue);
+                        expression = expression.Replace(stringFormatted, replacedValue);
                     else
                         expression = expression.Replace(stringFormatted, variableType == "string" && persitElement ? $"'{replacedValue}'" : replacedValue);
                 }

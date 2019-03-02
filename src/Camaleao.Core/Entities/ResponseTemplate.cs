@@ -1,4 +1,8 @@
-﻿using Flunt.Notifications;
+﻿using Camaleao.Core.Entities.Request;
+using Camaleao.Core.Enuns;
+using Camaleao.Core.SeedWork;
+using Camaleao.Core.Services.Interfaces;
+using Flunt.Notifications;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using System;
@@ -26,7 +30,7 @@ namespace Camaleao.Core.Entities {
         public int StatusCode { get; private set; }
         public string Body { get; private set; }
 
-        public dynamic GetBody() {
+        public dynamic GetBodyInJson() {
             return JsonConvert.DeserializeObject<dynamic>(this.Body);
         }
 
@@ -40,6 +44,18 @@ namespace Camaleao.Core.Entities {
             this.Id = id;
         }
 
+ 
+        public void ProcessBody(IEngineService engineService, RequestRecived requestRecived) {
+
+            if (this.Actions != null)
+                this.Actions.ForEach(p => engineService.Execute<string>(p.Execute.ExtractExpressionAction(engineService)));
+
+            this.Body = this.Body.ExtractExpressionResponse(engineService) ?? string.Empty;
+
+            this.Body = this.Body.Replace(VariableTypeEnum.ExternalContext, requestRecived.GetContextIdentifier())
+                          .Replace(VariableTypeEnum.Context, requestRecived.GetContextIdentifier());
+        }
+        
 
         public override bool IsValid() {
             return true;

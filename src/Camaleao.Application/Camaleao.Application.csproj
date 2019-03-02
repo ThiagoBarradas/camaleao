@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="AutoMapper" Version="8.0.0" />
     <PackageReference Include="Bogus" Version="24.3.1" />
     <PackageReference Include="Flunt" Version="1.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Camaleao.Core\Camaleao.Core.csproj" />
-    <ProjectReference Include="..\Infrastructure.Adapter\Camaleao.Infrastructure.Adapter.csproj" />
+    <ProjectReference Include="..\Camaleao.Infra.Adaper\Camaleao.Infra.Adaper.csproj" />
   </ItemGroup>
 
 </Project>
