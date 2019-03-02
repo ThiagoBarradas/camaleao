@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 
 namespace Camaleao.Application.TemplateAgg.Models.Exemplos {
-    public class CreateTemplateExemple : IExamplesProvider {
+    public class CreateTemplateSample : IExamplesProvider {
         public object GetExamples() {
 
             var request = new Faker<RequestModel>()

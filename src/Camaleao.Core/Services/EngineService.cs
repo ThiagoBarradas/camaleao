@@ -9,6 +9,8 @@ using Serilog;
 using Serilog.Context;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace Camaleao.Core.Services {
@@ -24,10 +26,20 @@ namespace Camaleao.Core.Services {
 
         private void LoadPreScript() {
             StringBuilder script = new StringBuilder();
+            script.AppendLine(InitialScript());
             _scriptRepository.GetAll().ForEach(p => script.AppendLine(p.Script));
             _engine.Execute(script.ToString());
         }
 
+        private static string initialScript;
+        private static string InitialScript() {
+            if (string.IsNullOrWhiteSpace(initialScript)) {
+                var path = System.AppDomain.CurrentDomain.BaseDirectory;
+                initialScript = System.IO.File.ReadAllText(Path.Combine(path,@"documents\script.js"));
+            }
+                
+            return initialScript;
+        }
         public void LoadRequest(JObject request, string variavel) {
 
             _engine.Execute($"{variavel} = {request}");

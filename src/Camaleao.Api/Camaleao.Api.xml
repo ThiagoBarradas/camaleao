@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Camaleao.Api</name>
+    </assembly>
+    <members>
+        <member name="M:Camaleao.Api.Controllers.HomeController.Get">
+            <summary>
+            Home API Description
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.ScriptController.Add(Camaleao.Api.Models.ScriptRequest)">
+            <summary>
+            Create scripts 
+            </summary>
+            <param name="scriptRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.TemplateController.Get(System.String,System.String,System.String,System.String)">
+            <summary>
+            Return Template 
+            </summary>
+            <param name="user"></param>
+            <param name="version"></param>
+            <param name="routeName"></param>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.TemplateController.Create(System.String,Camaleao.Application.TemplateAgg.Models.CreateTemplateRequestModel)">
+            <summary>
+            Create Template
+            </summary>
+            <param name="user">user</param>
+            <param name="templateModel"></param>
+            <response code="201">Template created</response>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.TemplateController.CreateResponse(System.String,Camaleao.Application.TemplateAgg.Models.ResponseTemplateResquestModel)">
+            <summary>
+            Create Response
+            </summary>
+            <param name="user">user</param>
+            <param name="responseModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.TemplateController.Generate(System.String,System.Object)">
+            <summary>
+            Generate Template
+            </summary>
+            <param name="user"></param>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Camaleao.Api.Controllers.TemplateController.Update(System.String,System.String,Camaleao.Application.TemplateAgg.Models.UpdateTemplateRequestModel)">
+            <summary>
+            Update Template
+            </summary>
+            <param name="user"></param>
+            <param name="token"></param>
+            <param name="updateTemplateRequestModel"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
